@@ -140,7 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GUI.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="main-client.cpp" />
     <ClCompile Include="Omok.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -15,13 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="GUI.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Omok.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="main-client.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
