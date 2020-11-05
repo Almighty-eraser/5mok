@@ -140,12 +140,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Play.cpp" />
+    <ClCompile Include="TCP.cpp" />
     <ClCompile Include="UI.cpp" />
     <ClCompile Include="main-client.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BASE.h" />
     <ClInclude Include="Play.h" />
+    <ClInclude Include="TCP.h" />
     <ClInclude Include="UI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,6 +1,5 @@
 #include "BASE.h"
 //бс бр
-using namespace std;
 
 void UI::Mainmenu(void)
 {
@@ -8,7 +7,7 @@ void UI::Mainmenu(void)
 		<< "\t\t5MOK\t\t\twhite : бр black : бс board : +\n\n"
 		<< "\t1. Singleplay(vs human)\n"
 		<< "\t2. Singleplay(vs com)\n"
-		<< "\tMultiplay\n"
+		<< "\t3. Multiplay\n"
 		<< "\tInput : ";
 }
 

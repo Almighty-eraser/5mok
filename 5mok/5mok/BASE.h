@@ -39,3 +39,9 @@ enum {
 #include "UI.h"
 
 using namespace std;
+
+void Error(const char* message)
+{
+	cout << '\n' << message << '\n';
+	exit(-1);
+}
