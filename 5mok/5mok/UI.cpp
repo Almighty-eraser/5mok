@@ -1,7 +1,4 @@
-#include "UI.h"
 #include "BASE.h"
-#include <iostream>
-#include <Windows.h>
 //бс бр
 using namespace std;
 

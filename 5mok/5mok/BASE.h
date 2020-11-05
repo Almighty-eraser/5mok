@@ -32,3 +32,10 @@ enum {
 #define WHITE 2
 
 #endif
+
+#include <iostream>
+#include <Windows.h>
+#include "Play.h"
+#include "UI.h"
+
+using namespace std;
