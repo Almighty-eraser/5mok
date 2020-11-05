@@ -37,6 +37,7 @@ enum {
 #include <Windows.h>
 #include "Play.h"
 #include "UI.h"
+#include "TCP.h"
 
 using namespace std;
 
