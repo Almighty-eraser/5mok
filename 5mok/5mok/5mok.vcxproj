@@ -139,12 +139,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="GUI.cpp" />
+    <ClCompile Include="UI.cpp" />
     <ClCompile Include="main-client.cpp" />
     <ClCompile Include="Omok.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GUI.h" />
+    <ClInclude Include="UI.h" />
     <ClInclude Include="Omok.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
