@@ -8,11 +8,19 @@ using namespace std;
 void UI::Mainmenu(void)
 {
 	cout
-		<< "\t\t5MOK\n\n"
+		<< "\t\t5MOK\t\t\twhite : бр black : бс board : +\n\n"
 		<< "\t1. Singleplay(vs human)\n"
 		<< "\t2. Singleplay(vs com)\n"
 		<< "\tMultiplay\n"
-		<< "Input : ";
+		<< "\tInput : ";
+}
+
+void UI::MakeRoomOrNot(void)
+{
+	cout
+		<< "\n\n\t1. Make a room"
+		<< "\n\t2. Join a room"
+		<< "\n\tInput : ";
 }
 
 void UI::SetColor(int forground, int background)
