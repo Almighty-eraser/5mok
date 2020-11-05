@@ -2,6 +2,7 @@
 class UI
 {
 public:
-	void PrintBoard(char* board);
+	void Clear(void);
+	void PrintBoard(char* board, int row, int height);
 };
 
