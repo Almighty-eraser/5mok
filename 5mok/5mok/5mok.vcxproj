@@ -139,11 +139,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Play.cpp" />
     <ClCompile Include="UI.cpp" />
     <ClCompile Include="main-client.cpp" />
     <ClCompile Include="Omok.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BASE.h" />
+    <ClInclude Include="Play.h" />
     <ClInclude Include="UI.h" />
     <ClInclude Include="Omok.h" />
   </ItemGroup>
