@@ -65,7 +65,11 @@ void Play::SinglePptp(void)
 
 	while (1)
 	{
-
+		main_UI->PrintBoard(board, Height);
+		int* pos;
+		pos = main_UI->AskACoordinationRN();
+		
+		delete[] pos;
 	}
 }
 

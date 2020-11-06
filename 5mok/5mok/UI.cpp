@@ -38,6 +38,8 @@ void UI::PrintStone(int color)
 		cout << 'бс';
 		break;
 	default:
+		SetColor(black, yellow);
+		cout << '+';
 		break;
 	}
 }
@@ -62,14 +64,21 @@ int UI::AskWhichBoard(void)
 	return answer;
 }
 
-void UI::PrintBoard(char* board, int row, int height)
+int* UI::AskACoordinationRN(void)
 {
-	for (int i = 0; i < height; i++)
+	int* pos = new int[2];
+	cout << "\n\nPlace : ";
+	cin >> pos[0] >> pos[1];
+	return pos;
+}
+
+void UI::PrintBoard(char* board, int length)
+{
+	for (int i = 0; i < length; i++)
 	{
-		for (int j = 0; j < row; j++)
+		for (int j = 0; j < length; j++)
 		{
-			SetColor(black, yellow);
-			cout << '+';
+			PrintStone(board[i * length + length]);
 		}
 		cout << '\n';
 	}
