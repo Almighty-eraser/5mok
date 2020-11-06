@@ -53,6 +53,15 @@ void UI::Clear(void)
 	system("cls");
 }
 
+int UI::AskWhichBoard(void)
+{
+	int answer;
+	cout << "Which board are you going to use?"
+		<< "\n\n1. 8x8\n2. 9x9\n3. 10x10\n4. 11x11\n\nInput : ";
+	cin >> answer;
+	return answer;
+}
+
 void UI::PrintBoard(char* board, int row, int height)
 {
 	for (int i = 0; i < height; i++)

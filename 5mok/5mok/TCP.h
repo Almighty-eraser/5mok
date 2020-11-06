@@ -5,7 +5,8 @@ class TCP
 {
 public:
 	void StartTCPclnt();
-	void Send(int row, int height);
+	void Send(char row, char height);
+	void FirstSend(char decision);
 	int Receive(void);
 	void End(void);
 private:
