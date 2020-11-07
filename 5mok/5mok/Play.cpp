@@ -73,17 +73,25 @@ void Play::SinglePptp(void)
 		int* pos;
 		
 		//black first
-		pos = main_UI->AskACoordinateRN();
+		pos = main_UI->AskCoordinatesRN();
 		board[(pos[1] - 1) * height + pos[0] - 1] == BLACK;
 		main_UI->PrintBoard(board, height);
 		delete[] pos;
 
-		if(WhoseWinner(height) == )
+		if (WhoseWinner(BLACK, height) == BLACK)
+		{
+			
+		}
 
 		//white second
-		pos = main_UI->AskACoordinationRN();
+		pos = main_UI->AskCoordinatesRN();
 		board[(pos[1] - 1) * height + pos[0] - 1] == WHITE;
 		delete[] pos;
+
+		if (WhoseWinner(WHITE, height) == WHITE)
+		{
+
+		}
 	}
 }
 

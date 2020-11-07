@@ -64,7 +64,7 @@ int UI::AskWhichBoard(void)
 	return answer;
 }
 
-int* UI::AskACoordinateRN(void)//return new
+int* UI::AskCoordinatesRN(void)//return new
 {
 	int* pos = new int[2];
 	cout << "\n\nPlace : ";
