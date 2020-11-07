@@ -94,67 +94,88 @@ void Play::MultiP(void)
 
 int Play::WhoseWinner(int stone, int height)
 {
-	if (stone == BLACK)
-	{
-		int standard = BLACK;
-		for (int i = 0; i < height; i++)
-			for (int j = 0; j < height; j++)
+	int standard = stone;
+	for (int i = 0; i < height; i++)
+		for (int j = 0; j < height; j++)
+		{
+			int PresentPos = i * height + j;
+			int FirstMemOfLine = i * height;
+			//check only x coordinate
+			if (PresentPos - 4 >= FirstMemOfLine)
 			{
-				int PresentPos = i * height + j;
-				int FirstMemOfLine = i * height;
-
-				//check x coordinate
-				if (PresentPos - 4 >= FirstMemOfLine)
-				{
-					if (board[PresentPos] == standard)
-						if (board[PresentPos - 1] == standard)//check left first
-							if (board[PresentPos - 2] == standard)
-								if (board[PresentPos - 3] == standard)
-									if (board[PresentPos - 4] == standard)
-										return BLACK;
-				}
-				else if(PresentPos - 3 >= FirstMemOfLine)
-				{
-					if (board[PresentPos] == standard)
-						if (board[PresentPos - 1] == standard)//check left first
-							if (board[PresentPos - 2] == standard)
-								if (board[PresentPos - 3] == standard)
-									if (board[PresentPos + 1] == standard)
-										return BLACK;
-				}
-				else if (PresentPos - 2 >= FirstMemOfLine)
-				{
-					if (board[PresentPos] == standard)
-						if (board[PresentPos - 1] == standard)//check left first
-							if (board[PresentPos - 2] == standard)
-								if (board[PresentPos + 1] == standard)
-									if (board[PresentPos + 2] == standard)
-										return BLACK;
-				}
-				else if (PresentPos - 1 >= FirstMemOfLine)
-				{
-
-				}
-				else if (PresentPos >= FirstMemOfLine)
-				{
-
-				}
-				
-				//check y coordinate
-			
-			
-			
-			
-			
-			
-			
-			
-			
+				if (board[PresentPos] == standard)
+					if (board[PresentPos - 1] == standard)//check left first
+						if (board[PresentPos - 2] == standard)
+							if (board[PresentPos - 3] == standard)									if (board[PresentPos - 4] == standard)
+								return standard;
 			}
-	}
-	else 
-	{
-		int standard = WHITE;
+			if (PresentPos - 3 >= FirstMemOfLine)
+			{
+				if (board[PresentPos] == standard)
+					if (board[PresentPos - 1] == standard)
+						if (board[PresentPos - 2] == standard)
+							if (board[PresentPos - 3] == standard)
+								if (board[PresentPos + 1] == standard)
+									return standard;
+			}
+			if (PresentPos - 2 >= FirstMemOfLine)
+			{
+				if (board[PresentPos] == standard)
+					if (board[PresentPos - 1] == standard)
+						if (board[PresentPos - 2] == standard)
+							if (board[PresentPos + 1] == standard)
+								if (board[PresentPos + 2] == standard)
+									return standard;
+			}
+			if (PresentPos - 1 >= FirstMemOfLine)
+			{
+				if (board[PresentPos] == standard)
+					if (board[PresentPos - 1] == standard)
+						if (board[PresentPos + 1] == standard)
+							if (board[PresentPos + 2] == standard)
+								if (board[PresentPos + 3] == standard)
+									return standard;
+			}
+			if (PresentPos >= FirstMemOfLine)
+			{
+				if (board[PresentPos] == standard)
+					if (board[PresentPos + 1] == standard)
+						if (board[PresentPos + 2] == standard)
+							if (board[PresentPos + 3] == standard)
+								if (board[PresentPos + 4] == standard)
+									return standard;
+			}
 
-	}
+			int LastMemOfLine = i * height + height - 1;
+
+			//check only y coordinate
+
+			if (PresentPos - height < 0)//if it's on the first line of the board
+			{
+				if (board[PresentPos] == standard)
+					if (board[PresentPos + height] == standard)
+						if (board[PresentPos + height * 2] == standard)
+							if (board[PresentPos + height * 3] == standard)
+								if (board[PresentPos + height * 4] == standard)
+									return standard;
+			}
+			if (PresentPos - height * 2 < 0)
+			{
+			}
+			if (PresentPos - height * 3 < 0)
+			{
+
+			}
+			if (PresentPos - height * 4 < 0)
+			{
+
+			}
+
+			//check diagonal lines
+
+
+
+
+
+		}
 }
