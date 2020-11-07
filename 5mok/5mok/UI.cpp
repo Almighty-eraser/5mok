@@ -64,7 +64,7 @@ int UI::AskWhichBoard(void)
 	return answer;
 }
 
-int* UI::AskACoordinationRN(void)
+int* UI::AskACoordinateRN(void)//return new
 {
 	int* pos = new int[2];
 	cout << "\n\nPlace : ";
@@ -74,8 +74,16 @@ int* UI::AskACoordinationRN(void)
 
 void UI::PrintBoard(char* board, int length)
 {
+	Clear();
+	gotoxy(5, 5);
+
+	for (int i = 0; i <= length; i++)
+		cout << i;
+	cout << '\n';
+
 	for (int i = 0; i < length; i++)
 	{
+		cout << i + 1;
 		for (int j = 0; j < length; j++)
 		{
 			PrintStone(board[i * length + length]);

@@ -9,7 +9,7 @@ public:
 	void gotoxy(int x, int y);
 	void Clear(void);
 	int AskWhichBoard(void);
-	int* AskACoordinationRN(void);
+	int* AskACoordinateRN(void);
 	void PrintBoard(char* board, int length);
 };
 

@@ -52,6 +52,14 @@ enum {
 
 #endif
 
+#ifndef _WINNER_IS_
+#define __WINNER_IS_
+
+#define WINNER_IS_BLACK 0
+#define WINNER_IS_WHITE 1
+
+#endif
+
 #include <iostream>
 #include <Windows.h>
 #include "Play.h"

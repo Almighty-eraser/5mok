@@ -7,8 +7,9 @@ public:
 	void START(void);
 	int MakeBoard(void);
 	void RemoveBoard(void);
-	void SinglePptp(void);
-	void MultiP(void);
+	void SinglePptp(void);//singleplay person to person
+	void MultiP(void);//multiplay
+	int WhoseWinner(int stone, int height);
 
 private:
 	UI* main_UI;
