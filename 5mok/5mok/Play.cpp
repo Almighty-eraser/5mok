@@ -108,7 +108,7 @@ int Play::WhoseWinner(int stone, int height)
 		{
 			int PresentPos = i * height + j;
 			int FirstMemOfLine = i * height;
-			//check only x coordinate
+			//check horizontal lines
 			if (PresentPos - 4 >= FirstMemOfLine)
 			{
 				if (board[PresentPos] == standard)
@@ -156,7 +156,7 @@ int Play::WhoseWinner(int stone, int height)
 
 			int LastMemOfLine = i * height + height - 1;
 
-			//check only y coordinate
+			//check vertical lines
 
 			if (PresentPos - height < 0)//if it's on the first line of the board
 			{
