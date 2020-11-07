@@ -73,7 +73,7 @@ void Play::SinglePptp(void)
 		int* pos;
 		
 		//black first
-		pos = main_UI->AskACoordinationRN();
+		pos = main_UI->AskACoordinateRN();
 		board[(pos[1] - 1) * height + pos[0] - 1] == BLACK;
 		main_UI->PrintBoard(board, height);
 		delete[] pos;
