@@ -1,5 +1,6 @@
 #pragma once
-#include <WinSock2.h>
+#include "BASE.h"
+//#include <WinSock2.h>
 
 class TCP
 {

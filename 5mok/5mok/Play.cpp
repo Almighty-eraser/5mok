@@ -1,4 +1,4 @@
-#include "BASE.h"
+#include "Play.h"
 
 void Play::START(void)
 {
@@ -74,7 +74,7 @@ void Play::SinglePptp(void)
 		
 		//black first
 		pos = main_UI->AskCoordinatesRN();
-		board[(pos[1] - 1) * height + pos[0] - 1] == BLACK;
+		board[(pos[1] - 1) * height + pos[0] - 1] = BLACK;
 		main_UI->PrintBoard(board, height);
 		delete[] pos;
 
@@ -85,7 +85,7 @@ void Play::SinglePptp(void)
 
 		//white second
 		pos = main_UI->AskCoordinatesRN();
-		board[(pos[1] - 1) * height + pos[0] - 1] == WHITE;
+		board[(pos[1] - 1) * height + pos[0] - 1] = WHITE;
 		delete[] pos;
 
 		if (WhoseWinner(WHITE, height) == WHITE)
@@ -186,4 +186,5 @@ int Play::WhoseWinner(int stone, int height)
 
 
 		}
+	return -1;
 }

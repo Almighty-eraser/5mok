@@ -1,9 +1,12 @@
 #pragma once
 #include "BASE.h"
+
+class UI;
+
 class Play
 {
 public:
-	Play(UI& ui) { main_UI = &ui; };
+	Play(UI& ui) { main_UI = &ui; char* board = nullptr; };
 	void START(void);
 	int MakeBoard(void);
 	void RemoveBoard(void);

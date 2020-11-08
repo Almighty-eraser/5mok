@@ -1,4 +1,4 @@
-#include "BASE.h"
+#include "UI.h"
 //бс бр
 
 void UI::Mainmenu(void)
@@ -44,7 +44,42 @@ void UI::PrintStone(int color)
 	}
 }
 
-void UI::gotoxy(int x, int y)
+void UI::ColorOneStone(char* board, int height, int x, int y)
+{//First coordinates of Board : (5, 5)
+	int PosOfStone = x + y * height;
+	char stone = board[PosOfStone];
+	SetColor(white, green);
+	gotoxy(x + 5, y + 5);
+	cout << stone;
+}
+
+void UI::ResultMessage(int result)
+{
+	gotoxy(20, 20);
+	if (result == 0)
+	{
+		cout <<
+			"бс     бс       бс    бсбсбс  бс           бс\n"
+		<<	"бс    бс      бс      бс      бс бс       бс\n"
+		<<	"бс   бс     бс      бс      бс    бс    бс\n"
+		<<	"бс  бс    бс      бс       бс     бс  бс\n"
+		<<	"бс бс  бс       бс       бс       бсбс\n"
+		<<	"бс  бс     бс бс бс   бс         бс\n";
+	}
+	else
+	{
+		cout <<
+			"бс                  бс            бсбсбсбсбс   бсбсбсбсбсбсбсбс\n"
+	<<      "бс               бс    бс      бс                           бс\n"
+	<<      "бс              бс      бс     бс                          бс\n"
+	<<      "бс              бс       бс      бсбсбсбсбс            бс\n"
+	<<      "бс               бс     бс                    бс         бс\n"
+	<<      "бс                бс   бс                   бс          бс\n"
+	<<      "бс бс бс бс       бс         бсбсбсбсбс          бс";
+	}
+}
+
+void UI::gotoxy(short x, short y)
 {
 	COORD pos = { x, y };
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);

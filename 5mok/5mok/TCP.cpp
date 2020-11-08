@@ -1,5 +1,4 @@
-#include "TCP.h"
-#include "BASE.h"  
+/*#include "TCP.h" 
 
 void TCP::StartTCPclnt()
 {
@@ -42,4 +41,4 @@ int TCP::Receive(void)
 void TCP::End()
 {
 	closesocket(sock);
-}
+}*/
