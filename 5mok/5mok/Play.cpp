@@ -106,79 +106,54 @@ int Play::WhoseWinner(int stone, int height)
 	for (int i = 0; i < height; i++)
 		for (int j = 0; j < height; j++)
 		{
-			int PresentPos = i * height + j;
-			int FirstMemOfLine = i * height;
 			//check horizontal lines
-			if (PresentPos - 4 >= FirstMemOfLine)
-			{
-				if (board[PresentPos] == standard)
-					if (board[PresentPos - 1] == standard)//check left first
-						if (board[PresentPos - 2] == standard)
-							if (board[PresentPos - 3] == standard)									if (board[PresentPos - 4] == standard)
-								return standard;
-			}
-			if (PresentPos - 3 >= FirstMemOfLine)
-			{
-				if (board[PresentPos] == standard)
-					if (board[PresentPos - 1] == standard)
-						if (board[PresentPos - 2] == standard)
-							if (board[PresentPos - 3] == standard)
-								if (board[PresentPos + 1] == standard)
-									return standard;
-			}
-			if (PresentPos - 2 >= FirstMemOfLine)
-			{
-				if (board[PresentPos] == standard)
-					if (board[PresentPos - 1] == standard)
-						if (board[PresentPos - 2] == standard)
-							if (board[PresentPos + 1] == standard)
-								if (board[PresentPos + 2] == standard)
-									return standard;
-			}
-			if (PresentPos - 1 >= FirstMemOfLine)
-			{
-				if (board[PresentPos] == standard)
-					if (board[PresentPos - 1] == standard)
-						if (board[PresentPos + 1] == standard)
-							if (board[PresentPos + 2] == standard)
-								if (board[PresentPos + 3] == standard)
-									return standard;
-			}
-			if (PresentPos >= FirstMemOfLine)
-			{
-				if (board[PresentPos] == standard)
-					if (board[PresentPos + 1] == standard)
-						if (board[PresentPos + 2] == standard)
-							if (board[PresentPos + 3] == standard)
-								if (board[PresentPos + 4] == standard)
-									return standard;
-			}
+			int PresentPos = i * height + j;
+			int FirstIndexOfLine = i * height;
+			int LastIndexOfLine = i * height + height - 1;
 
-			int LastMemOfLine = i * height + height - 1;
+			if (board[PresentPos] == standard)//check stones towards left first
+				if (board[PresentPos - 1] == standard && PresentPos - 1 >= FirstIndexOfLine)
+					if (board[PresentPos - 2] == standard && PresentPos - 2 >= FirstIndexOfLine)
+						if (board[PresentPos - 3] == standard && PresentPos - 3 >= FirstIndexOfLine)
+							if (board[PresentPos - 4] == standard && PresentPos - 4 >= FirstIndexOfLine)
+								return standard;
+
+			if (board[PresentPos + 1] == standard && PresentPos + 1 <= LastIndexOfLine)
+				if (board[PresentPos] == standard)
+					if (board[PresentPos - 1] == standard && PresentPos - 1 >= FirstIndexOfLine)
+						if (board[PresentPos - 2] == standard && PresentPos - 2 >= FirstIndexOfLine)
+							if (board[PresentPos - 3] == standard && PresentPos - 3 >= FirstIndexOfLine)
+								return standard;
+
+			if (board[PresentPos + 2] == standard && PresentPos + 2 <= LastIndexOfLine)
+				if (board[PresentPos + 1] == standard && PresentPos + 1 <= LastIndexOfLine)
+					if (board[PresentPos] == standard)
+						if (board[PresentPos - 1] == standard && PresentPos - 1 >= FirstIndexOfLine)
+							if (board[PresentPos - 2] == standard && PresentPos - 2 >= FirstIndexOfLine)
+								return standard;
+
+			if (board[PresentPos + 3] == standard && PresentPos + 3 <= LastIndexOfLine)
+				if (board[PresentPos + 2] == standard && PresentPos + 2 <= LastIndexOfLine)
+					if (board[PresentPos + 1] == standard && PresentPos + 1 <= LastIndexOfLine)
+						if (board[PresentPos] == standard)
+							if (board[PresentPos - 1] == standard && PresentPos - 1 >= FirstIndexOfLine)
+								return standard;
+
+			if (board[PresentPos + 4] == standard && PresentPos + 4 <= LastIndexOfLine)
+				if (board[PresentPos + 3] == standard && PresentPos + 3 <= LastIndexOfLine)
+					if (board[PresentPos + 2] == standard && PresentPos + 2 <= LastIndexOfLine)
+						if (board[PresentPos + 1] == standard && PresentPos + 1 <= LastIndexOfLine)
+							if (board[PresentPos] == standard)
+								return standard;
 
 			//check vertical lines
+			int FirstIndexOfTheBoard = 0;
+			int LastIndexOfTheBoard = height * height - 1;
 
-			if (PresentPos - height < 0)//if it's on the first line of the board
-			{
-				if (board[PresentPos] == standard)
-					if (board[PresentPos + height] == standard)
-						if (board[PresentPos + height * 2] == standard)
-							if (board[PresentPos + height * 3] == standard)
-								if (board[PresentPos + height * 4] == standard)
-									return standard;
-			}
-			if (PresentPos - height * 2 < 0)
-			{
-			}
-			if (PresentPos - height * 3 < 0)
-			{
-
-			}
-			if (PresentPos - height * 4 < 0)
-			{
-
-			}
-
+			if(board[PresentPos] == standard)//check stones towards upward first
+				if(board[PresentPos - height] == standard && PresentPos - height <= FirstIndexOfTheBoard)
+					if(board[PresentPos - height * 2] == standard && PresentPos - height * 2 )
+			
 			//check diagonal lines
 
 
