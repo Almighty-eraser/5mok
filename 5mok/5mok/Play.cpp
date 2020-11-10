@@ -150,15 +150,51 @@ int Play::WhoseWinner(int stone, int height)
 			int FirstIndexOfTheBoard = 0;
 			int LastIndexOfTheBoard = height * height - 1;
 
-			if(board[PresentPos] == standard)//check stones towards upward first
-				if(board[PresentPos - height] == standard && PresentPos - height <= FirstIndexOfTheBoard)
-					if(board[PresentPos - height * 2] == standard && PresentPos - height * 2 )
-			
+			if (board[PresentPos] == standard)//check stones towards upward first
+				if (board[PresentPos - height] == standard && PresentPos - height >= FirstIndexOfTheBoard)
+					if (board[PresentPos - height * 2] == standard && PresentPos - height * 2 >= FirstIndexOfTheBoard)
+						if (board[PresentPos - height * 3] == standard && PresentPos - height * 3 >= FirstIndexOfTheBoard)
+							if (board[PresentPos - height * 4] == standard && PresentPos - height * 4 >= FirstIndexOfTheBoard)
+								return standard;
+
+			if (board[PresentPos + height] == standard && PresentPos + height <= LastIndexOfTheBoard)
+				if (board[PresentPos] == standard)
+					if (board[PresentPos - height] == standard && PresentPos - height >= FirstIndexOfTheBoard)
+						if (board[PresentPos - height * 2] == standard && PresentPos - height * 2 >= FirstIndexOfTheBoard)
+							if (board[PresentPos - height * 3] == standard && PresentPos - height * 3 >= FirstIndexOfTheBoard)
+								return standard;
+
+			if (board[PresentPos + height * 2] == standard && PresentPos + height * 2 <= LastIndexOfTheBoard)
+				if (board[PresentPos + height] == standard && PresentPos + height <= LastIndexOfTheBoard)
+					if (board[PresentPos] == standard)
+						if (board[PresentPos - height] == standard && PresentPos - height >= FirstIndexOfTheBoard)
+							if (board[PresentPos - height * 2] == standard && PresentPos - height * 2 >= FirstIndexOfTheBoard)
+								return standard;
+
+			if (board[PresentPos + height * 3] == standard && PresentPos + height * 3 <= LastIndexOfTheBoard)
+				if (board[PresentPos + height * 2] == standard && PresentPos + height * 2 <= LastIndexOfTheBoard)
+					if (board[PresentPos + height] == standard && PresentPos + height <= LastIndexOfTheBoard)
+						if (board[PresentPos] == standard)
+							if (board[PresentPos - height] == standard && PresentPos - height >= FirstIndexOfTheBoard)
+								return standard;
+
+			if (board[PresentPos + height * 4] == standard && PresentPos + height * 4 <= LastIndexOfTheBoard)
+				if (board[PresentPos + height * 3] == standard && PresentPos + height * 3 <= LastIndexOfTheBoard)
+					if (board[PresentPos + height * 2] == standard && PresentPos + height * 2 <= LastIndexOfTheBoard)
+						if (board[PresentPos + height] == standard && PresentPos + height <= LastIndexOfTheBoard)
+							if (board[PresentPos] == standard)
+								return standard;
+
 			//check diagonal lines
+			int CheckPosGradient = height - 1;
+			int CheckNegGradient = height + 1;
 
-
-
-
+			if (board[PresentPos] == standard)
+				if (board[PresentPos - CheckPosGradient] == standard && PresentPos - CheckPosGradient > FirstIndexOfLine - height)
+					if (board[PresentPos - CheckPosGradient * 2] == standard && PresentPos - CheckPosGradient * 2 > FirstIndexOfLine - height * 2)
+						if (board[PresentPos - CheckPosGradient * 3] == standard && PresentPos - CheckPosGradient * 3 > FirstIndexOfLine - height * 3)
+							if (board[PresentPos - CheckPosGradient * 4] == standard && PresentPos - CheckPosGradient * 4 > FirstIndexOfLine - height * 4)
+								return standard;
 
 		}
 	return -1;
