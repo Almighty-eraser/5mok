@@ -53,7 +53,7 @@ void UI::ColorOneStone(char* board, int height, int x, int y)
 	cout << stone;
 }
 
-void UI::ResultMessage(int result)
+void UI::ResultMessageForMulti(int result)
 {
 	gotoxy(0, 20);
 	if (result == 0)
@@ -77,6 +77,15 @@ void UI::ResultMessage(int result)
 	<<      "бс                бс   бс                бс       бс\n"
 	<<      "бсбсбсбсбсбс        бсбс       бсбсбсбсбс       бс";
 	}
+}
+
+void UI::ResultMessageForSingle(int result)
+{
+	gotoxy(0, 20);
+	if (result == BLACK)
+		cout << "Black win";
+	else 
+		cout << "White win";
 }
 
 void UI::gotoxy(short x, short y)

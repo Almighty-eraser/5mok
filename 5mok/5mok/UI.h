@@ -6,7 +6,8 @@ public:
 	void SetColor(int forground, int background);
 	void PrintStone(int color);
 	void ColorOneStone(char* board, int height, int x, int y);
-	void ResultMessage(int result);
+	void ResultMessageForMulti(int result);
+	void ResultMessageForSingle(int result);
 	void Mainmenu(void);
 	void MakeRoomOrNot(void);
 	void gotoxy(short x, short y);
