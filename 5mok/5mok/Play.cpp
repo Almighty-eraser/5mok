@@ -6,7 +6,7 @@ void Play::START(void)
 	{
 		int answer;
 		main_UI->Mainmenu();
-		cin >> answer;
+		scanf_s("%d", &answer);
 
 		switch (answer)
 		{
@@ -31,16 +31,22 @@ void Play::START(void)
 			}
 
 			break;
+		case 4: 
+			break;
 		default:
 			continue;
 			break;
 		}
+		if (answer == 4)
+			break;
 	}
+
+	main_UI->PressAnyKey();
 }
 
 int Play::MakeBoard(void)//return size of board
 {
-	int sizeofBoard[4] = {8, 9, 10, 11};
+	int sizesofBoard[4] = {8, 9, 10, 11};
 	int whichboard;
 	while (1)
 	{
@@ -48,12 +54,13 @@ int Play::MakeBoard(void)//return size of board
 		if (whichboard < 1 || whichboard > 4)
 			continue;
 
-		board = new int[sizeofBoard[whichboard - 1] * sizeofBoard[whichboard - 1]];
-		memset(board, 0, sizeofBoard[whichboard - 1] * sizeofBoard[whichboard - 1]);
+		int sizeofBoard = sizesofBoard[whichboard - 1] * sizesofBoard[whichboard - 1];
+		board = new int[sizeofBoard];
+		memset(board, 0, sizeofBoard * sizeof(int));
 		break;
 	}
 
-	return sizeofBoard[whichboard - 1];
+	return sizesofBoard[whichboard - 1];
 }
 
 void Play::RemoveBoard(void)
@@ -74,7 +81,13 @@ void Play::SinglePptp(void)
 		int* pos;
 		
 		//black first
-		pos = main_UI->AskCoordinatesRN();
+		pos = new int[2];
+		pos[0] = -1;
+		while (*pos > height || *pos < 0 || *(pos + 1) > height || *(pos + 1) < 0)
+		{
+			delete[] pos;
+			pos = main_UI->AskCoordinatesRN();
+		}
 		board[(pos[1] - 1) * height + pos[0] - 1] = BLACK;
 		main_UI->Clear();
 		main_UI->PrintBoard(board, height);
@@ -87,7 +100,13 @@ void Play::SinglePptp(void)
 		}
 
 		//white second
-		pos = main_UI->AskCoordinatesRN();
+		pos = new int[2];
+		pos[0] = -1;
+		while (*pos > height || *pos < 0 || *(pos + 1) > height || *(pos + 1) < 0)
+		{
+			delete[] pos;
+			pos = main_UI->AskCoordinatesRN();
+		}
 		board[(pos[1] - 1) * height + pos[0] - 1] = WHITE;
 		main_UI->Clear();
 		main_UI->PrintBoard(board, height);
@@ -122,35 +141,50 @@ int Play::WhoseWinner(int stone, int height)
 					if (board[PresentPos - 2] == standard && PresentPos - 2 >= FirstIndexOfLine)
 						if (board[PresentPos - 3] == standard && PresentPos - 3 >= FirstIndexOfLine)
 							if (board[PresentPos - 4] == standard && PresentPos - 4 >= FirstIndexOfLine)
+							{
+								main_UI->ColorFiveStones(board, height, j, i, j - 1, i, j - 2, i, j - 3, i, j - 4, i);
 								return standard;
+							}
 
 			if (board[PresentPos + 1] == standard && PresentPos + 1 <= LastIndexOfLine)
 				if (board[PresentPos] == standard)
 					if (board[PresentPos - 1] == standard && PresentPos - 1 >= FirstIndexOfLine)
 						if (board[PresentPos - 2] == standard && PresentPos - 2 >= FirstIndexOfLine)
 							if (board[PresentPos - 3] == standard && PresentPos - 3 >= FirstIndexOfLine)
+							{
+								main_UI->ColorFiveStones(board, height, j, i, j - 1, i, j - 2, i, j - 3, i, j + 1, i);
 								return standard;
+							}
 
 			if (board[PresentPos + 2] == standard && PresentPos + 2 <= LastIndexOfLine)
 				if (board[PresentPos + 1] == standard && PresentPos + 1 <= LastIndexOfLine)
 					if (board[PresentPos] == standard)
 						if (board[PresentPos - 1] == standard && PresentPos - 1 >= FirstIndexOfLine)
 							if (board[PresentPos - 2] == standard && PresentPos - 2 >= FirstIndexOfLine)
+							{
+								main_UI->ColorFiveStones(board, height, j, i, j - 1, i, j - 2, i, j + 1, i, j + 2, i);
 								return standard;
+							}
 
 			if (board[PresentPos + 3] == standard && PresentPos + 3 <= LastIndexOfLine)
 				if (board[PresentPos + 2] == standard && PresentPos + 2 <= LastIndexOfLine)
 					if (board[PresentPos + 1] == standard && PresentPos + 1 <= LastIndexOfLine)
 						if (board[PresentPos] == standard)
 							if (board[PresentPos - 1] == standard && PresentPos - 1 >= FirstIndexOfLine)
+							{
+								main_UI->ColorFiveStones(board, height, j, i, j - 1, i, j + 1, i, j + 2, i, j + 3, i);
 								return standard;
+							}
 
 			if (board[PresentPos + 4] == standard && PresentPos + 4 <= LastIndexOfLine)
 				if (board[PresentPos + 3] == standard && PresentPos + 3 <= LastIndexOfLine)
 					if (board[PresentPos + 2] == standard && PresentPos + 2 <= LastIndexOfLine)
 						if (board[PresentPos + 1] == standard && PresentPos + 1 <= LastIndexOfLine)
 							if (board[PresentPos] == standard)
+							{
+								main_UI->ColorFiveStones(board, height, j, i, j + 1, i, j + 2, i, j + 3, i, j + 4, i);
 								return standard;
+							}
 
 			//check vertical lines
 			int FirstIndexOfTheBoard = 0;
@@ -161,35 +195,50 @@ int Play::WhoseWinner(int stone, int height)
 					if (board[PresentPos - height * 2] == standard && PresentPos - height * 2 >= FirstIndexOfTheBoard)
 						if (board[PresentPos - height * 3] == standard && PresentPos - height * 3 >= FirstIndexOfTheBoard)
 							if (board[PresentPos - height * 4] == standard && PresentPos - height * 4 >= FirstIndexOfTheBoard)
+							{
+								main_UI->ColorFiveStones(board, height, j, i, j, i - 1, j, i - 2, j, i - 3, j, i - 4);
 								return standard;
+							}
 
 			if (board[PresentPos + height] == standard && PresentPos + height <= LastIndexOfTheBoard)
 				if (board[PresentPos] == standard)
 					if (board[PresentPos - height] == standard && PresentPos - height >= FirstIndexOfTheBoard)
 						if (board[PresentPos - height * 2] == standard && PresentPos - height * 2 >= FirstIndexOfTheBoard)
 							if (board[PresentPos - height * 3] == standard && PresentPos - height * 3 >= FirstIndexOfTheBoard)
+							{
+								main_UI->ColorFiveStones(board, height, j, i, j, i - 1, j, i - 2, j, i - 3, j, i + 1);
 								return standard;
+							}
 
 			if (board[PresentPos + height * 2] == standard && PresentPos + height * 2 <= LastIndexOfTheBoard)
 				if (board[PresentPos + height] == standard && PresentPos + height <= LastIndexOfTheBoard)
 					if (board[PresentPos] == standard)
 						if (board[PresentPos - height] == standard && PresentPos - height >= FirstIndexOfTheBoard)
 							if (board[PresentPos - height * 2] == standard && PresentPos - height * 2 >= FirstIndexOfTheBoard)
+							{
+								main_UI->ColorFiveStones(board, height, j, i, j, i - 1, j, i - 2, j, i + 2, j, i + 1);
 								return standard;
+							}
 
 			if (board[PresentPos + height * 3] == standard && PresentPos + height * 3 <= LastIndexOfTheBoard)
 				if (board[PresentPos + height * 2] == standard && PresentPos + height * 2 <= LastIndexOfTheBoard)
 					if (board[PresentPos + height] == standard && PresentPos + height <= LastIndexOfTheBoard)
 						if (board[PresentPos] == standard)
 							if (board[PresentPos - height] == standard && PresentPos - height >= FirstIndexOfTheBoard)
+							{
+								main_UI->ColorFiveStones(board, height, j, i, j, i - 1, j, i + 3, j, i + 2, j, i + 1);
 								return standard;
+							}
 
 			if (board[PresentPos + height * 4] == standard && PresentPos + height * 4 <= LastIndexOfTheBoard)
 				if (board[PresentPos + height * 3] == standard && PresentPos + height * 3 <= LastIndexOfTheBoard)
 					if (board[PresentPos + height * 2] == standard && PresentPos + height * 2 <= LastIndexOfTheBoard)
 						if (board[PresentPos + height] == standard && PresentPos + height <= LastIndexOfTheBoard)
 							if (board[PresentPos] == standard)
+							{
+								main_UI->ColorFiveStones(board, height, j, i, j, i + 4, j, i + 3, j, i + 2, j, i + 1);
 								return standard;
+							}
 
 			//check diagonal lines
 			int CheckPosGradient = height - 1;
@@ -201,35 +250,50 @@ int Play::WhoseWinner(int stone, int height)
 					if (board[PresentPos - CheckPosGradient * 2] == standard && PresentPos - CheckPosGradient * 2 > FirstIndexOfLine - height * 2)
 						if (board[PresentPos - CheckPosGradient * 3] == standard && PresentPos - CheckPosGradient * 3 > FirstIndexOfLine - height * 3)
 							if (board[PresentPos - CheckPosGradient * 4] == standard && PresentPos - CheckPosGradient * 4 > FirstIndexOfLine - height * 4)
+							{
+								main_UI->ColorFiveStones(board, height, j, i, j + 1, i - 1, j + 2, i - 2, j + 3, i - 3, j + 4, i - 4);
 								return standard;
+							}
 
 			if (board[PresentPos + CheckPosGradient] == standard && PresentPos + CheckPosGradient < LastIndexOfLine + height)
 				if (board[PresentPos] == standard)
 					if (board[PresentPos - CheckPosGradient] == standard && PresentPos - CheckPosGradient > FirstIndexOfLine - height)
 						if (board[PresentPos - CheckPosGradient * 2] == standard && PresentPos - CheckPosGradient * 2 > FirstIndexOfLine - height * 2)
 							if (board[PresentPos - CheckPosGradient * 3] == standard && PresentPos - CheckPosGradient * 3 > FirstIndexOfLine - height * 3)
+							{
+								main_UI->ColorFiveStones(board, height, j, i, j + 1, i - 1, j + 2, i - 2, j + 3, i - 3, j - 1, i + 1);
 								return standard;
+							}
 
 			if (board[PresentPos + CheckPosGradient * 2] == standard && PresentPos + CheckPosGradient * 2 < LastIndexOfLine + height * 2)
 				if (board[PresentPos + CheckPosGradient] == standard && PresentPos + CheckPosGradient < LastIndexOfLine + height)
 					if (board[PresentPos] == standard)
 						if (board[PresentPos - CheckPosGradient] == standard && PresentPos - CheckPosGradient > FirstIndexOfLine - height)
 							if (board[PresentPos - CheckPosGradient * 2] == standard && PresentPos - CheckPosGradient * 2 > FirstIndexOfLine - height * 2)
+							{
+								main_UI->ColorFiveStones(board, height, j, i, j + 1, i - 1, j + 2, i - 2, j - 2, i + 2, j - 1, i + 1);
 								return standard;
+							}
 
 			if (board[PresentPos + CheckPosGradient * 3] == standard && PresentPos + CheckPosGradient * 3 < LastIndexOfLine + height * 3)
 				if (board[PresentPos + CheckPosGradient * 2] == standard && PresentPos + CheckPosGradient * 2 < LastIndexOfLine + height * 2)
 					if (board[PresentPos + CheckPosGradient] == standard && PresentPos + CheckPosGradient < LastIndexOfLine + height)
 						if (board[PresentPos] == standard)
 							if (board[PresentPos - CheckPosGradient] == standard && PresentPos - CheckPosGradient > FirstIndexOfLine - height)
+							{
+								main_UI->ColorFiveStones(board, height, j, i, j + 1, i - 1, j - 3, i + 3, j - 2, i + 2, j - 1, i + 1);
 								return standard;
+							}
 
 			if (board[PresentPos + CheckPosGradient * 4] == standard && PresentPos + CheckPosGradient * 4 < LastIndexOfLine + height * 4)
 				if (board[PresentPos + CheckPosGradient * 3] == standard && PresentPos + CheckPosGradient * 3 < LastIndexOfLine + height * 3)
 					if (board[PresentPos + CheckPosGradient * 2] == standard && PresentPos + CheckPosGradient * 2 < LastIndexOfLine + height * 2)
 						if (board[PresentPos + CheckPosGradient] == standard && PresentPos + CheckPosGradient < LastIndexOfLine + height)
 							if (board[PresentPos] == standard)
+							{
+								main_UI->ColorFiveStones(board, height, j, i, j - 4, i + 4, j - 3, i + 3, j - 2, i + 2, j - 1, i + 1);
 								return standard;
+							}
 
 			//check negative gradient
 			if (board[PresentPos] == standard)
@@ -237,35 +301,50 @@ int Play::WhoseWinner(int stone, int height)
 					if (board[PresentPos - CheckNegGradient * 2] == standard && PresentPos - CheckNegGradient * 2 > LastIndexOfLine - height * 3)
 						if (board[PresentPos - CheckNegGradient * 3] == standard && PresentPos - CheckNegGradient * 3 > LastIndexOfLine - height * 4)
 							if (board[PresentPos - CheckNegGradient * 4] == standard && PresentPos - CheckNegGradient * 4 > LastIndexOfLine - height * 5)
+							{
+								main_UI->ColorFiveStones(board, height, j, i, j - 1, i - 1, j - 2, i - 2, j - 3, i - 3, j - 4, i - 4);
 								return standard;
+							}
 
 			if (board[PresentPos + CheckNegGradient] == standard && PresentPos + CheckNegGradient < FirstIndexOfLine + height * 2)
 				if (board[PresentPos] == standard)
 					if (board[PresentPos - CheckNegGradient] == standard && PresentPos - CheckNegGradient > LastIndexOfLine - height * 2)
 						if (board[PresentPos - CheckNegGradient * 2] == standard && PresentPos - CheckNegGradient * 2 > LastIndexOfLine - height * 3)
 							if (board[PresentPos - CheckNegGradient * 3] == standard && PresentPos - CheckNegGradient * 3 > LastIndexOfLine - height * 4)
+							{
+								main_UI->ColorFiveStones(board, height, j, i, j - 1, i - 1, j - 2, i - 2, j - 3, i - 3, j + 1, i + 1);
 								return standard;
+							}
 
 			if (board[PresentPos + CheckNegGradient * 2] == standard && PresentPos + CheckNegGradient * 2 < FirstIndexOfLine + height * 3)
 				if (board[PresentPos + CheckNegGradient] == standard && PresentPos + CheckNegGradient < FirstIndexOfLine + height * 2)
 					if (board[PresentPos] == standard)
 						if (board[PresentPos - CheckNegGradient] == standard && PresentPos - CheckNegGradient > LastIndexOfLine - height * 2)
 							if (board[PresentPos - CheckNegGradient * 2] == standard && PresentPos - CheckNegGradient * 2 > LastIndexOfLine - height * 3)
+							{
+								main_UI->ColorFiveStones(board, height, j, i, j - 1, i - 1, j - 2, i - 2, j + 2, i + 2, j + 1, i + 1);
 								return standard;
+							}
 
 			if (board[PresentPos + CheckNegGradient * 3] == standard && PresentPos + CheckNegGradient * 3 < FirstIndexOfLine + height * 4)
 				if (board[PresentPos + CheckNegGradient * 2] == standard && PresentPos + CheckNegGradient * 2 < FirstIndexOfLine + height * 3)
 					if (board[PresentPos + CheckNegGradient] == standard && PresentPos + CheckNegGradient < FirstIndexOfLine + height * 2)
 						if (board[PresentPos] == standard)
 							if (board[PresentPos - CheckNegGradient] == standard && PresentPos - CheckNegGradient > LastIndexOfLine - height * 2)
+							{
+								main_UI->ColorFiveStones(board, height, j, i, j - 1, i - 1, j + 3, i + 3, j + 2, i + 2, j + 1, i + 1);
 								return standard;
+							}
 
 			if (board[PresentPos + CheckNegGradient * 4] == standard && PresentPos + CheckNegGradient * 4 < FirstIndexOfLine + height * 5)
 				if (board[PresentPos + CheckNegGradient * 3] == standard && PresentPos + CheckNegGradient * 3 < FirstIndexOfLine + height * 4)
 					if (board[PresentPos + CheckNegGradient * 2] == standard && PresentPos + CheckNegGradient * 2 < FirstIndexOfLine + height * 3)
 						if (board[PresentPos + CheckNegGradient] == standard && PresentPos + CheckNegGradient < FirstIndexOfLine + height * 2)
 							if (board[PresentPos] == standard)
+							{
+								main_UI->ColorFiveStones(board, height, j, i, j + 4, i + 4, j + 3, i + 3, j + 2, i + 2, j + 1, i + 1);
 								return standard;
+							}
 		}
 	return -1;
 }

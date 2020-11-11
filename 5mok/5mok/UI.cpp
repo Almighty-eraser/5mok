@@ -16,6 +16,7 @@ void UI::Mainmenu(void)
 		<< "\n\n\t1. Singleplay(vs human)\n"
 		<< "\t2. Singleplay(vs com)\n"
 		<< "\t3. Multiplay\n"
+		<< "\t4. Exit\n"
 		<< "\tInput : ";
 }
 
@@ -60,7 +61,7 @@ void UI::ColorOneStone(int* board, int height, int x, int y)
 	int PosOfStone = x + y * height;
 	int stone = board[PosOfStone];
 	SetColor(green, green);
-	gotoxy(x + 5, y + 5);
+	gotoxy(x + 6, y + 6);
 	switch (stone)
 	{
 	case BLACK://black
@@ -73,6 +74,16 @@ void UI::ColorOneStone(int* board, int height, int x, int y)
 		break;
 	}
 	SetColor(white, black);
+}
+
+void UI::ColorFiveStones(int* board, int height, 
+	int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, int x5, int y5)
+{
+	ColorOneStone(board, height, x1, y1);
+	ColorOneStone(board, height, x2, y2);
+	ColorOneStone(board, height, x3, y3);
+	ColorOneStone(board, height, x4, y4);
+	ColorOneStone(board, height, x5, y5);
 }
 
 void UI::ResultMessageForMulti(int result)
@@ -108,6 +119,7 @@ void UI::ResultMessageForSingle(int result)
 		cout << "Black win";
 	else 
 		cout << "White win";
+	cout << "\n\n";
 }
 
 void UI::gotoxy(short x, short y)
@@ -126,7 +138,7 @@ int UI::AskWhichBoard(void)
 	int answer;
 	cout << "Which board are you going to use?"
 		<< "\n\n1. 8x8\n2. 9x9\n3. 10x10\n4. 11x11\n\nInput : ";
-	cin >> answer;
+	scanf_s("%d", &answer);
 	return answer;
 }
 
@@ -134,7 +146,7 @@ int* UI::AskCoordinatesRN(void)//return new
 {
 	int* pos = new int[2];
 	cout << "\n\nPlace : ";
-	cin >> pos[0] >> pos[1];
+	scanf_s("%d %d", pos, pos + 1);
 	return pos;
 }
 
@@ -149,6 +161,8 @@ void UI::PrintBoard(int* board, int length)
 	for (int i = 0; i < length; i++)
 	{
 		cout << "     ";
+		if (i + 1 >= 10)
+			cout << '\b';
 		cout << i + 1;
 		for (int j = 0; j < length; j++)
 		{
@@ -162,4 +176,11 @@ void UI::PrintBoard(int* board, int length)
 	for (int i = 0; i <= length; i++)
 		cout << i;
 	cout << '\n';
+}
+
+void UI::PressAnyKey(void)
+{
+	cout << "\n\nPress any key to proceed...";
+	getchar();
+	cout << "\n\n";
 }
