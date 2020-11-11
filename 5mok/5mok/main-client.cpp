@@ -3,9 +3,8 @@
 
 int main()
 {
-	UI a;
-	a.ResultMessage(0);
-	_getch();
-	a.ResultMessage(1);
+	UI ui;
+	Play main(ui);
+	main.START();
 	return 0;
 }

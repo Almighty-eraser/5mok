@@ -4,8 +4,8 @@ class UI
 {
 public:
 	void SetColor(int forground, int background);
-	void PrintStone(int color);
-	void ColorOneStone(char* board, int height, int x, int y);
+	void PrintStoneOfBoard(int stone);
+	void ColorOneStone(int* board, int height, int x, int y);
 	void ResultMessageForMulti(int result);
 	void ResultMessageForSingle(int result);
 	void Mainmenu(void);
@@ -14,6 +14,6 @@ public:
 	void Clear(void);
 	int AskWhichBoard(void);
 	int* AskCoordinatesRN(void);
-	void PrintBoard(char* board, int length);
+	void PrintBoard(int* board, int length);
 };
 

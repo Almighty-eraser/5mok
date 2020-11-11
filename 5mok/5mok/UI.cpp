@@ -4,8 +4,16 @@
 void UI::Mainmenu(void)
 {
 	cout
-		<< "\t\t5MOK\t\t\twhite : бр black : бс board : +\n\n"
-		<< "\t1. Singleplay(vs human)\n"
+		<< "\t\t5MOK\t\t\tblack : ";
+	SetColor(black, black);
+	cout << '0';
+	SetColor(white, black);
+	cout << "white: ";
+	SetColor(white, white);
+	cout << '1';
+	SetColor(white, black);
+	cout
+		<< "\n\n\t1. Singleplay(vs human)\n"
 		<< "\t2. Singleplay(vs com)\n"
 		<< "\t3. Multiplay\n"
 		<< "\tInput : ";
@@ -25,32 +33,46 @@ void UI::SetColor(int forground, int background)
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), code);
 }
 
-void UI::PrintStone(int color)
+void UI::PrintStoneOfBoard(int stone)
 {
-	switch (color)
+	switch (stone)
 	{
-	case BLACK:
-		SetColor(white, black);
-		cout << 'бр';
+	case BLACK://black
+		SetColor(black, black);
+		cout << '0';
 		break;
-	case WHITE:
-		SetColor(white, black);
-		cout << 'бс';
+	case WHITE://white
+		SetColor(white, white);
+		cout << '1';
 		break;
-	default:
+	case EMPTY:
 		SetColor(black, yellow);
 		cout << '+';
 		break;
+	default:
+		break;
 	}
+	SetColor(white, black);
 }
 
-void UI::ColorOneStone(char* board, int height, int x, int y)
+void UI::ColorOneStone(int* board, int height, int x, int y)
 {//First coordinates of Board : (5, 5)
 	int PosOfStone = x + y * height;
-	char stone = board[PosOfStone];
-	SetColor(white, green);
+	int stone = board[PosOfStone];
+	SetColor(green, green);
 	gotoxy(x + 5, y + 5);
-	cout << stone;
+	switch (stone)
+	{
+	case BLACK://black
+		cout << '0';
+		break;
+	case WHITE://white
+		cout << '1';
+		break;
+	default:
+		break;
+	}
+	SetColor(white, black);
 }
 
 void UI::ResultMessageForMulti(int result)
@@ -116,9 +138,8 @@ int* UI::AskCoordinatesRN(void)//return new
 	return pos;
 }
 
-void UI::PrintBoard(char* board, int length)
+void UI::PrintBoard(int* board, int length)
 {
-	Clear();
 	gotoxy(5, 5);
 
 	for (int i = 0; i <= length; i++)
@@ -127,11 +148,18 @@ void UI::PrintBoard(char* board, int length)
 
 	for (int i = 0; i < length; i++)
 	{
+		cout << "     ";
 		cout << i + 1;
 		for (int j = 0; j < length; j++)
 		{
-			PrintStone(board[i * length + length]);
+			PrintStoneOfBoard(board[i * length + j]);
 		}
+		cout << i + 1;
 		cout << '\n';
 	}
+
+	cout << "     ";
+	for (int i = 0; i <= length; i++)
+		cout << i;
+	cout << '\n';
 }

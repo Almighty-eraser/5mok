@@ -6,7 +6,7 @@ class UI;
 class Play
 {
 public:
-	Play(UI& ui) { main_UI = &ui; char* board = nullptr; };
+	Play(UI& ui) { main_UI = &ui; board = nullptr; };
 	void START(void);
 	int MakeBoard(void);
 	void RemoveBoard(void);
@@ -16,6 +16,6 @@ public:
 
 private:
 	UI* main_UI;
-	char* board;
+	int* board;
 };
 

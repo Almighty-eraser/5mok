@@ -48,7 +48,7 @@ int Play::MakeBoard(void)//return size of board
 		if (whichboard < 1 || whichboard > 4)
 			continue;
 
-		board = new char[sizeofBoard[whichboard - 1] * sizeofBoard[whichboard - 1]];
+		board = new int[sizeofBoard[whichboard - 1] * sizeofBoard[whichboard - 1]];
 		memset(board, 0, sizeofBoard[whichboard - 1] * sizeofBoard[whichboard - 1]);
 		break;
 	}
@@ -69,28 +69,34 @@ void Play::SinglePptp(void)
 
 	while (1)
 	{
+		main_UI->Clear();
 		main_UI->PrintBoard(board, height);
 		int* pos;
 		
 		//black first
 		pos = main_UI->AskCoordinatesRN();
 		board[(pos[1] - 1) * height + pos[0] - 1] = BLACK;
+		main_UI->Clear();
 		main_UI->PrintBoard(board, height);
 		delete[] pos;
 
 		if (WhoseWinner(BLACK, height) == BLACK)
 		{
-			
+			main_UI->ResultMessageForSingle(BLACK);
+			break;
 		}
 
 		//white second
 		pos = main_UI->AskCoordinatesRN();
 		board[(pos[1] - 1) * height + pos[0] - 1] = WHITE;
+		main_UI->Clear();
+		main_UI->PrintBoard(board, height);
 		delete[] pos;
 
 		if (WhoseWinner(WHITE, height) == WHITE)
 		{
-
+			main_UI->ResultMessageForSingle(WHITE);
+			break;
 		}
 	}
 }
