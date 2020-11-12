@@ -1,5 +1,9 @@
 #pragma once
 #include "BASE.h"
+#include <iostream>
+#include <Windows.h>
+using namespace std;
+
 class UI
 {
 public:

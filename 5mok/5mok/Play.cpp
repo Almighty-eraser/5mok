@@ -17,15 +17,12 @@ void Play::START(void)
 			while (1)
 			{
 				main_UI->MakeRoomOrNot();
-				cin >> answer;
+				scanf_s("%d", &answer);
+				main_TCP->StartTCPclnt();
 				if (answer == 1)
-				{
-
-				}
+					MakeRoomOrNot(_IMMA_MAKE_ROOM_);
 				else if (answer == 2)
-				{
-
-				}
+					MakeRoomOrNot(_IMMA_JOIN_ROOM_);
 				else
 					continue;
 			}
@@ -81,14 +78,23 @@ void Play::SinglePptp(void)
 		int* pos;
 		
 		//black first
-		pos = new int[2];
-		pos[0] = -1;
-		while (*pos > height || *pos < 0 || *(pos + 1) > height || *(pos + 1) < 0)
+		while (1) 
 		{
-			delete[] pos;
-			pos = main_UI->AskCoordinatesRN();
+			pos = new int[2];
+			pos[0] = -1;
+			while (*pos > height || *pos < 0 || *(pos + 1) > height || *(pos + 1) < 0)
+			{
+				delete[] pos;
+				pos = main_UI->AskCoordinatesRN();
+			}
+			if (board[(pos[1] - 1) * height + pos[0] - 1] != EMPTY)
+			{
+				delete[] pos;
+				continue;
+			}
+			board[(pos[1] - 1) * height + pos[0] - 1] = BLACK;
+			break;
 		}
-		board[(pos[1] - 1) * height + pos[0] - 1] = BLACK;
 		main_UI->Clear();
 		main_UI->PrintBoard(board, height);
 		delete[] pos;
@@ -100,14 +106,23 @@ void Play::SinglePptp(void)
 		}
 
 		//white second
-		pos = new int[2];
-		pos[0] = -1;
-		while (*pos > height || *pos < 0 || *(pos + 1) > height || *(pos + 1) < 0)
+		while (1) 
 		{
-			delete[] pos;
-			pos = main_UI->AskCoordinatesRN();
+			pos = new int[2];
+			pos[0] = -1;
+			while (*pos > height || *pos < 0 || *(pos + 1) > height || *(pos + 1) < 0)
+			{
+				delete[] pos;
+				pos = main_UI->AskCoordinatesRN();
+			}
+			if (board[(pos[1] - 1) * height + pos[0] - 1] != EMPTY)
+			{
+				delete[] pos;
+				continue;
+			}
+			board[(pos[1] - 1) * height + pos[0] - 1] = WHITE;
+			break;
 		}
-		board[(pos[1] - 1) * height + pos[0] - 1] = WHITE;
 		main_UI->Clear();
 		main_UI->PrintBoard(board, height);
 		delete[] pos;
@@ -118,6 +133,15 @@ void Play::SinglePptp(void)
 			break;
 		}
 	}
+}
+
+void Play::MakeRoomOrNot(char decision)
+{
+	main_TCP->SendChar(decision); 
+
+	while(main_TCP->Receive() != 1){}
+
+
 }
 
 void Play::MultiP(void)

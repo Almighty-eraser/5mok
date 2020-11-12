@@ -24,6 +24,14 @@ enum {
 
 #endif
 
+#ifndef _TCP_
+#define _TCP_
+
+#define SERVER_PORT 55000
+#define IP_Address ""
+
+#endif
+
 #ifndef _STONES_
 #define _STONES_
 
@@ -61,15 +69,6 @@ enum {
 #endif
 
 #include <iostream>
+#include <WinSock2.h>
 #include <Windows.h>
-#include "Play.h"
-#include "UI.h"
-#include "TCP.h"
 
-using namespace std;
-
-/*void Error(const char* message)
-{
-	cout << '\n' << message << '\n';
-	exit(-1);
-}*/

@@ -1,44 +1,50 @@
-/*#include "TCP.h" 
+#include "TCP.h" 
 
-void TCP::StartTCPclnt()
+void ErrorHandling(const char* message)
+{
+	std::cout << '\n' << message << '\n';
+	exit(-1);
+}
+
+void TCP::StartTCPclnt(void)
 {
 	WSADATA wsadata;
 	if (WSAStartup(MAKEWORD(2, 2), &wsadata) != 0)
-		Error("Cannot startup TCP protocol");
+		ErrorHandling("Cannot startup TCP protocol");
 
 	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (sock == SOCKET_ERROR)
-		Error("Cannot create socket");
+		ErrorHandling("Cannot create socket");
 
 	sockaddr_in Sockaddr{};
 
 	if (bind(sock, reinterpret_cast<sockaddr*>(&Sockaddr), sizeof(Sockaddr)) == SOCKET_ERROR)
-		Error("Cannot bind socket");
+		ErrorHandling("Cannot bind socket");
 }
 
-void TCP::FirstSend(char decision)
+void TCP::SendChar(char decision)
 {
 	if (send(sock, &decision, sizeof(decision), 0) == SOCKET_ERROR)
-		Error("Cannot send first data");
+		ErrorHandling("Cannot send first data");
 }
 
-void TCP::Send(char row, char height)
+void TCP::SendPosOfStone(char x, char y)
 {
-	if (send(sock, &row, sizeof(row), 0) == SOCKET_ERROR)
-		Error("Cannot send any data");
-	if (send(sock, &height, sizeof(height), 0) == SOCKET_ERROR)
-		Error("Cannot send any data");
+	if (send(sock, &x, sizeof(char), 0) == SOCKET_ERROR)
+		ErrorHandling("Cannot send any data");
+	if (send(sock, &y, sizeof(char), 0) == SOCKET_ERROR)
+		ErrorHandling("Cannot send any data");
 }
 
 int TCP::Receive(void)
 {
 	char pos;
 	if (recv(sock, &pos, sizeof(pos), 0) == SOCKET_ERROR)
-		Error("Cannot receive any data");
+		ErrorHandling("Cannot receive any data");
 	return (int)pos;
 }
 
 void TCP::End()
 {
 	closesocket(sock);
-}*/
+}

@@ -1,10 +1,12 @@
-#include "BASE.h"
-#include <conio.h>
+#include "Play.h"
+#include "TCP.h"
+#include "UI.h"
 
 int main()
 {
 	UI ui;
-	Play main(ui);
+	TCP tcp;
+	Play main(ui, tcp);
 	main.START();
 	return 0;
 }

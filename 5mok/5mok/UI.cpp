@@ -39,12 +39,12 @@ void UI::PrintStoneOfBoard(int stone)
 	switch (stone)
 	{
 	case BLACK://black
-		SetColor(black, black);
+		SetColor(black, yellow);
 		cout << '0';
 		break;
 	case WHITE://white
-		SetColor(white, white);
-		cout << '1';
+		SetColor(white, yellow);
+		cout << '0';
 		break;
 	case EMPTY:
 		SetColor(black, yellow);
@@ -60,7 +60,7 @@ void UI::ColorOneStone(int* board, int height, int x, int y)
 {//First coordinates of Board : (5, 5)
 	int PosOfStone = x + y * height;
 	int stone = board[PosOfStone];
-	SetColor(green, green);
+	SetColor(green, yellow);
 	gotoxy(x + 6, y + 6);
 	switch (stone)
 	{
@@ -68,7 +68,7 @@ void UI::ColorOneStone(int* board, int height, int x, int y)
 		cout << '0';
 		break;
 	case WHITE://white
-		cout << '1';
+		cout << '0';
 		break;
 	default:
 		break;
