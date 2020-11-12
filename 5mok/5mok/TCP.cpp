@@ -18,6 +18,10 @@ void TCP::StartTCPclnt(void)
 
 	sockaddr_in Sockaddr{};
 
+	Sockaddr.sin_family = AF_INET;
+	Sockaddr.sin_addr.S_un.S_addr = inet_addr(IP_Address);
+	Sockaddr.sin_port = htons(SERVER_PORT);
+
 	if (bind(sock, reinterpret_cast<sockaddr*>(&Sockaddr), sizeof(Sockaddr)) == SOCKET_ERROR)
 		ErrorHandling("Cannot bind socket");
 }
@@ -36,12 +40,12 @@ void TCP::SendPosOfStone(char x, char y)
 		ErrorHandling("Cannot send any data");
 }
 
-int TCP::Receive(void)
+char TCP::Receive(void)
 {
 	char pos;
 	if (recv(sock, &pos, sizeof(pos), 0) == SOCKET_ERROR)
 		ErrorHandling("Cannot receive any data");
-	return (int)pos;
+	return pos;
 }
 
 void TCP::End()

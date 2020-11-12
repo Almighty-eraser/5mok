@@ -2,6 +2,7 @@
 
 void Play::START(void)
 {
+	system("mode con cols=80 lines=30 | title 5mok");
 	while (1)
 	{
 		int answer;
@@ -36,6 +37,9 @@ void Play::START(void)
 		}
 		if (answer == 4)
 			break;
+		main_UI->PressAnyKey();
+		getchar();
+		main_UI->Clear();
 	}
 
 	main_UI->PressAnyKey();

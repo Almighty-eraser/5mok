@@ -5,12 +5,12 @@ void UI::Mainmenu(void)
 {
 	cout
 		<< "\t\t5MOK\t\t\tblack : ";
-	SetColor(black, black);
+	SetColor(black, brown);
 	cout << '0';
 	SetColor(white, black);
 	cout << "white: ";
-	SetColor(white, white);
-	cout << '1';
+	SetColor(white, brown);
+	cout << '0';
 	SetColor(white, black);
 	cout
 		<< "\n\n\t1. Singleplay(vs human)\n"
@@ -39,15 +39,15 @@ void UI::PrintStoneOfBoard(int stone)
 	switch (stone)
 	{
 	case BLACK://black
-		SetColor(black, yellow);
+		SetColor(black, brown);
 		cout << '0';
 		break;
 	case WHITE://white
-		SetColor(white, yellow);
+		SetColor(white, brown);
 		cout << '0';
 		break;
 	case EMPTY:
-		SetColor(black, yellow);
+		SetColor(black, brown);
 		cout << '+';
 		break;
 	default:
@@ -60,14 +60,15 @@ void UI::ColorOneStone(int* board, int height, int x, int y)
 {//First coordinates of Board : (5, 5)
 	int PosOfStone = x + y * height;
 	int stone = board[PosOfStone];
-	SetColor(green, yellow);
 	gotoxy(x + 6, y + 6);
 	switch (stone)
 	{
 	case BLACK://black
+		SetColor(black, green);
 		cout << '0';
 		break;
 	case WHITE://white
+		SetColor(white, green);
 		cout << '0';
 		break;
 	default:

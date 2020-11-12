@@ -7,7 +7,7 @@ enum {
 	black,
 	blue,
 	green,
-	cyan,
+	cyan,//mint
 	red,
 	purple,
 	brown,
@@ -28,7 +28,7 @@ enum {
 #define _TCP_
 
 #define SERVER_PORT 55000
-#define IP_Address ""
+#define IP_Address "192.168.0.10"
 
 #endif
 
@@ -67,6 +67,8 @@ enum {
 #define WINNER_IS_WHITE 1
 
 #endif
+
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #include <iostream>
 #include <WinSock2.h>
