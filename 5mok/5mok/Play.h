@@ -14,13 +14,13 @@ public:
 	int MakeBoard(void);
 	void RemoveBoard(void);
 	void SinglePptp(void);//singleplay person to person
-	void MakeRoomOrNot(char decision);
-	void MultiP(void);//multiplay
+	int MakeRoomOrNot(char decision);
+	void MultiP(int whichside);//multiplay
 	int WhoseWinner(int stone, int height);
 
 private:
 	UI* main_UI;
 	TCP* main_TCP;
-	int* board;
+	char* board;
 };
 

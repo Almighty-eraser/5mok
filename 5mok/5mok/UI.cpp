@@ -4,7 +4,7 @@
 void UI::Mainmenu(void)
 {
 	cout
-		<< "\t\t5MOK\t\t\tblack : ";
+		<< "\t\t\n\n\n\t\t5MOK\t\t\tblack : ";
 	SetColor(black, brown);
 	cout << '0';
 	SetColor(white, black);
@@ -13,17 +13,17 @@ void UI::Mainmenu(void)
 	cout << '0';
 	SetColor(white, black);
 	cout
-		<< "\n\n\t1. Singleplay(vs human)\n"
-		<< "\t2. Singleplay(vs com)\n"
-		<< "\t3. Multiplay\n"
-		<< "\t4. Exit\n"
-		<< "\tInput : ";
+		<< "\n\n\t\t1. Singleplay(vs human)\n"
+		<< "\t\t2. Singleplay(vs com)\n"
+		<< "\t\t3. Multiplay\n"
+		<< "\t\t4. Exit\n"
+		<< "\t\tInput : ";
 }
 
 void UI::MakeRoomOrNot(void)
 {
 	cout
-		<< "\n\n\t1. Make a room"
+		<< "\n\n\n\n\t1. Make a room"
 		<< "\n\t2. Join a room"
 		<< "\n\tInput : ";
 }
@@ -56,11 +56,11 @@ void UI::PrintStoneOfBoard(int stone)
 	SetColor(white, black);
 }
 
-void UI::ColorOneStone(int* board, int height, int x, int y)
+void UI::ColorOneStone(char* board, int height, int x, int y)
 {//First coordinates of Board : (5, 5)
 	int PosOfStone = x + y * height;
 	int stone = board[PosOfStone];
-	gotoxy(x + 6, y + 6);
+	gotoxy(x + FIRST_X + 1, y + FIRST_Y + 1);
 	switch (stone)
 	{
 	case BLACK://black
@@ -77,7 +77,7 @@ void UI::ColorOneStone(int* board, int height, int x, int y)
 	SetColor(white, black);
 }
 
-void UI::ColorFiveStones(int* board, int height, 
+void UI::ColorFiveStones(char* board, int height, 
 	int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, int x5, int y5)
 {
 	ColorOneStone(board, height, x1, y1);
@@ -137,8 +137,8 @@ void UI::Clear(void)
 int UI::AskWhichBoard(void)
 {
 	int answer;
-	cout << "Which board are you going to use?"
-		<< "\n\n1. 8x8\n2. 9x9\n3. 10x10\n4. 11x11\n\nInput : ";
+	cout << "\n\n\n\t\tWhich board are you going to use?"
+		<< "\n\n\t\t1. 8x8\n\t\t2. 9x9\n\t\t3. 10x10\n\t\t4. 11x11\n\n\t\tInput : ";
 	scanf_s("%d", &answer);
 	return answer;
 }
@@ -151,9 +151,9 @@ int* UI::AskCoordinatesRN(void)//return new
 	return pos;
 }
 
-void UI::PrintBoard(int* board, int length)
+void UI::PrintBoard(char* board, int length)
 {
-	gotoxy(5, 5);
+	gotoxy(FIRST_X, FIRST_Y);
 
 	for (int i = 0; i <= length; i++)
 		cout << i;
@@ -161,7 +161,7 @@ void UI::PrintBoard(int* board, int length)
 
 	for (int i = 0; i < length; i++)
 	{
-		cout << "     ";
+		gotoxy(FIRST_X, FIRST_Y + 1 + i);
 		if (i + 1 >= 10)
 			cout << '\b';
 		cout << i + 1;
@@ -173,7 +173,7 @@ void UI::PrintBoard(int* board, int length)
 		cout << '\n';
 	}
 
-	cout << "     ";
+	gotoxy(FIRST_X, FIRST_Y + length + 1);
 	for (int i = 0; i <= length; i++)
 		cout << i;
 	cout << '\n';

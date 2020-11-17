@@ -63,8 +63,18 @@ enum {
 #ifndef _WINNER_IS_
 #define __WINNER_IS_
 
-#define WINNER_IS_BLACK 0
-#define WINNER_IS_WHITE 1
+#define WINNER_IS_BLACK 100
+#define WINNER_IS_WHITE 101
+#define WIN 0
+#define LOST 1
+
+#endif
+
+#ifndef First_Pos_Of_The_Board
+#define First_Pos_Of_The_Board
+
+#define FIRST_X 40
+#define FIRST_Y 5
 
 #endif
 

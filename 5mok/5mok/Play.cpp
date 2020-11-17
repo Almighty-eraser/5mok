@@ -21,11 +21,22 @@ void Play::START(void)
 				scanf_s("%d", &answer);
 				main_TCP->StartTCPclnt();
 				if (answer == 1)
-					MakeRoomOrNot(_IMMA_MAKE_ROOM_);
+					if (MakeRoomOrNot(_IMMA_MAKE_ROOM_) == -1)
+						break;
 				else if (answer == 2)
-					MakeRoomOrNot(_IMMA_JOIN_ROOM_);
+					if (MakeRoomOrNot(_IMMA_JOIN_ROOM_) == -1)
+						break;
 				else
 					continue;
+
+				if (answer == 1)
+				{
+					MultiP(_IMMA_MAKE_ROOM_);
+				}
+				else
+				{
+					MultiP(_IMMA_JOIN_ROOM_);
+				}
 			}
 
 			break;
@@ -56,8 +67,8 @@ int Play::MakeBoard(void)//return size of board
 			continue;
 
 		int sizeofBoard = sizesofBoard[whichboard - 1] * sizesofBoard[whichboard - 1];
-		board = new int[sizeofBoard];
-		memset(board, 0, sizeofBoard * sizeof(int));
+		board = new char[sizeofBoard];
+		memset(board, 0, sizeofBoard * sizeof(char));
 		break;
 	}
 
@@ -127,8 +138,7 @@ void Play::SinglePptp(void)
 			board[(pos[1] - 1) * height + pos[0] - 1] = WHITE;
 			break;
 		}
-		main_UI->Clear();
-		main_UI->PrintBoard(board, height);
+	
 		delete[] pos;
 
 		if (WhoseWinner(WHITE, height) == WHITE)
@@ -139,18 +149,153 @@ void Play::SinglePptp(void)
 	}
 }
 
-void Play::MakeRoomOrNot(char decision)
+int Play::MakeRoomOrNot(char decision)
 {
 	main_TCP->SendChar(decision); 
+	char response = main_TCP->Receive();
 
-	while(main_TCP->Receive() != 1){}
-
-
+	if (response != 1 && decision == _IMMA_MAKE_ROOM_) 
+	{
+		cout << "\nThere's already room";
+		return -1;
+	}
+	else if (response != 1 && decision == _IMMA_JOIN_ROOM_)
+	{
+		cout << "\nThere's no room to join";
+		return -1;
+	}
+	else if(response == 1)
+	{
+		cout << "\nWait...\n";
+		return 1;
+	}
 }
 
-void Play::MultiP(void)
+void Play::MultiP(int whichside)
 {
+	int stone;
+	if (whichside == _IMMA_MAKE_ROOM_)
+	{
+		stone = BLACK;
+		main_UI->Clear();
+		int height = MakeBoard();
+		while (1)//BLACK sends coodinates first
+		{
+			main_UI->Clear();
+			main_UI->PrintBoard(board, height);
+			int* pos;
 
+			//black
+			while (1)
+			{
+				pos = new int[2];
+				pos[0] = -1;
+				while (*pos > height || *pos < 0 || *(pos + 1) > height || *(pos + 1) < 0)
+				{
+					delete[] pos;
+					pos = main_UI->AskCoordinatesRN();
+				}
+				if (board[(pos[1] - 1) * height + pos[0] - 1] != EMPTY)
+				{
+					delete[] pos;
+					continue;
+				}
+				board[(pos[1] - 1) * height + pos[0] - 1] = BLACK;
+				break;
+			}
+
+			main_TCP->SendPosOfStone(pos[0] - 1, pos[1] - 1);
+
+			main_UI->Clear();
+			main_UI->PrintBoard(board, height);
+			delete[] pos;
+
+			if (WhoseWinner(BLACK, height) == BLACK)
+			{
+				main_UI->ResultMessageForMulti(WIN);
+				main_TCP->End();
+				break;
+			}
+
+			//white
+			pos = new int[2];
+			pos[0] = main_TCP->Receive();
+			pos[1] = main_TCP->Receive();
+
+			board[pos[1] * height + pos[0]] = WHITE;
+			delete[] pos;
+
+			if (WhoseWinner(WHITE, height) == WHITE)
+			{
+				main_UI->ResultMessageForMulti(LOST);
+				main_TCP->SendChar(WINNER_IS_WHITE);
+				main_TCP->End();
+				break;
+			}
+		}
+	}
+	else
+	{
+		stone = WHITE;
+		main_UI->Clear();
+		int height = MakeBoard();
+		while (1)//WHITE receives coordinates first
+		{
+			main_UI->Clear();
+			main_UI->PrintBoard(board, height);
+			int* pos;
+
+			//black
+			pos = new int[2];
+			pos[0] = main_TCP->Receive();
+			pos[1] = main_TCP->Receive();
+
+			board[pos[1] * height + pos[0]] = BLACK;
+			main_UI->Clear();
+			main_UI->PrintBoard(board, height);
+			delete[] pos;
+
+			if (WhoseWinner(BLACK, height) == BLACK)
+			{
+				main_UI->ResultMessageForMulti(LOST);
+				main_TCP->SendChar(WINNER_IS_BLACK);
+				main_TCP->End();
+				break;
+			}
+
+			//white
+			while (1)
+			{
+				pos = new int[2];
+				pos[0] = -1;
+				while (*pos > height || *pos < 0 || *(pos + 1) > height || *(pos + 1) < 0)
+				{
+					delete[] pos;
+					pos = main_UI->AskCoordinatesRN();
+				}
+				if (board[(pos[1] - 1) * height + pos[0] - 1] != EMPTY)
+				{
+					delete[] pos;
+					continue;
+				}
+				board[(pos[1] - 1) * height + pos[0] - 1] = WHITE;
+				break;
+			}
+
+			main_TCP->SendPosOfStone(pos[0] - 1, pos[1] - 1);
+
+			delete[] pos;
+
+			if (WhoseWinner(WHITE, height) == WHITE)
+			{
+				main_UI->ResultMessageForMulti(WIN);
+				main_TCP->End();
+				break;
+			}
+		}
+	}
+
+	
 }
 
 int Play::WhoseWinner(int stone, int height)
