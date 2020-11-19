@@ -5,16 +5,18 @@
 
 #pragma comment (lib, "ws2_32.lib")
 
-class TCP
+class TCP_SERVER
 {
 public:
-	void StartTCPclnt(void);
+	void StartTCPserver(int PORT);
+	SOCKET WaitForClnt(void);
 	void SendPosOfStone(char x, char y);
 	void SendChar(char decision);
 	char Receive(void);
 	void End(void);
 private:
 	SOCKET sock;
+	sockaddr_in Sockaddr{};
 };
 
 

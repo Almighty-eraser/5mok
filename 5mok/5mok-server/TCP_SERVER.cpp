@@ -1,4 +1,4 @@
-#include "TCP.h" 
+#include "TCP_SERVER.h" 
 
 void ErrorHandling(const char* message)
 {
@@ -6,7 +6,7 @@ void ErrorHandling(const char* message)
 	exit(-1);
 }
 
-void TCP::StartTCPclnt(void)
+void TCP_SERVER::StartTCPserver(int PORT)
 {
 	WSADATA wsadata;
 	if (WSAStartup(MAKEWORD(2, 2), &wsadata) != 0)
@@ -16,23 +16,35 @@ void TCP::StartTCPclnt(void)
 	if (sock == SOCKET_ERROR)
 		ErrorHandling("Cannot create socket");
 
-	sockaddr_in Sockaddr{};
-
 	Sockaddr.sin_family = AF_INET;
-	Sockaddr.sin_addr.S_un.S_addr = inet_addr(IP_Address);
-	Sockaddr.sin_port = htons(SERVER_PORT);
+	Sockaddr.sin_addr.S_un.S_addr = inet_addr(INADDR_ANY);
+	Sockaddr.sin_port = htons(PORT);
 
 	if (bind(sock, reinterpret_cast<sockaddr*>(&Sockaddr), sizeof(Sockaddr)) == SOCKET_ERROR)
 		ErrorHandling("Cannot bind socket");
 }
 
-void TCP::SendChar(char decision)
+SOCKET TCP_SERVER::WaitForClnt(void)
+{
+	SOCKET FacingWithClnt;
+
+	if (listen(sock, 1) == SOCKET_ERROR)
+		ErrorHandling("listen error");
+	
+	int size_of_addr = sizeof(Sockaddr);
+	if (FacingWithClnt = accept(sock, reinterpret_cast<sockaddr*>(&Sockaddr), &size_of_addr) == SOCKET_ERROR)
+		ErrorHandling("accept error");
+
+	return FacingWithClnt;
+}
+
+void TCP_SERVER::SendChar(char decision)
 {
 	if (send(sock, &decision, sizeof(decision), 0) == SOCKET_ERROR)
 		ErrorHandling("Cannot send first data");
 }
 
-void TCP::SendPosOfStone(char x, char y)
+void TCP_SERVER::SendPosOfStone(char x, char y)
 {
 	if (send(sock, &x, sizeof(char), 0) == SOCKET_ERROR)
 		ErrorHandling("Cannot send any data");
@@ -40,7 +52,7 @@ void TCP::SendPosOfStone(char x, char y)
 		ErrorHandling("Cannot send any data");
 }
 
-char TCP::Receive(void)
+char TCP_SERVER::Receive(void)
 {
 	char pos;
 	if (recv(sock, &pos, sizeof(pos), 0) == SOCKET_ERROR)
@@ -48,7 +60,7 @@ char TCP::Receive(void)
 	return pos;
 }
 
-void TCP::End()
+void TCP_SERVER::End()
 {
 	closesocket(sock);
 }

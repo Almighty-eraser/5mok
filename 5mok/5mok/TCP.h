@@ -8,7 +8,7 @@
 class TCP
 {
 public:
-	void StartTCPclnt(void);
+	void StartTCPclnt(int PORT);
 	void SendPosOfStone(char x, char y);
 	void SendChar(char decision);
 	char Receive(void);

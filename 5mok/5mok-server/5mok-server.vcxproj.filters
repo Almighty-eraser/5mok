@@ -21,7 +21,7 @@
     <ClCompile Include="SERVER.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="..\5mok\TCP.cpp">
+    <ClCompile Include="..\5mok\TCP_SERVER.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -29,10 +29,10 @@
     <ClInclude Include="SERVER.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="..\5mok\TCP.h">
+    <ClInclude Include="BASE.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="BASE.h">
+    <ClInclude Include="..\5mok\TCP_SERVER.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

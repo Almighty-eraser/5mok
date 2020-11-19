@@ -19,7 +19,7 @@ void Play::START(void)
 			{
 				main_UI->MakeRoomOrNot();
 				scanf_s("%d", &answer);
-				main_TCP->StartTCPclnt();
+				main_TCP->StartTCPclnt(SERVER_PORT);
 				if (answer == 1)
 					if (MakeRoomOrNot(_IMMA_MAKE_ROOM_) == -1)
 						break;
