@@ -139,14 +139,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\5mok\TCP_SERVER.cpp" />
     <ClCompile Include="main-server.cpp" />
     <ClCompile Include="SERVER.cpp" />
+    <ClCompile Include="TCP_SERVER.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\5mok\TCP_SERVER.h" />
     <ClInclude Include="BASE.h" />
     <ClInclude Include="SERVER.h" />
+    <ClInclude Include="TCP_SERVER.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

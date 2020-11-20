@@ -17,7 +17,7 @@ void TCP_SERVER::StartTCPserver(int PORT)
 		ErrorHandling("Cannot create socket");
 
 	Sockaddr.sin_family = AF_INET;
-	Sockaddr.sin_addr.S_un.S_addr = inet_addr(INADDR_ANY);
+	Sockaddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
 	Sockaddr.sin_port = htons(PORT);
 
 	if (bind(sock, reinterpret_cast<sockaddr*>(&Sockaddr), sizeof(Sockaddr)) == SOCKET_ERROR)
@@ -38,24 +38,24 @@ SOCKET TCP_SERVER::WaitForClnt(void)
 	return FacingWithClnt;
 }
 
-void TCP_SERVER::SendChar(char decision)
+void TCP_SERVER::SendChar(SOCKET Clnt, char decision)
 {
-	if (send(sock, &decision, sizeof(decision), 0) == SOCKET_ERROR)
+	if (send(Clnt, &decision, sizeof(decision), 0) == SOCKET_ERROR)
 		ErrorHandling("Cannot send first data");
 }
 
-void TCP_SERVER::SendPosOfStone(char x, char y)
+void TCP_SERVER::SendPosOfStone(SOCKET Clnt, char x, char y)
 {
-	if (send(sock, &x, sizeof(char), 0) == SOCKET_ERROR)
+	if (send(Clnt, &x, sizeof(char), 0) == SOCKET_ERROR)
 		ErrorHandling("Cannot send any data");
-	if (send(sock, &y, sizeof(char), 0) == SOCKET_ERROR)
+	if (send(Clnt, &y, sizeof(char), 0) == SOCKET_ERROR)
 		ErrorHandling("Cannot send any data");
 }
 
-char TCP_SERVER::Receive(void)
+char TCP_SERVER::Receive(SOCKET Clnt)
 {
 	char pos;
-	if (recv(sock, &pos, sizeof(pos), 0) == SOCKET_ERROR)
+	if (recv(Clnt, &pos, sizeof(pos), 0) == SOCKET_ERROR)
 		ErrorHandling("Cannot receive any data");
 	return pos;
 }

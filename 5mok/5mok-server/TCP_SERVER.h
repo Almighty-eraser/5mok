@@ -10,9 +10,9 @@ class TCP_SERVER
 public:
 	void StartTCPserver(int PORT);
 	SOCKET WaitForClnt(void);
-	void SendPosOfStone(char x, char y);
-	void SendChar(char decision);
-	char Receive(void);
+	void SendPosOfStone(SOCKET Clnt, char x, char y);
+	void SendChar(SOCKET Clnt, char decision);
+	char Receive(SOCKET Clnt);
 	void End(void);
 private:
 	SOCKET sock;
