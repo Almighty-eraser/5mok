@@ -6,7 +6,7 @@ void SERVER::Run(void)
 	char receive;
 	bool RoomFlag(false);
 
-	serv_TCP->StartTCPserver(SERVER_PORT);
+	serv_TCP->StartTCPserver(MAIN_SERVER_PORT);
 
 	while (1)
 	{
