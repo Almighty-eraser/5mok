@@ -19,23 +19,24 @@ void Play::START(void)
 			{
 				main_UI->MakeRoomOrNot();
 				scanf_s("%d", &answer);
-				main_TCP->StartTCPclnt(SERVER_PORT);
+				SOCKET FirstSock;
+				main_TCP->StartTCPclnt(FirstSock, MAIN_SERVER_PORT);
 				if (answer == 1)
-					if (MakeRoomOrNot(_IMMA_MAKE_ROOM_) == -1)
+					if (MakeRoomOrNot(FirstSock, _IMMA_MAKE_ROOM_) == -1)
 						break;
 				else if (answer == 2)
-					if (MakeRoomOrNot(_IMMA_JOIN_ROOM_) == -1)
+					if (MakeRoomOrNot(FirstSock, _IMMA_JOIN_ROOM_) == -1)
 						break;
 				else
 					continue;
 
 				if (answer == 1)
 				{
-					MultiP(_IMMA_MAKE_ROOM_);
+					MultiP(sock, _IMMA_MAKE_ROOM_);
 				}
 				else
 				{
-					MultiP(_IMMA_JOIN_ROOM_);
+					MultiP(sock, _IMMA_JOIN_ROOM_);
 				}
 			}
 
@@ -149,10 +150,11 @@ void Play::SinglePptp(void)
 	}
 }
 
-int Play::MakeRoomOrNot(char decision)
+int Play::MakeRoomOrNot(SOCKET sock, char decision)
 {
-	main_TCP->SendChar(decision); 
-	char response = main_TCP->Receive();
+
+	main_TCP->SendChar(sock, decision); 
+	char response = main_TCP->Receive(sock);
 
 	if (response != 1 && decision == _IMMA_MAKE_ROOM_) 
 	{
@@ -171,7 +173,7 @@ int Play::MakeRoomOrNot(char decision)
 	}
 }
 
-void Play::MultiP(int whichside)
+void Play::MultiP(SOCKET sock, int whichside)
 {
 	int stone;
 	if (whichside == _IMMA_MAKE_ROOM_)
@@ -204,7 +206,7 @@ void Play::MultiP(int whichside)
 				break;
 			}
 
-			main_TCP->SendPosOfStone(pos[0] - 1, pos[1] - 1);
+			main_TCP->SendPosOfStone(sock, pos[0] - 1, pos[1] - 1);
 
 			main_UI->Clear();
 			main_UI->PrintBoard(board, height);
@@ -213,14 +215,14 @@ void Play::MultiP(int whichside)
 			if (WhoseWinner(BLACK, height) == BLACK)
 			{
 				main_UI->ResultMessageForMulti(WIN);
-				main_TCP->End();
+				main_TCP->End(sock);
 				break;
 			}
 
 			//white
 			pos = new int[2];
-			pos[0] = main_TCP->Receive();
-			pos[1] = main_TCP->Receive();
+			pos[0] = main_TCP->Receive(sock);
+			pos[1] = main_TCP->Receive(sock);
 
 			board[pos[1] * height + pos[0]] = WHITE;
 			delete[] pos;
@@ -228,8 +230,8 @@ void Play::MultiP(int whichside)
 			if (WhoseWinner(WHITE, height) == WHITE)
 			{
 				main_UI->ResultMessageForMulti(LOST);
-				main_TCP->SendChar(WINNER_IS_WHITE);
-				main_TCP->End();
+				main_TCP->SendChar(sock, WINNER_IS_WHITE);
+				main_TCP->End(sock);
 				break;
 			}
 		}
@@ -247,8 +249,8 @@ void Play::MultiP(int whichside)
 
 			//black
 			pos = new int[2];
-			pos[0] = main_TCP->Receive();
-			pos[1] = main_TCP->Receive();
+			pos[0] = main_TCP->Receive(sock);
+			pos[1] = main_TCP->Receive(sock);
 
 			board[pos[1] * height + pos[0]] = BLACK;
 			main_UI->Clear();
@@ -258,8 +260,8 @@ void Play::MultiP(int whichside)
 			if (WhoseWinner(BLACK, height) == BLACK)
 			{
 				main_UI->ResultMessageForMulti(LOST);
-				main_TCP->SendChar(WINNER_IS_BLACK);
-				main_TCP->End();
+				main_TCP->SendChar(sock, WINNER_IS_BLACK);
+				main_TCP->End(sock);
 				break;
 			}
 
@@ -282,14 +284,14 @@ void Play::MultiP(int whichside)
 				break;
 			}
 
-			main_TCP->SendPosOfStone(pos[0] - 1, pos[1] - 1);
+			main_TCP->SendPosOfStone(sock, pos[0] - 1, pos[1] - 1);
 
 			delete[] pos;
 
 			if (WhoseWinner(WHITE, height) == WHITE)
 			{
 				main_UI->ResultMessageForMulti(WIN);
-				main_TCP->End();
+				main_TCP->End(sock);
 				break;
 			}
 		}

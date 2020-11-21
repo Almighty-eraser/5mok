@@ -13,7 +13,7 @@ public:
 	void SendPosOfStone(SOCKET Clnt, char x, char y);
 	void SendChar(SOCKET Clnt, char decision);
 	char Receive(SOCKET Clnt);
-	void End(void);
+	void End(SOCKET SOCK);
 private:
 	SOCKET sock;
 	sockaddr_in Sockaddr{};

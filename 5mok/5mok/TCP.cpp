@@ -6,7 +6,7 @@ void ErrorHandling(const char* message)
 	exit(-1);
 }
 
-void TCP::StartTCPclnt(int PORT)
+void TCP::StartTCPclnt(SOCKET sock, int PORT)
 {
 	WSADATA wsadata;
 	if (WSAStartup(MAKEWORD(2, 2), &wsadata) != 0)
@@ -22,17 +22,17 @@ void TCP::StartTCPclnt(int PORT)
 	Sockaddr.sin_addr.S_un.S_addr = inet_addr(IP_Address);
 	Sockaddr.sin_port = htons(PORT);
 
-	if (bind(sock, reinterpret_cast<sockaddr*>(&Sockaddr), sizeof(Sockaddr)) == SOCKET_ERROR)
-		ErrorHandling("Cannot bind socket");
+	if (connect(sock, reinterpret_cast<sockaddr*>(&Sockaddr), sizeof(Sockaddr)) == SOCKET_ERROR)
+		ErrorHandling("Cannot connect to server");
 }
 
-void TCP::SendChar(char decision)
+void TCP::SendChar(SOCKET sock, char decision)
 {
 	if (send(sock, &decision, sizeof(decision), 0) == SOCKET_ERROR)
 		ErrorHandling("Cannot send first data");
 }
 
-void TCP::SendPosOfStone(char x, char y)
+void TCP::SendPosOfStone(SOCKET sock, char x, char y)
 {
 	if (send(sock, &x, sizeof(char), 0) == SOCKET_ERROR)
 		ErrorHandling("Cannot send any data");
@@ -40,7 +40,7 @@ void TCP::SendPosOfStone(char x, char y)
 		ErrorHandling("Cannot send any data");
 }
 
-char TCP::Receive(void)
+char TCP::Receive(SOCKET sock)
 {
 	char pos;
 	if (recv(sock, &pos, sizeof(pos), 0) == SOCKET_ERROR)
@@ -48,7 +48,7 @@ char TCP::Receive(void)
 	return pos;
 }
 
-void TCP::End()
+void TCP::End(SOCKET sock)
 {
 	closesocket(sock);
 }

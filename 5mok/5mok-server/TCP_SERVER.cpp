@@ -60,7 +60,7 @@ char TCP_SERVER::Receive(SOCKET Clnt)
 	return pos;
 }
 
-void TCP_SERVER::End()
+void TCP_SERVER::End(SOCKET SOCK)
 {
-	closesocket(sock);
+	closesocket(SOCK);
 }

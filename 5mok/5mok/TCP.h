@@ -8,13 +8,11 @@
 class TCP
 {
 public:
-	void StartTCPclnt(int PORT);
-	void SendPosOfStone(char x, char y);
-	void SendChar(char decision);
-	char Receive(void);
-	void End(void);
-private:
-	SOCKET sock;
+	void StartTCPclnt(SOCKET sock, int PORT);
+	void SendPosOfStone(SOCKET sock, char x, char y);
+	void SendChar(SOCKET sock, char decision);
+	char Receive(SOCKET sock);
+	void End(SOCKET sock);
 };
 
 
