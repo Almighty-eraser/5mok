@@ -8,12 +8,12 @@
 class TCP_SERVER
 {
 public:
-	void StartTCPserver(int PORT);
+	void StartTCPserver(void);
 	SOCKET WaitForClnt(void);
 	void SendPosOfStone(SOCKET Clnt, char x, char y);
 	void SendChar(SOCKET Clnt, char decision);
 	char Receive(SOCKET Clnt);
-	void End(SOCKET SOCK);
+	void End(SOCKET Clnt);
 private:
 	SOCKET sock;
 	sockaddr_in Sockaddr{};

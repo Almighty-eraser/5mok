@@ -6,7 +6,7 @@ void ErrorHandling(const char* message)
 	exit(-1);
 }
 
-void TCP_SERVER::StartTCPserver(int PORT)
+void TCP_SERVER::StartTCPserver()
 {
 	WSADATA wsadata;
 	if (WSAStartup(MAKEWORD(2, 2), &wsadata) != 0)
@@ -18,7 +18,7 @@ void TCP_SERVER::StartTCPserver(int PORT)
 
 	Sockaddr.sin_family = AF_INET;
 	Sockaddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
-	Sockaddr.sin_port = htons(PORT);
+	Sockaddr.sin_port = htons(SERVER_PORT);
 
 	if (bind(sock, reinterpret_cast<sockaddr*>(&Sockaddr), sizeof(Sockaddr)) == SOCKET_ERROR)
 		ErrorHandling("Cannot bind socket");

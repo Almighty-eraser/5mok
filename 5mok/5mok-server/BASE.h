@@ -27,9 +27,7 @@ enum {
 #ifndef _TCP_
 #define _TCP_
 
-#define MAIN_SERVER_PORT 55000
-#define SELECT_ROOM_PORT 50001
-#define PLAY_PORT 49000
+#define SERVER_PORT 55000
 #define IP_Address "192.168.0.10"
 
 #endif
@@ -48,7 +46,7 @@ enum {
 
 #define _IMMA_MAKE_ROOM_ 0
 #define _IMMA_JOIN_ROOM_ 1
-
+#define _IMMA_CHOOSE_ROOM_ 2
 #endif
 
 //1. 8x8 2. 9x9 3. 10x10 4. 11x11
@@ -83,6 +81,7 @@ enum {
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #include <iostream>
+#include <vector>
 #include <WinSock2.h>
 #include <Windows.h>
 

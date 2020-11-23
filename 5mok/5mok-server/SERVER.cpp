@@ -2,49 +2,56 @@
 
 void SERVER::Run(void)
 {
-	SOCKET BlackClnt, WhiteClnt, TempClnt;
+	SOCKET TempClnt;
 	char receive;
 	bool RoomFlag(false);
 
-	serv_TCP->StartTCPserver(MAIN_SERVER_PORT);
+	serv_TCP->StartTCPserver();
 
 	while (1)
 	{
-		TempClnt = 0;
-		BlackClnt = 0;
-		WhiteClnt = 0;
 
 		TempClnt = serv_TCP->WaitForClnt();
 
 		receive = serv_TCP->Receive(TempClnt);
 
-		if (receive == _IMMA_JOIN_ROOM_)
+		if (receive == _IMMA_MAKE_ROOM_)
 		{
-			WhiteClnt = TempClnt;
-
-			if (RoomFlag == false)
-			{
-				serv_TCP->SendChar(WhiteClnt, -1);
-				continue;
-			}
-			else if (RoomFlag == true)
-			{
-				
-			}
+			std::thread t1(&SERVER::MakingRoom, this, TempClnt);
+			t1.detach();
+			break;
 		}
-		else if (receive == _IMMA_MAKE_ROOM_)
+		else if (receive == _IMMA_JOIN_ROOM_)
 		{
-			BlackClnt = TempClnt;
-
-			RoomFlag = true;
+			std::thread t2(&SERVER::ShowRooms, this, TempClnt);
+			t2.detach();
+			break;
+		}
+		else if (receive == _IMMA_CHOOSE_ROOM_)
+		{
+			std::thread t3(&SERVER::ChoosingRoomAndPlay, this, TempClnt);
+			t3.detach();
+			break;
 		}
 		else
 			continue;
 	}
+	if (TempClnt != 0)
+		serv_TCP->End(TempClnt);
 
 }
 
+void SERVER::MakingRoom(SOCKET Clnt)
+{
+	
+}
+
 void SERVER::ShowRooms(SOCKET Clnt)
+{
+
+}
+
+void SERVER::ChoosingRoomAndPlay(SOCKET Clnt)
 {
 
 }
