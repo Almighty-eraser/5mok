@@ -14,8 +14,8 @@ public:
 	int MakeBoard(void);
 	void RemoveBoard(void);
 	void SinglePptp(void);//singleplay person to person
-	int MakeRoomOrNot(SOCKET sock, char decision);
-	void MultiP(SOCKET sock, int whichside);//multiplay
+	int MakeRoomOrNot(char decision);
+	void MultiP(int whichside);//multiplay
 	int WhoseWinner(int stone, int height);
 
 private:

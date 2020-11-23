@@ -23,9 +23,9 @@ void UI::Mainmenu(void)
 void UI::MakeRoomOrNot(void)
 {
 	cout
-		<< "\n\n\n\n\t1. Make a room"
-		<< "\n\t2. Join a room"
-		<< "\n\tInput : ";
+		<< "\n\n\n\n\t\t1. Make a room"
+		<< "\n\t\t2. Join a room"
+		<< "\n\t\tInput : ";
 }
 
 void UI::SetColor(int forground, int background)

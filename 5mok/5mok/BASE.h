@@ -27,9 +27,7 @@ enum {
 #ifndef _TCP_
 #define _TCP_
 
-#define MAIN_SERVER_PORT 55000
-#define SELECT_ROOM_PORT 50001
-#define PLAY_PORT 49000
+#define SERVER_PORT 55000
 #define IP_Address "192.168.0.10"
 
 #endif
