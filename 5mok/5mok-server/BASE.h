@@ -28,7 +28,12 @@ enum {
 #define _TCP_
 
 #define SERVER_PORT 55000
+#define MAKING_ROOM_PORT 55500
+#define JOINING_ROOM_PORT 49800
+#define CHOOSING_ROOM_PORT 39200
+#define PLAY_PORT 5500
 #define IP_Address "192.168.0.10"
+#define BUFSIZE_OF_TITLE 100
 
 #endif
 
