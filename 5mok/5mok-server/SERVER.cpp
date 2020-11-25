@@ -108,6 +108,7 @@ void SERVER::Play(SOCKET black_clnt, SOCKET white_clnt)
 
 	while (1)
 	{
+		//receive coordinates from black
 		pos[0] = serv_makingroom.Receive(black_clnt);
 		if (pos[0] == WINNER_IS_WHITE)
 			break;
@@ -115,8 +116,10 @@ void SERVER::Play(SOCKET black_clnt, SOCKET white_clnt)
 
 		serv_choosingroom.SendPosOfStone(white_clnt, pos[0] - 1, pos[1] - 1);
 
+
+		//receive coordinates from white
 		pos[0] = serv_makingroom.Receive(white_clnt);
-		if (pos[0] == WINNER_IS_WHITE)
+		if (pos[0] == WINNER_IS_BLACK)
 			break;
 		pos[1] = serv_makingroom.Receive(white_clnt);
 
