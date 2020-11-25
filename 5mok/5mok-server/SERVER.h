@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <conio.h>
 #include <thread>
 #include "BASE.h"
 #include "TCP_SERVER.h"
@@ -18,15 +19,18 @@ public:
 	}
 
 	void Run(void);
-	void MakingRoom(SOCKET Clnt);
-	void ShowRooms(SOCKET Clnt);
-	void ChoosingRoomAndPlay(SOCKET Clnt);
+	void MakingRoom(void);
+	void ShowRooms(void);
+	void ChoosingRoom(void);
+	void Play(SOCKET black_clnt, SOCKET white_clnt);
+
+	void EndServer(void);
 private:
 	TCP_SERVER* serv_TCP;
-	TCP_SERVER* serv_makingroom;
-	TCP_SERVER* serv_showrooms;
-	TCP_SERVER* serv_choosingroom;
-	TCP_SERVER* serv_play;
+	TCP_SERVER serv_makingroom;
+	TCP_SERVER serv_showrooms;
+	TCP_SERVER serv_choosingroom;
+	TCP_SERVER serv_play;
 	std::vector<SOCKET> rooms;
 	std::vector<char*> titles;
 	bool RoomFlag = false;
