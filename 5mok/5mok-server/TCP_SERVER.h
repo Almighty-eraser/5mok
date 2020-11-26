@@ -9,9 +9,9 @@ class TCP_SERVER
 {
 public:
 	void StartTCPserver(int port);
-	SOCKET WaitForClnt(void);
+	SOCKET AcceptClnt(void);
 	void SendPosOfStone(SOCKET Clnt, char x, char y);
-	void SendChar(SOCKET Clnt, char decision);
+	int SendChar(SOCKET Clnt, char decision);
 	void SendString(SOCKET Clnt, char* string, int size);
 	char Receive(SOCKET Clnt);
 	char* ReceiveStringRN(SOCKET Clnt, int size);

@@ -22,40 +22,60 @@ void TCP_SERVER::StartTCPserver(int port)
 
 	if (bind(sock, reinterpret_cast<sockaddr*>(&Sockaddr), sizeof(Sockaddr)) == SOCKET_ERROR)
 		ErrorHandling("Cannot bind socket");
+
+	if (listen(sock, SOMAXCONN) == SOCKET_ERROR)
+		ErrorHandling("listen error");
 }
 
-SOCKET TCP_SERVER::WaitForClnt(void)
+SOCKET TCP_SERVER::AcceptClnt(void)
 {
 	SOCKET FacingWithClnt;
-
-	if (listen(sock, 1) == SOCKET_ERROR)
-		ErrorHandling("listen error");
 	
 	int size_of_addr = sizeof(Sockaddr);
 	if (FacingWithClnt = accept(sock, reinterpret_cast<sockaddr*>(&Sockaddr), &size_of_addr) == SOCKET_ERROR)
 		ErrorHandling("accept error");
+	LeaveLog("accepted clnt : " + FacingWithClnt);
+	
 
 	return FacingWithClnt;
 }
 
-void TCP_SERVER::SendChar(SOCKET Clnt, char decision)
+int TCP_SERVER::SendChar(SOCKET Clnt, char decision)
 {
-	if (send(Clnt, &decision, sizeof(decision), 0) == SOCKET_ERROR)
-		ErrorHandling("Cannot send first data");
+	int ErrorOrNot;
+	if (ErrorOrNot = send(Clnt, &decision, sizeof(decision), 0) == SOCKET_ERROR)
+		LeaveLog("Cannot send decision : " + decision + ' ' + 't' + 'o' + ' ' + Clnt);
+	else
+		LeaveLog("sent decision : " + decision + ' ' + 't' + 'o' + ' ' + Clnt);
+	
+	return ErrorOrNot;
 }
+
 
 void TCP_SERVER::SendPosOfStone(SOCKET Clnt, char x, char y)
 {
 	if (send(Clnt, &x, sizeof(char), 0) == SOCKET_ERROR)
-		ErrorHandling("Cannot send any data");
+		LeaveLog("Cannot send coordinates" + ' ' + x + ' ' + Clnt);
+	else
+		LeaveLog("sent coordinates" + ' ' + x + ' ' + Clnt);
 	if (send(Clnt, &y, sizeof(char), 0) == SOCKET_ERROR)
-		ErrorHandling("Cannot send any data");
+		LeaveLog("sent coordinates" + ' ' + y + ' ' + Clnt);
+	else
+		LeaveLog("sent coordinates" + ' ' + y + ' ' + Clnt);
 }
 
 void TCP_SERVER::SendString(SOCKET Clnt, char* string, int size)
 {
-	if(send(Clnt, string, size, 0) == SOCKET_ERROR)
-		ErrorHandling("Cannot send any data");
+	if (send(Clnt, string, size, 0) == SOCKET_ERROR)
+	{
+		LeaveLog("Cannot send string to : " + Clnt);
+		LeaveLog(string);
+	}
+	else
+	{
+		LeaveLog("sent string to : " + Clnt);
+		LeaveLog(string);
+	}
 }
 
 char TCP_SERVER::Receive(SOCKET Clnt)

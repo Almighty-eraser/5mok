@@ -13,7 +13,7 @@ void SERVER::Run(void)
 	while (1)
 	{
 
-		TempClnt = serv_TCP->WaitForClnt();
+		TempClnt = serv_TCP->AcceptClnt();
 
 		receive = serv_TCP->Receive(TempClnt);
 		serv_TCP->End(TempClnt);
@@ -41,9 +41,6 @@ void SERVER::Run(void)
 			serv_TCP->SendChar(TempClnt, -1);
 			continue;
 		}
-			
-
-		
 	}
 	
 	if (TempClnt != 0)
@@ -51,92 +48,98 @@ void SERVER::Run(void)
 
 }
 
-void SERVER::MakingRoom(void)
+void SERVER::MakingRoom(SOCKET Clnt)
 {
-	SOCKET Clnt = serv_makingroom.WaitForClnt();
+	LeaveLog("MakingRoom func started");
 	rooms.push_back(Clnt);
 	
 	char* title;
-	title = serv_makingroom.ReceiveStringRN(Clnt, BUFSIZE_OF_TITLE);
+	title = serv_TCP->ReceiveStringRN(Clnt, BUFSIZE_OF_TITLE);
 	titles.push_back(title);
 
-	serv_makingroom.SendChar(Clnt, 1);
+	serv_TCP->SendChar(Clnt, 1);
 
-	serv_makingroom.End(Clnt);
 }
 
-void SERVER::ShowRooms(void)
+void SERVER::ShowRooms(SOCKET Clnt)
 {
-	SOCKET Clnt = serv_showrooms.WaitForClnt();
 	if (RoomFlag == false)
 	{
-		serv_showrooms.SendChar(Clnt, -1);
+		serv_TCP->SendChar(Clnt, -1);
 		return;
 	}
 	
-	serv_showrooms.SendChar(Clnt, 1);
-	serv_showrooms.SendChar(Clnt, rooms.size());
+	serv_TCP->SendChar(Clnt, 1);
+	serv_TCP->SendChar(Clnt, rooms.size());
 
 	for (int i = 0; i < rooms.size(); i++)
 	{
-		serv_showrooms.SendString(Clnt, titles[i], BUFSIZE_OF_TITLE);
+		serv_TCP->SendString(Clnt, titles[i], BUFSIZE_OF_TITLE);
 	}
 
-	serv_showrooms.End(Clnt);
+	serv_TCP->End(Clnt);
 }
 
-void SERVER::ChoosingRoom(void)
+void SERVER::ChoosingRoom(SOCKET Clnt)
 {
-	
-	SOCKET Clnt = serv_choosingroom.WaitForClnt();
-
-	char number = serv_choosingroom.Receive(Clnt);
+	char number = serv_TCP->Receive(Clnt);
 	if(rooms[number] != NULL)
 	{
-		serv_makingroom.SendChar(rooms[number], 1);
+		serv_TCP->SendChar(rooms[number], 1);
+		serv_TCP->SendChar(Clnt, 1);
 		Play(rooms[number], Clnt);
 	}
 	else
-		serv_choosingroom.SendChar(Clnt, -1);
+		serv_TCP->SendChar(Clnt, -1);
 
-	serv_choosingroom.End(Clnt);
+
 }
 
 void SERVER::Play(SOCKET black_clnt, SOCKET white_clnt)
 {
+	
 	char pos[2];
 
 	while (1)
 	{
 		//receive coordinates from black
-		pos[0] = serv_makingroom.Receive(black_clnt);
+		pos[0] = serv_TCP->Receive(black_clnt);
 		if (pos[0] == WINNER_IS_WHITE)
+		{
+			LeaveLog("White wins");
 			break;
-		pos[1] = serv_makingroom.Receive(black_clnt);
+		}
+		pos[1] = serv_TCP->Receive(black_clnt);
+		LeaveLog("black : " + pos[0] + ' ' + pos[1]);
 
-		serv_choosingroom.SendPosOfStone(white_clnt, pos[0] - 1, pos[1] - 1);
+		serv_TCP->SendPosOfStone(white_clnt, pos[0] - 1, pos[1] - 1);
 
 
 		//receive coordinates from white
-		pos[0] = serv_makingroom.Receive(white_clnt);
+		pos[0] = serv_TCP->Receive(white_clnt);
 		if (pos[0] == WINNER_IS_BLACK)
+		{
+			LeaveLog("Black wins");
 			break;
-		pos[1] = serv_makingroom.Receive(white_clnt);
+		}
+		pos[1] = serv_TCP->Receive(white_clnt);
+		LeaveLog("white : " + pos[0] + ' ' + pos[1]);
 
-		serv_choosingroom.SendPosOfStone(black_clnt, pos[0] - 1, pos[1] - 1);
+
+		serv_TCP->SendPosOfStone(black_clnt, pos[0] - 1, pos[1] - 1);
 
 	}
 }
 
 void SERVER::EndServer(void)
 {
-	if (kbhit())
-		if (int input = _getch() == 27)
-		{
-			exit(0);
-		}
-		else
-			return;
-	else
-		return;
+	char command[10];
+	while (1)
+	{
+		scanf_s("%s", command);
+		if (!strcmp(command, "exit"))
+			break;
+	}
+	exit(0);
 }
+

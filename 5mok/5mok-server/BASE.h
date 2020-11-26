@@ -32,7 +32,6 @@ enum {
 #define SHOWING_ROOM_PORT 49800
 #define CHOOSING_ROOM_PORT 39200
 #define PLAY_PORT 5500
-#define IP_Address "192.168.0.10"
 #define BUFSIZE_OF_TITLE 100
 
 #endif
@@ -89,4 +88,17 @@ enum {
 #include <vector>
 #include <WinSock2.h>
 #include <Windows.h>
+
+void LeaveLog(const char* message)
+{
+	time_t curTime = time(NULL);
+	struct tm* pLocal = localtime(&curTime);
+	std::cout << '\n' << pLocal->tm_year + 1900 << ' '
+		<< pLocal->tm_mon + 1 << ' '
+		<< pLocal->tm_mday << ' '
+		<< pLocal->tm_hour << ' '
+		<< pLocal->tm_min << ' '
+		<< pLocal->tm_sec << ' ';
+	puts(message);
+}
 

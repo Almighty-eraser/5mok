@@ -9,28 +9,26 @@
 class SERVER
 {
 public:
-	SERVER(TCP_SERVER& tcp) { serv_TCP = &tcp; };
+	SERVER(TCP_SERVER& tcp) { serv_TCP = &tcp; LeaveLog("SERVER class started"); };
 	~SERVER() {
 		for (int i = 0; i < titles.size(); i++)
-			delete titles[i];
+			if(titles[i] != NULL)
+				delete titles[i];
 		for (int i = 0; i < rooms.size(); i++)
 			if (rooms[i] != NULL)
 				serv_TCP->End(rooms[i]);
+		LeaveLog("SERVER class closed");
 	}
 
 	void Run(void);
-	void MakingRoom(void);
-	void ShowRooms(void);
-	void ChoosingRoom(void);
+	void MakingRoom(SOCKET Clnt);
+	void ShowRooms(SOCKET Clnt);
+	void ChoosingRoom(SOCKET Clnt);
 	void Play(SOCKET black_clnt, SOCKET white_clnt);
 
 	void EndServer(void);
 private:
 	TCP_SERVER* serv_TCP;
-	TCP_SERVER serv_makingroom;
-	TCP_SERVER serv_showrooms;
-	TCP_SERVER serv_choosingroom;
-	TCP_SERVER serv_play;
 	std::vector<SOCKET> rooms;
 	std::vector<char*> titles;
 	bool RoomFlag = false;
