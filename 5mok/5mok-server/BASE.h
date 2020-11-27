@@ -28,10 +28,6 @@ enum {
 #define _TCP_
 
 #define SERVER_PORT 55000
-#define MAKING_ROOM_PORT 55500
-#define SHOWING_ROOM_PORT 49800
-#define CHOOSING_ROOM_PORT 39200
-#define PLAY_PORT 5500
 #define BUFSIZE_OF_TITLE 100
 
 #endif
@@ -51,6 +47,7 @@ enum {
 #define _IMMA_MAKE_ROOM_ 0
 #define _IMMA_JOIN_ROOM_ 1
 #define _IMMA_CHOOSE_ROOM_ 2
+#define _IMMA_DELETE_ROOM_ 3
 #endif
 
 //1. 8x8 2. 9x9 3. 10x10 4. 11x11
@@ -88,6 +85,7 @@ enum {
 #include <vector>
 #include <WinSock2.h>
 #include <Windows.h>
+#include <ctime>
 
 void LeaveLog(const char* message)
 {
@@ -100,5 +98,20 @@ void LeaveLog(const char* message)
 		<< pLocal->tm_min << ' '
 		<< pLocal->tm_sec << ' ';
 	puts(message);
+}
+
+void LeaveLogForString(const char* stringmessage)
+{
+	time_t curTime = time(NULL);
+	struct tm* pLocal = localtime(&curTime);
+	std::cout << '\n' << pLocal->tm_year + 1900 << ' '
+		<< pLocal->tm_mon + 1 << ' '
+		<< pLocal->tm_mday << ' '
+		<< pLocal->tm_hour << ' '
+		<< pLocal->tm_min << ' '
+		<< pLocal->tm_sec << ' ';
+	for (int i = 0; stringmessage[i] != '\0'; i++)
+		putchar(stringmessage[i]);
+	putchar('\0');
 }
 

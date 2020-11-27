@@ -36,6 +36,12 @@ void SERVER::Run(void)
 			std::thread t3(&SERVER::ChoosingRoom, this, TempClnt);
 			t3.detach();
 		}
+		else if (receive == _IMMA_DELETE_ROOM_)
+		{
+			serv_TCP->SendChar(TempClnt, 1);
+			std::thread t4(&SERVER::DeletingRoom, this, TempClnt);
+			t4.detach();
+		}
 		else
 		{
 			serv_TCP->SendChar(TempClnt, -1);
@@ -50,7 +56,6 @@ void SERVER::Run(void)
 
 void SERVER::MakingRoom(SOCKET Clnt)
 {
-	LeaveLog("MakingRoom func started");
 	rooms.push_back(Clnt);
 	
 	char* title;
@@ -58,7 +63,7 @@ void SERVER::MakingRoom(SOCKET Clnt)
 	titles.push_back(title);
 
 	serv_TCP->SendChar(Clnt, 1);
-
+	delete[] title;
 }
 
 void SERVER::ShowRooms(SOCKET Clnt)
@@ -83,6 +88,7 @@ void SERVER::ShowRooms(SOCKET Clnt)
 void SERVER::ChoosingRoom(SOCKET Clnt)
 {
 	char number = serv_TCP->Receive(Clnt);
+	number -= 1;
 	if(rooms[number] != NULL)
 	{
 		serv_TCP->SendChar(rooms[number], 1);
@@ -93,6 +99,31 @@ void SERVER::ChoosingRoom(SOCKET Clnt)
 		serv_TCP->SendChar(Clnt, -1);
 
 
+}
+
+void SERVER::DeletingRoom(SOCKET Clnt)
+{
+	char* string;
+	string = serv_TCP->ReceiveStringRN(Clnt, BUFSIZE_OF_TITLE);
+	int position;
+
+	for (int i = 1; i < titles.size(); i++)
+	{
+		if (!strcmp(titles[i], string))
+		{
+			position = i;
+			for (int j = i; j < titles.size() - 1; j++)
+				titles[j] = titles[j + 1];
+			titles.pop_back();
+			break;
+		}
+	}
+	
+	for (int i = position; i < rooms.size() - 1; i++)
+		rooms[i] = rooms[i + 1];
+	rooms.pop_back();
+
+	delete[] string;
 }
 
 void SERVER::Play(SOCKET black_clnt, SOCKET white_clnt)

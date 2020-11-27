@@ -24,6 +24,7 @@ public:
 	void MakingRoom(SOCKET Clnt);
 	void ShowRooms(SOCKET Clnt);
 	void ChoosingRoom(SOCKET Clnt);
+	void DeletingRoom(SOCKET Clnt);
 	void Play(SOCKET black_clnt, SOCKET white_clnt);
 
 	void EndServer(void);

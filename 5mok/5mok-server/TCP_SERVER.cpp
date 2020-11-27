@@ -15,16 +15,22 @@ void TCP_SERVER::StartTCPserver(int port)
 	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (sock == SOCKET_ERROR)
 		ErrorHandling("Cannot create socket");
+	LeaveLog("Created socket " + sock);
 
 	Sockaddr.sin_family = AF_INET;
+	LeaveLog("AF_INET");
 	Sockaddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
+	LeaveLog(INADDR_ANY);
 	Sockaddr.sin_port = htons(port);
+	LeaveLog("" + port);
 
 	if (bind(sock, reinterpret_cast<sockaddr*>(&Sockaddr), sizeof(Sockaddr)) == SOCKET_ERROR)
 		ErrorHandling("Cannot bind socket");
+	LeaveLog("bind sock " + sock);
 
 	if (listen(sock, SOMAXCONN) == SOCKET_ERROR)
 		ErrorHandling("listen error");
+	LeaveLog("listen sock " + sock + ' ' + SOMAXCONN);
 }
 
 SOCKET TCP_SERVER::AcceptClnt(void)
@@ -69,12 +75,12 @@ void TCP_SERVER::SendString(SOCKET Clnt, char* string, int size)
 	if (send(Clnt, string, size, 0) == SOCKET_ERROR)
 	{
 		LeaveLog("Cannot send string to : " + Clnt);
-		LeaveLog(string);
+		LeaveLogForString(string);
 	}
 	else
 	{
 		LeaveLog("sent string to : " + Clnt);
-		LeaveLog(string);
+		LeaveLogForString(string);
 	}
 }
 
@@ -83,6 +89,7 @@ char TCP_SERVER::Receive(SOCKET Clnt)
 	char pos;
 	if (recv(Clnt, &pos, sizeof(pos), 0) == SOCKET_ERROR)
 		ErrorHandling("Cannot receive any data");
+	LeaveLog("Received : " + pos + ' ' + 'f' + 'r' + 'o' + 'm' + Clnt);
 	return pos;
 }
 
@@ -91,10 +98,13 @@ char* TCP_SERVER::ReceiveStringRN(SOCKET Clnt, int size)
 	char* string = new char[size];
 	if(recv(Clnt, string, size, 0) == SOCKET_ERROR)
 		ErrorHandling("Cannot receive any data");
+	LeaveLog("Received from " + Clnt);
+	LeaveLogForString(string);
 	return string;
 }
 
 void TCP_SERVER::End(SOCKET SOCK)
 {
 	closesocket(SOCK);
+	LeaveLog("Ended socket : " + SOCK);
 }
