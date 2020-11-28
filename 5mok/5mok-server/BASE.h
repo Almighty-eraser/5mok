@@ -87,23 +87,11 @@ enum {
 #include <Windows.h>
 #include <ctime>
 
-void LeaveLog(const char* message)
+inline void Log(const char* stringmessage)
 {
 	time_t curTime = time(NULL);
-	struct tm* pLocal = localtime(&curTime);
-	std::cout << '\n' << pLocal->tm_year + 1900 << ' '
-		<< pLocal->tm_mon + 1 << ' '
-		<< pLocal->tm_mday << ' '
-		<< pLocal->tm_hour << ' '
-		<< pLocal->tm_min << ' '
-		<< pLocal->tm_sec << ' ';
-	puts(message);
-}
-
-void LeaveLogForString(const char* stringmessage)
-{
-	time_t curTime = time(NULL);
-	struct tm* pLocal = localtime(&curTime);
+	struct tm* pLocal;  
+	localtime_s(pLocal, &curTime);
 	std::cout << '\n' << pLocal->tm_year + 1900 << ' '
 		<< pLocal->tm_mon + 1 << ' '
 		<< pLocal->tm_mday << ' '

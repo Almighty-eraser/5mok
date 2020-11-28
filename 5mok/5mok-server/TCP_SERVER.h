@@ -18,7 +18,7 @@ public:
 	void End(SOCKET Clnt);
 private:
 	SOCKET sock;
-	sockaddr_in Sockaddr{};
+	sockaddr_in Sockaddr{0};
 };
 
 

@@ -28,6 +28,7 @@ int TCP::StartTCPclnt(void)
 		return -1;
 	}
 	puts("\nConnected to Server\n");
+	return 1;
 }
 
 void TCP::SendChar(char decision)

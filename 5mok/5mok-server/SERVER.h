@@ -1,15 +1,15 @@
 #pragma once
 
-#include <iostream>
 #include <conio.h>
 #include <thread>
-#include "BASE.h"
 #include "TCP_SERVER.h"
+
+void Log(const char* stringmessage);
 
 class SERVER
 {
 public:
-	SERVER(TCP_SERVER& tcp) { serv_TCP = &tcp; LeaveLog("SERVER class started"); };
+	SERVER(TCP_SERVER& tcp) { serv_TCP = &tcp; Log("SERVER class started"); };
 	~SERVER() {
 		for (int i = 0; i < titles.size(); i++)
 			if(titles[i] != NULL)
@@ -17,7 +17,7 @@ public:
 		for (int i = 0; i < rooms.size(); i++)
 			if (rooms[i] != NULL)
 				serv_TCP->End(rooms[i]);
-		LeaveLog("SERVER class closed");
+		Log("SERVER class closed");
 	}
 
 	void Run(void);

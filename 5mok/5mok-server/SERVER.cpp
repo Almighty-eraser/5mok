@@ -2,7 +2,7 @@
 
 void SERVER::Run(void)
 {
-	SOCKET TempClnt;
+	SOCKET TempClnt = 0;
 	char receive;
 	bool KeepRunning = true;
 
@@ -80,7 +80,8 @@ void SERVER::SendRoomList(SOCKET Clnt)
 	}
 	
 	serv_TCP->SendChar(Clnt, 1);
-	serv_TCP->SendChar(Clnt, rooms.size());
+	int size = rooms.size();
+	serv_TCP->SendString(Clnt, reinterpret_cast<char*>(&size), sizeof(int));
 
 	for (int i = 0; i < rooms.size(); i++)
 	{
@@ -139,7 +140,7 @@ void SERVER::DeletingRoom(SOCKET Clnt)
 				position = -1;
 		}
 
-		if (position = -1)
+		if (position == -1)
 		{
 			serv_TCP->SendChar(Clnt, -1);
 			delete[] string;
@@ -170,11 +171,11 @@ void SERVER::Play(SOCKET black_clnt, SOCKET white_clnt)
 		pos[0] = serv_TCP->Receive(black_clnt);
 		if (pos[0] == WINNER_IS_WHITE)
 		{
-			LeaveLog("White wins");
+			Log("White wins");
 			break;
 		}
 		pos[1] = serv_TCP->Receive(black_clnt);
-		LeaveLog("black : " + pos[0] + ' ' + pos[1]);
+		Log("black : " + pos[0] + ' ' + pos[1]);
 
 		serv_TCP->SendPosOfStone(white_clnt, pos[0], pos[1]);
 
@@ -183,11 +184,11 @@ void SERVER::Play(SOCKET black_clnt, SOCKET white_clnt)
 		pos[0] = serv_TCP->Receive(white_clnt);
 		if (pos[0] == WINNER_IS_BLACK)
 		{
-			LeaveLog("Black wins");
+			Log("Black wins");
 			break;
 		}
 		pos[1] = serv_TCP->Receive(white_clnt);
-		LeaveLog("white : " + pos[0] + ' ' + pos[1]);
+		Log("white : " + pos[0] + ' ' + pos[1]);
 
 
 		serv_TCP->SendPosOfStone(black_clnt, pos[0], pos[1]);
@@ -203,7 +204,7 @@ void SERVER::EndServer(bool* RunServer)
 	char command[10] = {0};
 	while (1)
 	{
-		scanf_s("%s", command, sizeof(command));
+		scanf_s("%s", command, (unsigned int)sizeof(command));
 		if (!strcmp(command, "exit"))
 			break;
 	}
