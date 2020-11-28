@@ -9,7 +9,7 @@ void Log(const char* stringmessage);
 class SERVER
 {
 public:
-	SERVER(TCP_SERVER& tcp) { serv_TCP = &tcp; Log("SERVER class started"); };
+	SERVER(TCP_SERVER* tcp) { serv_TCP = tcp; Log("SERVER class started"); };
 	~SERVER() {
 		for (int i = 0; i < titles.size(); i++)
 			if(titles[i] != NULL)

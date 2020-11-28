@@ -89,15 +89,11 @@ enum {
 
 inline void Log(const char* stringmessage)
 {
-	time_t curTime = time(NULL);
-	struct tm* pLocal;  
-	localtime_s(pLocal, &curTime);
-	std::cout << '\n' << pLocal->tm_year + 1900 << ' '
-		<< pLocal->tm_mon + 1 << ' '
-		<< pLocal->tm_mday << ' '
-		<< pLocal->tm_hour << ' '
-		<< pLocal->tm_min << ' '
-		<< pLocal->tm_sec << ' ';
+	time_t curTime;
+	time(&curTime);
+	char str[30];
+	ctime_s(str, sizeof(str), &curTime);
+	std::cout << '\n' << str << ' ';
 	for (int i = 0; stringmessage[i] != '\0'; i++)
 		putchar(stringmessage[i]);
 	putchar('\0');
