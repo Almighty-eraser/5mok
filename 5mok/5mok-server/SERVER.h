@@ -22,12 +22,12 @@ public:
 
 	void Run(void);
 	void MakingRoom(SOCKET Clnt);
-	void ShowRooms(SOCKET Clnt);
+	void SendRoomList(SOCKET Clnt);
 	void ChoosingRoom(SOCKET Clnt);
 	void DeletingRoom(SOCKET Clnt);
 	void Play(SOCKET black_clnt, SOCKET white_clnt);
 
-	void EndServer(void);
+	void EndServer(bool* RunServer);
 private:
 	TCP_SERVER* serv_TCP;
 	std::vector<SOCKET> rooms;

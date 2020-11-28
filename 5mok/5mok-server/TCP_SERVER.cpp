@@ -93,7 +93,7 @@ char TCP_SERVER::Receive(SOCKET Clnt)
 	return pos;
 }
 
-char* TCP_SERVER::ReceiveStringRN(SOCKET Clnt, int size)
+char* TCP_SERVER::ReceiveStringRetAV(SOCKET Clnt, int size)//return allocated variable
 {
 	char* string = new char[size];
 	if(recv(Clnt, string, size, 0) == SOCKET_ERROR)

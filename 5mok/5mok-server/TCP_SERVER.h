@@ -14,7 +14,7 @@ public:
 	int SendChar(SOCKET Clnt, char decision);
 	void SendString(SOCKET Clnt, char* string, int size);
 	char Receive(SOCKET Clnt);
-	char* ReceiveStringRN(SOCKET Clnt, int size);
+	char* ReceiveStringRetAV(SOCKET Clnt, int size);
 	void End(SOCKET Clnt);
 private:
 	SOCKET sock;

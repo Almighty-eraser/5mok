@@ -4,13 +4,14 @@ void SERVER::Run(void)
 {
 	SOCKET TempClnt;
 	char receive;
+	bool KeepRunning = true;
 
 	serv_TCP->StartTCPserver(SERVER_PORT);
 
-	std::thread texit(&SERVER::EndServer, this);
-	texit.detach();
+	std::thread t_exit(&SERVER::EndServer, this, &KeepRunning);
+	t_exit.detach();
 
-	while (1)
+	while (KeepRunning)
 	{
 
 		TempClnt = serv_TCP->AcceptClnt();
@@ -27,7 +28,7 @@ void SERVER::Run(void)
 		else if (receive == _IMMA_JOIN_ROOM_)
 		{
 			serv_TCP->SendChar(TempClnt, 1);
-			std::thread t2(&SERVER::ShowRooms, this, TempClnt);
+			std::thread t2(&SERVER::SendRoomList, this, TempClnt);
 			t2.detach();
 		}
 		else if (receive == _IMMA_CHOOSE_ROOM_)
@@ -59,14 +60,18 @@ void SERVER::MakingRoom(SOCKET Clnt)
 	rooms.push_back(Clnt);
 	
 	char* title;
-	title = serv_TCP->ReceiveStringRN(Clnt, BUFSIZE_OF_TITLE);
+	title = serv_TCP->ReceiveStringRetAV(Clnt, BUFSIZE_OF_TITLE);
 	titles.push_back(title);
 
+	if (!titles.empty())
+		RoomFlag = true;
+
 	serv_TCP->SendChar(Clnt, 1);
-	delete[] title;
+
+	//No need to end or delete title or socket
 }
 
-void SERVER::ShowRooms(SOCKET Clnt)
+void SERVER::SendRoomList(SOCKET Clnt)
 {
 	if (RoomFlag == false)
 	{
@@ -87,41 +92,69 @@ void SERVER::ShowRooms(SOCKET Clnt)
 
 void SERVER::ChoosingRoom(SOCKET Clnt)
 {
-	char number = serv_TCP->Receive(Clnt);
-	number -= 1;
-	if(rooms[number] != NULL)
+	while (1)
 	{
-		serv_TCP->SendChar(rooms[number], 1);
-		serv_TCP->SendChar(Clnt, 1);
-		Play(rooms[number], Clnt);
+		char number = serv_TCP->Receive(Clnt);
+		number -= 1;
+		if (rooms[number] != NULL)
+		{
+			serv_TCP->SendChar(rooms[number], 1);
+			serv_TCP->SendChar(Clnt, 1);
+			Play(rooms[number], Clnt);
+			break;
+		}
+		else
+		{
+			serv_TCP->SendChar(Clnt, -1);
+			continue;
+		}
 	}
-	else
-		serv_TCP->SendChar(Clnt, -1);
 
-
+	//No need to end clnt sockets
 }
 
 void SERVER::DeletingRoom(SOCKET Clnt)
 {
 	char* string;
-	string = serv_TCP->ReceiveStringRN(Clnt, BUFSIZE_OF_TITLE);
-	int position;
-
-	for (int i = 1; i < titles.size(); i++)
+	int position = 0;
+	while (1)
 	{
-		if (!strcmp(titles[i], string))
+		string = serv_TCP->ReceiveStringRetAV(Clnt, BUFSIZE_OF_TITLE);
+
+		for (int i = 1; i < titles.size(); i++)
 		{
-			position = i;
-			for (int j = i; j < titles.size() - 1; j++)
-				titles[j] = titles[j + 1];
-			titles.pop_back();
+			if (!strcmp(titles[i], string))
+			{
+				position = i;
+				for (int j = i; j < titles.size() - 1; j++)
+					titles[j] = titles[j + 1];
+				titles.pop_back();
+
+				for (int i = position; i < rooms.size() - 1; i++)
+					rooms[i] = rooms[i + 1];
+				rooms.pop_back();
+				break;
+			}
+			else
+				position = -1;
+		}
+
+		if (position = -1)
+		{
+			serv_TCP->SendChar(Clnt, -1);
+			delete[] string;
+			continue;
+		}
+		else
+		{
+			serv_TCP->SendChar(Clnt, 1);
 			break;
 		}
+			
 	}
-	
-	for (int i = position; i < rooms.size() - 1; i++)
-		rooms[i] = rooms[i + 1];
-	rooms.pop_back();
+
+	if (titles.empty())
+		RoomFlag = false;
 
 	delete[] string;
 }
@@ -143,7 +176,7 @@ void SERVER::Play(SOCKET black_clnt, SOCKET white_clnt)
 		pos[1] = serv_TCP->Receive(black_clnt);
 		LeaveLog("black : " + pos[0] + ' ' + pos[1]);
 
-		serv_TCP->SendPosOfStone(white_clnt, pos[0] - 1, pos[1] - 1);
+		serv_TCP->SendPosOfStone(white_clnt, pos[0], pos[1]);
 
 
 		//receive coordinates from white
@@ -157,20 +190,23 @@ void SERVER::Play(SOCKET black_clnt, SOCKET white_clnt)
 		LeaveLog("white : " + pos[0] + ' ' + pos[1]);
 
 
-		serv_TCP->SendPosOfStone(black_clnt, pos[0] - 1, pos[1] - 1);
+		serv_TCP->SendPosOfStone(black_clnt, pos[0], pos[1]);
 
 	}
+
+	serv_TCP->End(black_clnt);
+	serv_TCP->End(white_clnt);
 }
 
-void SERVER::EndServer(void)
+void SERVER::EndServer(bool* RunServer)
 {
-	char command[10];
+	char command[10] = {0};
 	while (1)
 	{
-		scanf_s("%s", command);
+		scanf_s("%s", command, sizeof(command));
 		if (!strcmp(command, "exit"))
 			break;
 	}
-	exit(0);
+	*RunServer = false;
 }
 
