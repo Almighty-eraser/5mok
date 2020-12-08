@@ -17,6 +17,7 @@ public:
 		for (int i = 0; i < rooms.size(); i++)
 			if (rooms[i] != NULL)
 				serv_TCP->End(rooms[i]);
+		serv_TCP->EndTCPserver();
 		Log("SERVER class closed");
 	}
 

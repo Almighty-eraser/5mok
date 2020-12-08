@@ -1,8 +1,9 @@
 #include "UI.h"
 //бс бр
 
-void UI::Mainmenu(void)
+int UI::Mainmenu(void)
 {
+	int answer;
 	cout
 		<< "\t\t\n\n\n\t\t5MOK\t\t\tblack : ";
 	SetColor(black, brown);
@@ -18,14 +19,19 @@ void UI::Mainmenu(void)
 		<< "\t\t3. Multiplay\n"
 		<< "\t\t4. Exit\n"
 		<< "\t\tInput : ";
+	scanf_s("%d", &answer);
+	return answer;
 }
 
-void UI::MakeRoomOrNot(void)
+int UI::MakeRoomOrNot(void)
 {
+	int answer;
 	cout
 		<< "\n\n\n\n\t\t1. Make a room"
 		<< "\n\t\t2. Join a room"
 		<< "\n\t\tInput : ";
+	scanf_s("%d", &answer);
+	return answer;
 }
 
 void UI::SetColor(int forground, int background)
@@ -143,12 +149,21 @@ int UI::AskWhichBoard(void)
 	return answer;
 }
 
-int* UI::AskCoordinatesRN(void)//return new
+int* UI::AskCoordinatesRetAV(void)//return allocated variable
 {
 	int* pos = new int[2];
 	cout << "\n\nPlace : ";
 	scanf_s("%d %d", pos, pos + 1);
 	return pos;
+}
+
+char* UI::AskTitleRetAV(void)
+{
+	char* title = new char[BUFSIZE_OF_TITLE];
+	cout << "\n\n\t\tInput title : ";
+	scanf_s("%s", title, sizeof(title));
+
+	return title;
 }
 
 void UI::PrintBoard(char* board, int length)
@@ -179,9 +194,26 @@ void UI::PrintBoard(char* board, int length)
 	cout << '\n';
 }
 
+int UI::AskWhichRoom(vector<char*> titles)
+{
+	int answer;
+	for (int i = 0; i < titles.size(); i++)
+		cout << "\n\t\t" << i + 1 << ". " << titles[i];
+	cout << "\t\t\t0. Back to Menu";
+	cout << "\n\t\t  Input : ";
+	scanf_s("%d", &answer);
+	return answer;
+}
+
 void UI::PressAnyKey(void)
 {
 	cout << "\n\nPress any key to proceed...";
 	getchar();
 	cout << "\n\n";
+}
+
+void UI::PrintString(const char* string)
+{
+	for (int i = 0; string[i] != '\0'; i++)
+		cout << string[i];
 }

@@ -29,6 +29,7 @@ enum {
 
 #define SERVER_PORT 55000
 #define IP_Address "192.168.0.10"
+#define BUFSIZE_OF_TITLE 100
 
 #endif
 
@@ -46,7 +47,8 @@ enum {
 
 #define _IMMA_MAKE_ROOM_ 0
 #define _IMMA_JOIN_ROOM_ 1
-
+#define _IMMA_CHOOSE_ROOM_ 2
+#define _IMMA_DELETE_ROOM_ 3
 #endif
 
 //1. 8x8 2. 9x9 3. 10x10 4. 11x11

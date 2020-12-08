@@ -10,8 +10,10 @@ class TCP
 public:
 	int StartTCPclnt(void);
 	void SendPosOfStone(char x, char y);
-	void SendChar(char decision);
+	int SendChar(char decision);
+	int SendString(char* string, int size);
 	char Receive();
+	char* ReceiveStringRetAV(int size);
 	void End();
 private:
 	SOCKET sock;

@@ -31,10 +31,22 @@ int TCP::StartTCPclnt(void)
 	return 1;
 }
 
-void TCP::SendChar(char decision)
+int TCP::SendChar(char decision)
 {
-	if (send(sock, &decision, sizeof(decision), 0) == SOCKET_ERROR)
-		ErrorHandling("Cannot send first data");
+	int result;
+	if (result = send(sock, &decision, sizeof(char), 0) == SOCKET_ERROR)
+		puts("\nCannot send data\n");
+
+	return result;
+}
+
+int TCP::SendString(char* string, int size)
+{
+	int result;
+	if (result = send(sock, string, sizeof(char) * size, 0) == SOCKET_ERROR)
+		puts("\nCannot send string\n");
+
+	return result;
 }
 
 void TCP::SendPosOfStone(char x, char y)
@@ -51,6 +63,14 @@ char TCP::Receive(void)
 	if (recv(sock, &pos, sizeof(pos), 0) == SOCKET_ERROR)
 		ErrorHandling("Cannot receive any data");
 	return pos;
+}
+
+char* TCP::ReceiveStringRetAV(int size)//return allocated variable
+{
+	char* string = new char[size];
+	if (recv(sock, string, size, 0) == SOCKET_ERROR)
+		ErrorHandling("Cannot receive any data");
+	return string;
 }
 
 void TCP::End(void)

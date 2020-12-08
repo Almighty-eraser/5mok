@@ -80,8 +80,8 @@ void SERVER::SendRoomList(SOCKET Clnt)
 	}
 	
 	serv_TCP->SendChar(Clnt, 1);
-	int size = rooms.size();
-	serv_TCP->SendString(Clnt, reinterpret_cast<char*>(&size), sizeof(int));
+	char size = rooms.size();
+	serv_TCP->SendChar(Clnt, size);
 
 	for (int i = 0; i < rooms.size(); i++)
 	{
@@ -209,5 +209,13 @@ void SERVER::EndServer(bool* RunServer)
 			break;
 	}
 	*RunServer = false;
+	for (int i = 0; i < titles.size(); i++)
+		if (titles[i] != NULL)
+			delete titles[i];
+	for (int i = 0; i < rooms.size(); i++)
+		if (rooms[i] != NULL)
+			serv_TCP->End(rooms[i]);
+	serv_TCP->EndTCPserver();
+	exit(0);
 }
 

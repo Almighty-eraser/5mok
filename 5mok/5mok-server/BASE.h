@@ -94,8 +94,6 @@ inline void Log(const char* stringmessage)
 	char str[30];
 	ctime_s(str, sizeof(str), &curTime);
 	std::cout << '\n' << str << ' ';
-	for (int i = 0; stringmessage[i] != '\0'; i++)
-		putchar(stringmessage[i]);
-	putchar('\0');
+	puts(stringmessage);
 }
 

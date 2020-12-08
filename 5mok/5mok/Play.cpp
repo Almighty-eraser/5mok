@@ -6,8 +6,7 @@ void Play::START(void)
 	while (1)
 	{
 		int answer;
-		main_UI->Mainmenu();
-		scanf_s("%d", &answer);
+		answer = main_UI->Mainmenu();
 
 		switch (answer)
 		{
@@ -17,32 +16,30 @@ void Play::START(void)
 		case 3:
 			while (1)
 			{
-				main_UI->MakeRoomOrNot();
-				scanf_s("%d", &answer);
-				if (main_TCP->StartTCPclnt() == -1)
+				answer = main_UI->MakeRoomOrNot();
+
+				if (main_TCP->StartTCPclnt() != 1)
 					continue;
-				
 				if (answer == 1)
-					if (MakeRoomOrNot(_IMMA_MAKE_ROOM_) == -1)
-						break;
+				{
+					if(AbleToContinue(_IMMA_MAKE_ROOM_))
+						MakingRoom();
+				}
 				else if (answer == 2)
-					if (MakeRoomOrNot(_IMMA_JOIN_ROOM_) == -1)
-						break;
+					if (AbleToContinue(_IMMA_JOIN_ROOM_) == -1)
+						main_TCP->End();
+					else
+						JoiningRoom();
 				else
+				{
+					main_TCP->End();
 					continue;
+				}
 
-				if (answer == 1)
-				{
-					MultiP(_IMMA_MAKE_ROOM_);
-				}
-				else
-				{
-					MultiP(_IMMA_JOIN_ROOM_);
-				}
+				break;
 			}
-
 			break;
-		case 4: 
+		case 4:
 			break;
 		default:
 			continue;
@@ -102,7 +99,7 @@ void Play::SinglePptp(void)
 			while (*pos > height || *pos < 0 || *(pos + 1) > height || *(pos + 1) < 0)
 			{
 				delete[] pos;
-				pos = main_UI->AskCoordinatesRN();
+				pos = main_UI->AskCoordinatesRetAV();
 			}
 			if (board[(pos[1] - 1) * height + pos[0] - 1] != EMPTY)
 			{
@@ -130,7 +127,7 @@ void Play::SinglePptp(void)
 			while (*pos > height || *pos < 0 || *(pos + 1) > height || *(pos + 1) < 0)
 			{
 				delete[] pos;
-				pos = main_UI->AskCoordinatesRN();
+				pos = main_UI->AskCoordinatesRetAV();
 			}
 			if (board[(pos[1] - 1) * height + pos[0] - 1] != EMPTY)
 			{
@@ -151,27 +148,146 @@ void Play::SinglePptp(void)
 	}
 }
 
-int Play::MakeRoomOrNot(char decision)
+bool Play::AbleToContinue(char decision)
 {
 
-	main_TCP->SendChar(decision); 
+	main_TCP->SendChar(decision);
 	char response = main_TCP->Receive();
 
-	if (response != 1 && decision == _IMMA_MAKE_ROOM_) 
+	if (response != 1 && decision == _IMMA_JOIN_ROOM_)
 	{
-		cout << "\nThere's already room";
+		main_UI->PrintString("\nThere's no room to join");
 		return -1;
 	}
-	else if (response != 1 && decision == _IMMA_JOIN_ROOM_)
+	else if (response == 1)
+		main_UI->PrintString("\nWait...\n");
+	return 1;
+}
+
+void Play::MakingRoom(void)
+{
+	char* title;
+	title = main_UI->AskTitleRetAV();
+
+	if (!main_TCP->SendString(title, BUFSIZE_OF_TITLE))
+		return;
+
+	if (main_TCP->Receive())
+		main_UI->PrintString("\nRoom created successfully\nWait until any player joins\n");
+	else
 	{
-		cout << "\nThere's no room to join";
+		main_UI->PrintString("\nFailed to create a room\n");
+		return;
+	}
+
+	thread t1(&Play::DeletingRoom, this, title);
+	t1.detach();
+
+	isThreadRunning = true;
+
+	if (main_TCP->Receive())
+	{
+		if (isThreadRunning)
+			main_UI->PrintString("\nPress 1 to proceed\nFound the opponent\n");
+		while (isThreadRunning)
+			Sleep(500);
+		MultiP(_IMMA_MAKE_ROOM_);
+	}
+
+	delete[] title;
+}
+
+void Play::DeletingRoom(char* title)
+{
+	int decision;
+	while (1)
+	{
+		main_UI->PrintString("\nPress 0 to delete your Room\n");
+		scanf_s("%d", &decision);
+
+		if (decision == 1)
+		{
+			isThreadRunning = false;
+			return;
+		}
+		else if (decision == 0)
+			break;
+		else
+			continue;
+	}
+
+	TCP* Delete = new TCP;
+
+	Delete->StartTCPclnt();
+	Delete->SendChar(_IMMA_DELETE_ROOM_);
+	if (Delete->Receive())
+		main_UI->PrintString("\nDeleting your Room...\n");
+
+	Delete->SendString(title, BUFSIZE_OF_TITLE);
+
+	if (Delete->Receive())
+		main_UI->PrintString("\nSuccessfully deleted the Room\n");
+	else
+		main_UI->PrintString("\nFailed to delete the Room\n");
+
+	Delete->End();
+
+	delete Delete;
+}
+
+void Play::JoiningRoom(void)
+{
+	if (!ReceiveRoomList())
+		return;
+
+	while (1)
+	{
+		int ChosenRoomNum;
+		ChosenRoomNum = main_UI->AskWhichRoom(titles);
+
+		if (ChosenRoomNum == 0)
+			return;
+
+		main_TCP->StartTCPclnt();
+		main_TCP->SendChar(_IMMA_CHOOSE_ROOM_);
+
+		if (!main_TCP->Receive())
+			return;
+
+		main_TCP->SendChar(ChosenRoomNum);
+
+		if (main_TCP->Receive())
+		{
+			main_UI->PrintString("\nJoining Room...\n");
+			MultiP(_IMMA_JOIN_ROOM_);
+		}
+		else
+		{
+			main_UI->PrintString("\nWrong Room Number has been chosen\n");
+			continue;
+		}
+
+		break;
+	}
+
+}
+
+int Play::ReceiveRoomList(void)
+{
+	int RoomCount = main_TCP->Receive();
+
+	if (RoomCount < 0)
 		return -1;
-	}
-	else if(response == 1)
+
+	for (int i = 0; i < RoomCount; i++)
 	{
-		cout << "\nWait...\n";
-		return 1;
+		char* title = main_TCP->ReceiveStringRetAV(BUFSIZE_OF_TITLE);
+		titles.push_back(title);
 	}
+
+	main_TCP->End();
+
+	return 1;
 }
 
 void Play::MultiP(int whichside)
@@ -196,7 +312,7 @@ void Play::MultiP(int whichside)
 				while (*pos > height || *pos < 0 || *(pos + 1) > height || *(pos + 1) < 0)
 				{
 					delete[] pos;
-					pos = main_UI->AskCoordinatesRN();
+					pos = main_UI->AskCoordinatesRetAV();
 				}
 				if (board[(pos[1] - 1) * height + pos[0] - 1] != EMPTY)
 				{
@@ -274,7 +390,7 @@ void Play::MultiP(int whichside)
 				while (*pos > height || *pos < 0 || *(pos + 1) > height || *(pos + 1) < 0)
 				{
 					delete[] pos;
-					pos = main_UI->AskCoordinatesRN();
+					pos = main_UI->AskCoordinatesRetAV();
 				}
 				if (board[(pos[1] - 1) * height + pos[0] - 1] != EMPTY)
 				{
