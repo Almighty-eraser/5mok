@@ -15,9 +15,8 @@ int UI::Mainmenu(void)
 	SetColor(white, black);
 	cout
 		<< "\n\n\t\t1. Singleplay(vs human)\n"
-		<< "\t\t2. Singleplay(vs com)\n"
-		<< "\t\t3. Multiplay\n"
-		<< "\t\t4. Exit\n"
+		<< "\t\t2. Multiplay\n"
+		<< "\t\t3. Exit\n"
 		<< "\t\tInput : ";
 	scanf_s("%d", &answer);
 	return answer;

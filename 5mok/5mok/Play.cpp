@@ -13,7 +13,7 @@ void Play::START(void)
 		case 1:
 			SinglePptp();
 			break;
-		case 3:
+		case 2:
 			while (1)
 			{
 				answer = main_UI->MakeRoomOrNot();
@@ -39,7 +39,7 @@ void Play::START(void)
 				break;
 			}
 			break;
-		case 4:
+		case 3:
 			break;
 		default:
 			continue;
@@ -238,7 +238,16 @@ void Play::DeletingRoom(char* title)
 void Play::JoiningRoom(void)
 {
 	if (!ReceiveRoomList())
+		return;;
+
+	main_TCP->StartTCPclnt();
+	main_TCP->SendChar(_IMMA_CHOOSE_ROOM_);
+
+	if (!main_TCP->Receive())
+	{
+		main_TCP->End();
 		return;
+	}
 
 	while (1)
 	{
@@ -246,13 +255,10 @@ void Play::JoiningRoom(void)
 		ChosenRoomNum = main_UI->AskWhichRoom(titles);
 
 		if (ChosenRoomNum == 0)
+		{
+			main_TCP->End();
 			return;
-
-		main_TCP->StartTCPclnt();
-		main_TCP->SendChar(_IMMA_CHOOSE_ROOM_);
-
-		if (!main_TCP->Receive())
-			return;
+		}
 
 		main_TCP->SendChar(ChosenRoomNum);
 
