@@ -2,8 +2,10 @@
 
 void ErrorHandling(const char* message)
 {
-	std::cout << '\n' << message << '\n';
-	exit(-1);
+	std::cout << '\n' << message << '\n'
+		<< "\nPress any key to exit...";
+	_getch();
+	exit(1);
 }
 
 int TCP::StartTCPclnt(void)
@@ -12,17 +14,17 @@ int TCP::StartTCPclnt(void)
 	if (WSAStartup(MAKEWORD(2, 2), &wsadata) != 0)
 		ErrorHandling("Cannot startup TCP protocol");
 
-	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	sock = socket(PF_INET, SOCK_STREAM, 0);
 	if (sock == SOCKET_ERROR)
 		ErrorHandling("Cannot create socket");
 
 	sockaddr_in Sockaddr{};
 
 	Sockaddr.sin_family = AF_INET;
-	Sockaddr.sin_addr.S_un.S_addr = htonl(atoi(IP_Address));
+	Sockaddr.sin_addr.S_un.S_addr = inet_addr(IP_Address);
 	Sockaddr.sin_port = htons(SERVER_PORT);
 
-	if (connect(sock, reinterpret_cast<sockaddr*>(&Sockaddr), sizeof(Sockaddr)) == SOCKET_ERROR)
+	if (connect(sock, reinterpret_cast<SOCKADDR*>(&Sockaddr), sizeof(Sockaddr)) == SOCKET_ERROR)
 	{
 		puts("\nCannot connect to server\n");
 		return -1;
@@ -42,8 +44,8 @@ int TCP::SendChar(char decision)
 
 int TCP::SendString(char* string, int size)
 {
-	int result;
-	if (result = send(sock, string, sizeof(char) * size, 0) == SOCKET_ERROR)
+	int result = send(sock, string, sizeof(char) * size, 0);
+	if (result == SOCKET_ERROR)
 		puts("\nCannot send string\n");
 
 	return result;
@@ -75,5 +77,6 @@ char* TCP::ReceiveStringRetAV(int size)//return allocated variable
 
 void TCP::End(void)
 {
+	WSACleanup();
 	closesocket(sock);
 }

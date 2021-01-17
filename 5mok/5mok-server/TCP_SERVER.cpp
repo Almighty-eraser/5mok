@@ -2,7 +2,10 @@
 
 void ErrorHandling(const char* message)
 {
-	std::cout << '\n' << message << '\n';
+	std::cout << '\n' << message << '\n'
+		<< "\nPress any key to exit...";
+	_getch();
+	_getch();
 	exit(1);
 }
 
@@ -12,16 +15,17 @@ void TCP_SERVER::StartTCPserver(int port)
 	if (WSAStartup(MAKEWORD(2, 2), &wsadata) != 0)
 		ErrorHandling("Cannot startup TCP protocol");
 
-	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	sock = socket(PF_INET, SOCK_STREAM, 0);
 	if (sock == SOCKET_ERROR)
 		ErrorHandling("Cannot create socket");
 
+	memset(&serv_addr, 0, sizeof(SOCKADDR_IN));
 
-	Sockaddr.sin_family = AF_INET;
-	Sockaddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
-	Sockaddr.sin_port = htons(port);
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
+	serv_addr.sin_port = htons(port);
 
-	if (bind(sock, reinterpret_cast<sockaddr*>(&Sockaddr), sizeof(Sockaddr)) == SOCKET_ERROR)
+	if (bind(sock, reinterpret_cast<SOCKADDR*>(&serv_addr), sizeof(serv_addr)) == SOCKET_ERROR)
 		ErrorHandling("Cannot bind socket");
 
 	if (listen(sock, SOMAXCONN) == SOCKET_ERROR)
@@ -30,17 +34,10 @@ void TCP_SERVER::StartTCPserver(int port)
 
 SOCKET TCP_SERVER::AcceptClnt(void)
 {
-	SOCKET Clnt;
+	SOCKADDR_IN clnt_addr{0};
 	
-	int size_of_addr = sizeof(Sockaddr);
-	if (Clnt = accept(sock, reinterpret_cast<sockaddr*>(&Sockaddr), &size_of_addr) == SOCKET_ERROR)
-		ErrorHandling("accept error");
-	char socket[8];
-	_itoa_s(Clnt, socket, 10);
-	Log("accepted clnt : ");
-	Log(socket);
-	
-	return Clnt;
+	int size_of_addr = sizeof(clnt_addr);
+	return accept(sock, reinterpret_cast<SOCKADDR*>(&clnt_addr), &size_of_addr);
 }
 
 int TCP_SERVER::SendChar(SOCKET Clnt, char decision)
@@ -53,6 +50,7 @@ int TCP_SERVER::SendChar(SOCKET Clnt, char decision)
 		Log("Cannot send decision : " + decision + '\0');
 		Log("To :");
 		Log(socket);
+		std::cout << GetLastError();
 	}
 	else
 	{
@@ -109,15 +107,18 @@ void TCP_SERVER::SendString(SOCKET Clnt, char* string, int size)
 
 char TCP_SERVER::Receive(SOCKET Clnt)
 {
-	char pos;
-	if (recv(Clnt, &pos, sizeof(pos), 0) == SOCKET_ERROR)
-		ErrorHandling("Cannot receive any data");
-	Log("Received : " + pos);
+	char chara;
+	if (recv(Clnt, &chara, sizeof(chara), 0) == SOCKET_ERROR)
+	{
+		std::cout << GetLastError();
+		exit(1);
+	}
+	Log("Received : " + chara);
 	char socket[8];
 	_itoa_s(Clnt, socket, 10);
 	Log("From :");
 	Log(socket);
-	return pos;
+	return chara;
 }
 
 char* TCP_SERVER::ReceiveStringRetAV(SOCKET Clnt, int size)//return allocated variable

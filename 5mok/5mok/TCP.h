@@ -1,5 +1,6 @@
 #pragma once
 #include "BASE.h"
+#include <conio.h>
 
 #define WIN32_LEAN_AND_MEAN
 

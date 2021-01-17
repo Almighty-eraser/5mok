@@ -1,5 +1,6 @@
 #pragma once
 #include "BASE.h"
+#include <conio.h>
 
 #define WIN32_LEAN_AND_MEAN
 
@@ -9,7 +10,7 @@ class TCP_SERVER
 {
 public:
 	void StartTCPserver(int port);
-	void EndTCPserver(void) { Log("Server socket closing.."); this->End(sock); };
+	void EndTCPserver(void) { Log("Server socket closing.."); WSACleanup(); this->End(sock); };
 	SOCKET AcceptClnt(void);
 	void SendPosOfStone(SOCKET Clnt, char x, char y);
 	int SendChar(SOCKET Clnt, char decision);
@@ -19,7 +20,7 @@ public:
 	void End(SOCKET Clnt);
 private:
 	SOCKET sock;
-	sockaddr_in Sockaddr{0};
+	SOCKADDR_IN serv_addr {0};
 };
 
 

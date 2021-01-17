@@ -39,5 +39,6 @@ private:
 	vector<char*> titles;
 
 	bool isThreadRunning = false;
+	bool isRoomDeleted = false;
 };
 

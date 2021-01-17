@@ -28,6 +28,7 @@ int UI::MakeRoomOrNot(void)
 	cout
 		<< "\n\n\n\n\t\t1. Make a room"
 		<< "\n\t\t2. Join a room"
+		<< "\n\t\t3. Back to menu"
 		<< "\n\t\tInput : ";
 	scanf_s("%d", &answer);
 	return answer;

@@ -14,28 +14,23 @@ void Play::START(void)
 			SinglePptp();
 			break;
 		case 2:
+			if (main_TCP->StartTCPclnt() != 1)
+				break;
 			while (1)
 			{
 				answer = main_UI->MakeRoomOrNot();
 
-				if (main_TCP->StartTCPclnt() != 1)
-					continue;
 				if (answer == 1)
-				{
-					if(AbleToContinue(_IMMA_MAKE_ROOM_))
-						MakingRoom();
-				}
+					if (AbleToContinue(_IMMA_MAKE_ROOM_))	MakingRoom();
 				else if (answer == 2)
-					if (AbleToContinue(_IMMA_JOIN_ROOM_) == -1)
-						main_TCP->End();
-					else
-						JoiningRoom();
-				else
+					if (AbleToContinue(_IMMA_JOIN_ROOM_) == false)	main_TCP->End();
+					else JoiningRoom();
+				else if (answer == 3)
 				{
 					main_TCP->End();
-					continue;
+					break;
 				}
-
+				else continue;
 				break;
 			}
 			break;
@@ -45,7 +40,7 @@ void Play::START(void)
 			continue;
 			break;
 		}
-		if (answer == 4)
+		if (answer == 3)
 			break;
 		main_UI->PressAnyKey();
 		getchar();
@@ -152,16 +147,17 @@ bool Play::AbleToContinue(char decision)
 {
 
 	main_TCP->SendChar(decision);
+
 	char response = main_TCP->Receive();
 
 	if (response != 1 && decision == _IMMA_JOIN_ROOM_)
 	{
 		main_UI->PrintString("\nThere's no room to join");
-		return -1;
+		return false;
 	}
 	else if (response == 1)
 		main_UI->PrintString("\nWait...\n");
-	return 1;
+	return true;
 }
 
 void Play::MakingRoom(void)
@@ -169,7 +165,7 @@ void Play::MakingRoom(void)
 	char* title;
 	title = main_UI->AskTitleRetAV();
 
-	if (!main_TCP->SendString(title, BUFSIZE_OF_TITLE))
+	if (main_TCP->SendString(title, BUFSIZE_OF_TITLE) == -1)
 		return;
 
 	if (main_TCP->Receive())
@@ -184,21 +180,27 @@ void Play::MakingRoom(void)
 	t1.detach();
 
 	isThreadRunning = true;
+	isRoomDeleted = false;
 
-	if (main_TCP->Receive())
+	while(1)
 	{
 		if (isThreadRunning)
-			main_UI->PrintString("\nPress 1 to proceed\nFound the opponent\n");
-		while (isThreadRunning)
-			Sleep(500);
+			continue;
+		if (isRoomDeleted)
+			break;
+
+		main_UI->PrintString("\nPress 1 to proceed\nFound the opponent\n");
 		MultiP(_IMMA_MAKE_ROOM_);
+		break;
 	}
 
 	delete[] title;
+	return;
 }
 
 void Play::DeletingRoom(char* title)
 {
+	isRoomDeleted = false;
 	int decision;
 	while (1)
 	{
@@ -233,6 +235,9 @@ void Play::DeletingRoom(char* title)
 	Delete->End();
 
 	delete Delete;
+
+	isThreadRunning = false;
+	isRoomDeleted = true;
 }
 
 void Play::JoiningRoom(void)

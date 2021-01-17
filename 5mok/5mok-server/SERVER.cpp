@@ -1,8 +1,8 @@
 #include "SERVER.h"
+#include "TCP_SERVER.h"
 
 void SERVER::Run(void)
 {
-	SOCKET TempClnt = 0;
 	char receive;
 	bool KeepRunning = true;
 
@@ -13,45 +13,45 @@ void SERVER::Run(void)
 
 	while (KeepRunning)
 	{
+		SOCKET* TempClnt = new SOCKET;
+		*TempClnt = serv_TCP->AcceptClnt();
 
-		TempClnt = serv_TCP->AcceptClnt();
-
-		receive = serv_TCP->Receive(TempClnt);
-		serv_TCP->End(TempClnt);
+		receive = serv_TCP->Receive(*TempClnt);
 
 		if (receive == _IMMA_MAKE_ROOM_)
 		{
-			serv_TCP->SendChar(TempClnt, 1);
-			std::thread t1(&SERVER::MakingRoom, this, TempClnt);
+			serv_TCP->SendChar(*TempClnt, 1);
+			std::thread t1(&SERVER::MakingRoom, this, *TempClnt);
 			t1.detach();
 		}
 		else if (receive == _IMMA_JOIN_ROOM_)
 		{
-			serv_TCP->SendChar(TempClnt, 1);
-			std::thread t2(&SERVER::SendRoomList, this, TempClnt);
+			serv_TCP->SendChar(*TempClnt, 1);
+			std::thread t2(&SERVER::SendRoomList, this, *TempClnt);
 			t2.detach();
 		}
 		else if (receive == _IMMA_CHOOSE_ROOM_)
 		{
-			serv_TCP->SendChar(TempClnt, 1);
-			std::thread t3(&SERVER::ChoosingRoom, this, TempClnt);
+			serv_TCP->SendChar(*TempClnt, 1);
+			std::thread t3(&SERVER::ChoosingRoom, this, *TempClnt);
 			t3.detach();
 		}
 		else if (receive == _IMMA_DELETE_ROOM_)
 		{
-			serv_TCP->SendChar(TempClnt, 1);
-			std::thread t4(&SERVER::DeletingRoom, this, TempClnt);
+			serv_TCP->SendChar(*TempClnt, 1);
+			std::thread t4(&SERVER::DeletingRoom, this, *TempClnt);
 			t4.detach();
 		}
 		else
 		{
-			serv_TCP->SendChar(TempClnt, -1);
+			serv_TCP->SendChar(*TempClnt, -1);
 			continue;
 		}
 	}
-	
-	if (TempClnt != 0)
-		serv_TCP->End(TempClnt);
+	//if (&TempClnt != 0)
+	//	serv_TCP->End(TempClnt);
+
+	serv_TCP->EndTCPserver();
 
 }
 
@@ -89,6 +89,7 @@ void SERVER::SendRoomList(SOCKET Clnt)
 	}
 
 	serv_TCP->End(Clnt);
+	delete &Clnt;
 }
 
 void SERVER::ChoosingRoom(SOCKET Clnt)
