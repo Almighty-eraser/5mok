@@ -3,56 +3,19 @@
 
 void SERVER::Run(void)
 {
-	char receive;
-	bool KeepRunning = true;
-
 	serv_TCP->StartTCPserver(SERVER_PORT);
 
-	std::thread t_exit(&SERVER::EndServer, this, &KeepRunning);
-	t_exit.detach();
+	std::thread t0{ &SERVER::EndServer, this };
+	t0.detach();
 
-	while (KeepRunning)
+	while (!End_Server)
 	{
-		SOCKET* TempClnt = new SOCKET;
-		*TempClnt = serv_TCP->AcceptClnt();
-
-		receive = serv_TCP->Receive(*TempClnt);
-
-		if (receive == _IMMA_MAKE_ROOM_)
-		{
-			serv_TCP->SendChar(*TempClnt, 1);
-			std::thread t1(&SERVER::MakingRoom, this, *TempClnt);
-			t1.detach();
-		}
-		else if (receive == _IMMA_JOIN_ROOM_)
-		{
-			serv_TCP->SendChar(*TempClnt, 1);
-			std::thread t2(&SERVER::SendRoomList, this, *TempClnt);
-			t2.detach();
-		}
-		else if (receive == _IMMA_CHOOSE_ROOM_)
-		{
-			serv_TCP->SendChar(*TempClnt, 1);
-			std::thread t3(&SERVER::ChoosingRoom, this, *TempClnt);
-			t3.detach();
-		}
-		else if (receive == _IMMA_DELETE_ROOM_)
-		{
-			serv_TCP->SendChar(*TempClnt, 1);
-			std::thread t4(&SERVER::DeletingRoom, this, *TempClnt);
-			t4.detach();
-		}
-		else
-		{
-			serv_TCP->SendChar(*TempClnt, -1);
-			continue;
-		}
+		SOCKET TempClnt = serv_TCP->AcceptClnt();
+		char receive = serv_TCP->Receive(TempClnt);
+		std::thread{functions.at(receive), this, TempClnt};
 	}
-	//if (&TempClnt != 0)
-	//	serv_TCP->End(TempClnt);
 
 	serv_TCP->EndTCPserver();
-
 }
 
 void SERVER::MakingRoom(SOCKET Clnt)
@@ -200,22 +163,25 @@ void SERVER::Play(SOCKET black_clnt, SOCKET white_clnt)
 	serv_TCP->End(white_clnt);
 }
 
-void SERVER::EndServer(bool* RunServer)
+void SERVER::EndServer(void)
 {
 	char command[10] = {0};
 	while (1)
 	{
-		scanf_s("%s", command, (unsigned int)sizeof(command));
+		scanf_s("%s", command, sizeof(command));
 		if (!strcmp(command, "exit"))
 			break;
 	}
-	*RunServer = false;
-	for (int i = 0; i < titles.size(); i++)
-		if (titles[i] != NULL)
-			delete titles[i];
-	for (int i = 0; i < rooms.size(); i++)
-		if (rooms[i] != NULL)
-			serv_TCP->End(rooms[i]);
+	End_Server = true;
+	for (int i = 0; i < room_names.size(); i++)
+		if (room_names[i] != NULL)
+			delete room_names[i];
+	for (int i = 0; i < socks.size(); i++)
+		if (socks[i] != NULL)
+		{
+			serv_TCP->End(*socks[i]);
+			delete socks[i];
+		}
 	serv_TCP->EndTCPserver();
 	exit(0);
 }

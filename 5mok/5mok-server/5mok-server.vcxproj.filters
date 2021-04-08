@@ -18,10 +18,10 @@
     <ClCompile Include="main-server.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="SERVER.cpp">
+    <ClCompile Include="TCP_SERVER.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="TCP_SERVER.cpp">
+    <ClCompile Include="SERVER.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -29,7 +29,7 @@
     <ClInclude Include="SERVER.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="BASE.h">
+    <ClInclude Include="server-BASE.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="TCP_SERVER.h">

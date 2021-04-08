@@ -144,7 +144,7 @@
     <ClCompile Include="TCP_SERVER.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BASE.h" />
+    <ClInclude Include="server-BASE.h" />
     <ClInclude Include="SERVER.h" />
     <ClInclude Include="TCP_SERVER.h" />
   </ItemGroup>

@@ -82,18 +82,20 @@ enum {
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #include <iostream>
-#include <vector>
 #include <WinSock2.h>
 #include <Windows.h>
+#include <thread>
+#include <vector>
 #include <ctime>
+#include <mutex>
 
-inline void Log(const char* stringmessage)
+inline void Print_Time(void)
 {
 	time_t curTime;
 	time(&curTime);
 	char str[30];
 	ctime_s(str, sizeof(str), &curTime);
-	std::cout << '\n' << str << ' ';
-	puts(stringmessage);
+	puts(str);
+	std::cout << '\n';
 }
 

@@ -1,24 +1,35 @@
 #pragma once
 
 #include <conio.h>
-#include <thread>
 #include "TCP_SERVER.h"
 
-void Log(const char* stringmessage);
+TCP_SERVER* serv_TCP;
+
+std::vector<SOCKET> socks;
+std::vector<char*> room_names;
+bool End_Server = false;
+
+std::mutex socket_mutex;
+std::mutex room_names_mutex;
 
 class SERVER
 {
 public:
-	SERVER(TCP_SERVER* tcp) { serv_TCP = tcp; Log("SERVER class started"); };
+	SERVER(TCP_SERVER* tcp)
+	{ 
+		serv_TCP = tcp; 
+		Print_Time(); 
+		std::cout << "SERVER class started"; 
+		functions.push_back(&SERVER::MakingRoom);
+		functions.push_back(&SERVER::SendRoomList);
+		functions.push_back(&SERVER::ChoosingRoom);
+		functions.push_back(&SERVER::DeletingRoom);
+	};
 	~SERVER() {
-		for (int i = 0; i < titles.size(); i++)
-			if(titles[i] != NULL)
-				delete titles[i];
-		for (int i = 0; i < rooms.size(); i++)
-			if (rooms[i] != NULL)
-				serv_TCP->End(rooms[i]);
+		
 		serv_TCP->EndTCPserver();
-		Log("SERVER class closed");
+		Print_Time();
+		std::cout << "SERVER class closed";
 	}
 
 	void Run(void);
@@ -27,12 +38,22 @@ public:
 	void ChoosingRoom(SOCKET Clnt);
 	void DeletingRoom(SOCKET Clnt);
 	void Play(SOCKET black_clnt, SOCKET white_clnt);
+	void EndServer(void);
 
-	void EndServer(bool* RunServer);
+	void add_sock(SOCKET* Clnt)
+	{
+		socket_mutex.lock();
+		socks.push_back(Clnt);
+		socket_mutex.unlock();
+	}
+	void add_room_name(char* room)
+	{
+		room_names_mutex.lock();
+		room_names.push_back(room);
+		room_names_mutex.unlock();
+	}
+
 private:
-	TCP_SERVER* serv_TCP;
-	std::vector<SOCKET> rooms;
-	std::vector<char*> titles;
-	bool RoomFlag = false;
+	std::vector<void (SERVER::*)(SOCKET)> functions;
 };
 

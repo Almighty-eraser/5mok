@@ -42,21 +42,19 @@ SOCKET TCP_SERVER::AcceptClnt(void)
 
 int TCP_SERVER::SendChar(SOCKET Clnt, char decision)
 {
-	char socket[8];
-	_itoa_s(Clnt, socket, 10);
 	int ErrorOrNot;
 	if (ErrorOrNot = send(Clnt, &decision, sizeof(decision), 0) == SOCKET_ERROR)
 	{
-		Log("Cannot send decision : " + decision + '\0');
-		Log("To :");
-		Log(socket);
-		std::cout << GetLastError();
+		Print_Time();
+		std::cout << "\nCannot send decision : " << decision
+			<< "\nTo : " << Clnt << '\n' << "Error : "
+			<< GetLastError();
 	}
 	else
 	{
-		Log("sent decision : " + decision + '\0');
-		Log("To :");
-		Log(socket);
+		Print_Time();
+		std::cout << "\nsent decision : " << decision
+			<< "\nTo : " << Clnt;
 	}
 	
 	return ErrorOrNot;
@@ -65,60 +63,63 @@ int TCP_SERVER::SendChar(SOCKET Clnt, char decision)
 
 void TCP_SERVER::SendPosOfStone(SOCKET Clnt, char x, char y)
 {
-	char socket[8];
-	_itoa_s(Clnt, socket, 10);
 	if (send(Clnt, &x, sizeof(char), 0) == SOCKET_ERROR)
-		ErrorHandling("Cannot send coordinates");
+	{
+		Print_Time();
+		std::cout << "Cannot send x : " << (int)x << "\nTo : "
+			<< Clnt << "\nError : " << GetLastError();
+	}
 	else
 	{
-		Log("sent a coordinate : " + x);
-		Log("To :");
-		Log(socket);
+		Print_Time();
+		std::cout << "Cannot send x : " << (int)x << "\nTo : "
+			<< Clnt;
 	}
 	if (send(Clnt, &y, sizeof(char), 0) == SOCKET_ERROR)
-		ErrorHandling("Cannot send a coordinate");
+	{
+		Print_Time();
+		std::cout << "Cannot send y : " << (int)y << "\nTo : "
+			<< Clnt << "\nError : " << GetLastError();
+	}
 	else
 	{
-		Log("sent a coordinate : " + y);
-		Log("To :");
-		Log(socket);
+		Print_Time();
+		std::cout << "Cannot send y : " << (int)y << "\nTo : "
+			<< Clnt;
 	}
 }
 
 void TCP_SERVER::SendString(SOCKET Clnt, char* string, int size)
 {
-	char socket[8];
-	_itoa_s(Clnt, socket, 10);
 	if (send(Clnt, string, size, 0) == SOCKET_ERROR)
 	{
-		Log("Cannot send string :");
-		Log(string);
-		Log("To :");
-		Log(socket);
+		Print_Time();
+		std::cout << "Cannot send string : " << string << "\nTo : "
+			<< Clnt << "\nError : " << GetLastError();
 	}
 	else
 	{
-		Log("sent string :");
-		Log(string);
-		Log("To :");
-		Log(socket);
+		Print_Time();
+		std::cout << "Cannot send string : " << string << "\nTo : "
+			<< Clnt;
 	}
 }
 
 char TCP_SERVER::Receive(SOCKET Clnt)
 {
-	char chara;
-	if (recv(Clnt, &chara, sizeof(chara), 0) == SOCKET_ERROR)
+	char ch;
+	if (recv(Clnt, &ch, sizeof(ch), 0) == SOCKET_ERROR)
 	{
-		std::cout << GetLastError();
-		exit(1);
+		Print_Time();
+		std::cout << "Cannot receive : " << ch << "\nFrom : "
+			<< Clnt << "\nError : " << GetLastError();
 	}
-	Log("Received : " + chara);
-	char socket[8];
-	_itoa_s(Clnt, socket, 10);
-	Log("From :");
-	Log(socket);
-	return chara;
+	else
+	{
+		Print_Time();
+		std::cout << "Received : " << ch << "\nFrom : " << Clnt;
+	}
+	return ch;
 }
 
 char* TCP_SERVER::ReceiveStringRetAV(SOCKET Clnt, int size)//return allocated variable
@@ -126,12 +127,9 @@ char* TCP_SERVER::ReceiveStringRetAV(SOCKET Clnt, int size)//return allocated va
 	char* string = new char[size];
 	if(recv(Clnt, string, size, 0) == SOCKET_ERROR)
 		ErrorHandling("Cannot receive any data");
-	char socket[8];
-	_itoa_s(Clnt, socket, 10);
-	Log("Received :");
-	Log(string);
-	Log("From :");
-	Log(socket);
+	Print_Time();
+	std::cout << "Received : " << string << "\nFrom : " << Clnt;
+
 	return string;
 }
 
@@ -139,7 +137,6 @@ void TCP_SERVER::End(SOCKET SOCK)
 {
 	char socket[8];
 	_itoa_s(SOCK, socket, 10);
-	Log("Ending socket :");
-	Log(socket);
+	std::cout << "End socket : " << SOCK;
 	closesocket(SOCK);
 }
