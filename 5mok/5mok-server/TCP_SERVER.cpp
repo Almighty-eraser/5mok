@@ -40,23 +40,43 @@ SOCKET TCP_SERVER::AcceptClnt(void)
 	return accept(sock, reinterpret_cast<SOCKADDR*>(&clnt_addr), &size_of_addr);
 }
 
-int TCP_SERVER::SendChar(SOCKET Clnt, char decision)
+int TCP_SERVER::SendChar(SOCKET Clnt, char data)
 {
 	int ErrorOrNot;
-	if (ErrorOrNot = send(Clnt, &decision, sizeof(decision), 0) == SOCKET_ERROR)
+	if (ErrorOrNot = send(Clnt, &data, sizeof(char), 0) == SOCKET_ERROR)
 	{
 		Print_Time();
-		std::cout << "\nCannot send decision : " << decision
+		std::cout << "\nCannot send decision : " << data
 			<< "\nTo : " << Clnt << '\n' << "Error : "
 			<< GetLastError();
 	}
 	else
 	{
 		Print_Time();
-		std::cout << "\nsent decision : " << decision
+		std::cout << "\nsent decision : " << data
 			<< "\nTo : " << Clnt;
 	}
 	
+	return ErrorOrNot;
+}
+
+int TCP_SERVER::SendInt(SOCKET Clnt, int data)
+{
+	int ErrorOrNot;
+	if (ErrorOrNot = send(Clnt, (const char*)&data, sizeof(int), 0) == SOCKET_ERROR)
+	{
+		Print_Time();
+		std::cout << "\nCannot send decision : " << data
+			<< "\nTo : " << Clnt << '\n' << "Error : "
+			<< GetLastError();
+	}
+	else
+	{
+		Print_Time();
+		std::cout << "\nsent decision : " << data
+			<< "\nTo : " << Clnt;
+	}
+
 	return ErrorOrNot;
 }
 

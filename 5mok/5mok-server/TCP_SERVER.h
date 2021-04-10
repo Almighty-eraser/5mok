@@ -20,6 +20,7 @@ public:
 	SOCKET AcceptClnt(void);
 	void SendPosOfStone(SOCKET Clnt, char x, char y);
 	int SendChar(SOCKET Clnt, char decision);
+	int SendInt(SOCKET Clnt, int data);
 	void SendString(SOCKET Clnt, char* string, int size);
 	char Receive(SOCKET Clnt);
 	char* ReceiveStringRetAV(SOCKET Clnt, int size);
