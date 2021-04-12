@@ -155,8 +155,7 @@ char* TCP_SERVER::ReceiveStringRetAV(SOCKET Clnt, int size)//return allocated va
 
 void TCP_SERVER::End(SOCKET SOCK)
 {
-	char socket[8];
-	_itoa_s(SOCK, socket, 10);
+	Print_Time();
 	std::cout << "End socket : " << SOCK;
 	closesocket(SOCK);
 }

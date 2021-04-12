@@ -12,7 +12,8 @@ void SERVER::Run(void)
 	{
 		SOCKET TempClnt = g_serv_TCP->AcceptClnt();
 		char receive = g_serv_TCP->Receive(TempClnt);
-		std::thread{functions.at(receive), this, TempClnt};
+		std::thread t{functions.at(receive), this, TempClnt};
+		t.detach();
 	}
 
 	g_serv_TCP->EndTCPserver();

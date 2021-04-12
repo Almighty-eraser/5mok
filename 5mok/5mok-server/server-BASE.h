@@ -95,6 +95,7 @@ inline void Print_Time(void)
 	time(&curTime);
 	char str[30];
 	ctime_s(str, sizeof(str), &curTime);
+	std::cout << '\n';
 	puts(str);
 	std::cout << '\n';
 }
