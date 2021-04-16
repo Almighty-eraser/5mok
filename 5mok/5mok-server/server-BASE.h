@@ -28,7 +28,7 @@ enum {
 #define _TCP_
 
 #define SERVER_PORT 55000
-#define BUFSIZE_OF_TITLE 100
+#define BUFSIZE_OF_ROOM_NAME 100
 
 #endif
 

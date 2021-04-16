@@ -1,12 +1,13 @@
 #pragma once
 #include "UI.h"
 #include "TCP.h"
-#include <thread>
-#include <vector>
 
 class UI;
 
 class TCP;
+
+bool g_isThreadRunning = false;
+bool g_isRoomDeleted = false;
 
 class Play
 {
@@ -23,7 +24,6 @@ public:
 	int MakeBoard(void);
 	void RemoveBoard(void);
 	void SinglePptp(void);//singleplay person to person
-	bool AbleToContinue(char decision);
 	void MakingRoom(void);
 	void DeletingRoom(char* title);
 	void JoiningRoom(void);
@@ -37,8 +37,5 @@ private:
 
 	char* board;
 	vector<char*> titles;
-
-	bool isThreadRunning = false;
-	bool isRoomDeleted = false;
 };
 

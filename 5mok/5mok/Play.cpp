@@ -19,37 +19,38 @@ void Play::START(void)
 			while (1)
 			{
 				answer = main_UI->MakeRoomOrNot();
-
-				if (answer == 1)
-					if (AbleToContinue(_IMMA_MAKE_ROOM_))	MakingRoom();
-				else if (answer == 2)
-					if (AbleToContinue(_IMMA_JOIN_ROOM_) == false)	main_TCP->End();
-					else JoiningRoom();
-				else if (answer == 3)
+				if (answer == 3)
 				{
 					main_TCP->End();
 					break;
 				}
-				else continue;
+				else if (answer <= 0 || answer > 3)
+					continue;
+				main_TCP->SendChar(answer);
+				if (answer == _IMMA_MAKE_ROOM_)
+					MakingRoom();
+				else if (answer == _IMMA_JOIN_ROOM_)
+					JoiningRoom();
+				else if (answer == _IMMA_CHOOSE_ROOM_)
+					ReceiveRoomList();
 				break;
-			}
-			break;
 		case 3:
 			break;
 		default:
 			continue;
 			break;
+			}
+			if (answer == 3)
+				break;
+			main_UI->PressAnyKey();
+			getchar();
+			main_UI->Clear();
 		}
-		if (answer == 3)
-			break;
+
 		main_UI->PressAnyKey();
-		getchar();
-		main_UI->Clear();
 	}
-
-	main_UI->PressAnyKey();
 }
-
+	 
 int Play::MakeBoard(void)//return size of board
 {
 	int sizesofBoard[4] = {8, 9, 10, 11};
@@ -143,50 +144,31 @@ void Play::SinglePptp(void)
 	}
 }
 
-bool Play::AbleToContinue(char decision)
-{
-
-	main_TCP->SendChar(decision);
-
-	char response = main_TCP->Receive();
-
-	if (response != 1 && decision == _IMMA_JOIN_ROOM_)
-	{
-		main_UI->PrintString("\nThere's no room to join");
-		return false;
-	}
-	else if (response == 1)
-		main_UI->PrintString("\nWait...\n");
-	return true;
-}
-
 void Play::MakingRoom(void)
 {
-	char* title;
-	title = main_UI->AskTitleRetAV();
+	char* room_name;
+	room_name = main_UI->AskRoom_nameRetAV();
 
-	if (main_TCP->SendString(title, BUFSIZE_OF_TITLE) == -1)
+	if (main_TCP->SendString(room_name, BUFSIZE_OF_TITLE) < 0)
 		return;
 
-	if (main_TCP->Receive())
-		main_UI->PrintString("\nRoom created successfully\nWait until any player joins\n");
+	if (main_TCP->Receive() == 1)
+		cout << "\nRoom created successfully\nWait until any player joins\n";
 	else
 	{
-		main_UI->PrintString("\nFailed to create a room\n");
+		cout << "\nFailed to create a room\n";
+		delete[] room_name;
 		return;
 	}
 
-	thread t1(&Play::DeletingRoom, this, title);
+	thread t1(&Play::DeletingRoom, this, room_name);
 	t1.detach();
-
-	isThreadRunning = true;
-	isRoomDeleted = false;
 
 	while(1)
 	{
-		if (isThreadRunning)
+		if (g_isThreadRunning)
 			continue;
-		if (isRoomDeleted)
+		if (g_isRoomDeleted)
 			break;
 
 		main_UI->PrintString("\nPress 1 to proceed\nFound the opponent\n");
@@ -194,7 +176,7 @@ void Play::MakingRoom(void)
 		break;
 	}
 
-	delete[] title;
+	delete[] room_name;
 	return;
 }
 
@@ -227,7 +209,7 @@ void Play::DeletingRoom(char* title)
 
 	Delete->SendString(title, BUFSIZE_OF_TITLE);
 
-	if (Delete->Receive())
+	if (Delete->Receive() == 1)
 		main_UI->PrintString("\nSuccessfully deleted the Room\n");
 	else
 		main_UI->PrintString("\nFailed to delete the Room\n");

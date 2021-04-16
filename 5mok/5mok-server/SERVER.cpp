@@ -1,6 +1,31 @@
 #include "SERVER.h"
 #include "TCP_SERVER.h"
 
+
+TCP_SERVER* g_serv_TCP;
+std::vector<SOCKET> g_socks;
+std::vector<char*> g_room_names;
+bool g_End_Server;
+std::mutex g_rooms_mutex;
+
+SERVER::SERVER(TCP_SERVER* tcp)
+{
+	g_End_Server = false;
+	g_serv_TCP = tcp;
+	Print_Time();
+	std::cout << "SERVER class started";
+	functions.push_back(&SERVER::MakingRoom);
+	functions.push_back(&SERVER::SendRoomList);
+	functions.push_back(&SERVER::ChoosingRoom);
+	functions.push_back(&SERVER::DeletingRoom);
+};
+SERVER::~SERVER() {
+
+	g_serv_TCP->EndTCPserver();
+	Print_Time();
+	std::cout << "SERVER class closed";
+}
+
 void SERVER::Run(void)
 {
 	g_serv_TCP->StartTCPserver(SERVER_PORT);
@@ -22,11 +47,11 @@ void SERVER::Run(void)
 
 void SERVER::MakingRoom(SOCKET Clnt)
 {
-	g_socks.push_back(Clnt);
-	
 	char* room_name;
-	room_name = g_serv_TCP->ReceiveStringRetAV(Clnt, BUFSIZE_OF_TITLE);
-	g_room_names.push_back(room_name);
+	room_name = g_serv_TCP->ReceiveStringRetAV(Clnt, BUFSIZE_OF_ROOM_NAME);
+	Add_room(Clnt, room_name);
+
+	g_serv_TCP->SendChar(Clnt, 1);
 
 	//No need to end or delete room_name or socket
 }
@@ -39,7 +64,7 @@ void SERVER::SendRoomList(SOCKET Clnt)
 
 	for (int i = 0; i < g_room_names.size(); i++)
 	{
-		g_serv_TCP->SendString(Clnt, g_room_names[i], BUFSIZE_OF_TITLE);
+		g_serv_TCP->SendString(Clnt, g_room_names[i], BUFSIZE_OF_ROOM_NAME);
 	}
 
 	g_serv_TCP->End(Clnt);
@@ -75,14 +100,14 @@ void SERVER::DeletingRoom(SOCKET Clnt)
 {
 	char* string;
 	bool success = false;
-	string = g_serv_TCP->ReceiveStringRetAV(Clnt, BUFSIZE_OF_TITLE);
+	string = g_serv_TCP->ReceiveStringRetAV(Clnt, BUFSIZE_OF_ROOM_NAME);
 	success = Remove_room(string);
 	delete[] string;
 	
 	if (success)
-		g_serv_TCP->SendChar(Clnt, -1);
-	else
 		g_serv_TCP->SendChar(Clnt, 1);
+	else
+		g_serv_TCP->SendChar(Clnt, -1);
 	g_serv_TCP->End(Clnt);
 	return;
 }
@@ -136,7 +161,7 @@ void SERVER::EndServer(void)
 	char command[10] = {0};
 	while (1)
 	{
-		scanf_s("%s", command, sizeof(command));
+		scanf_s("%s", command, (unsigned int)sizeof(command));
 		if (!strcmp(command, "exit"))
 			break;
 	}
@@ -145,3 +170,49 @@ void SERVER::EndServer(void)
 	return;
 }
 
+void SERVER::Add_room(SOCKET Clnt, char* room_name)
+{
+	g_rooms_mutex.lock();
+	g_socks.push_back(Clnt);
+	g_room_names.push_back(room_name);
+	g_rooms_mutex.unlock();
+}
+
+bool SERVER::Remove_room(char* room_name)
+{
+	g_rooms_mutex.lock();
+	int index = -1;
+	for (int i = 1; i < g_room_names.size(); i++)
+		if (!strcmp(g_room_names[i], room_name))
+		{
+			index = i;
+			break;
+		}
+	if (index != -1)
+	{
+		for (int j = index; j < g_room_names.size() - 1; j++)
+			g_room_names[j] = g_room_names[j + 1];
+		g_room_names.pop_back();
+
+		for (int j = index; j < g_socks.size() - 1; j++)
+			g_socks[j] = g_socks[j + 1];
+		g_socks.pop_back();
+	}
+	g_rooms_mutex.unlock();
+	if (index == -1)
+		return false;
+	else
+		return true;
+}
+
+void SERVER::Clean_rooms(void)
+{
+	g_rooms_mutex.lock();
+	for (int i = 0; i < g_room_names.size(); i++)
+		if (g_room_names[i] != NULL)
+			delete  g_room_names[i];
+	for (int i = 0; i < g_socks.size(); i++)
+		if (g_socks[i] != NULL)
+			g_serv_TCP->End(g_socks[i]);
+	g_rooms_mutex.unlock();
+}

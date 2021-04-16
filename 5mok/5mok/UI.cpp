@@ -157,13 +157,13 @@ int* UI::AskCoordinatesRetAV(void)//return allocated variable
 	return pos;
 }
 
-char* UI::AskTitleRetAV(void)
+char* UI::AskRoom_nameRetAV(void)
 {
-	char* title = new char[BUFSIZE_OF_TITLE];
+	char* room_name = new char[BUFSIZE_OF_ROOM_NAME];
 	cout << "\n\n\t\tInput title : ";
-	scanf_s("%s", title, sizeof(title));
+	scanf_s("%s", room_name, sizeof(char) * (unsigned int)BUFSIZE_OF_ROOM_NAME);
 
-	return title;
+	return room_name;
 }
 
 void UI::PrintBoard(char* board, int length)

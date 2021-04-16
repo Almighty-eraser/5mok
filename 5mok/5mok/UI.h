@@ -26,6 +26,6 @@ public:
 	int MakeRoomOrNot(void);
 	int AskWhichBoard(void);
 	int* AskCoordinatesRetAV(void);
-	char* AskTitleRetAV(void);
+	char* AskRoom_nameRetAV(void);
 };
 
