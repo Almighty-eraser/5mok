@@ -14,10 +14,10 @@ class Play
 public:
 	Play(UI& ui, TCP& tcp) { main_UI = &ui; main_TCP = &tcp; board = nullptr; };
 	~Play() { 
-		if(!titles.empty())
-			for (int i = 0; i < titles.size(); i++) 
-				if (titles[i] != NULL) 
-					delete titles[i]; 
+		if(!room_names.empty())
+			for (int i = 0; i < room_names.size(); i++)
+				if (room_names[i] != NULL)
+					delete room_names[i];
 			
 	};
 	void START(void);
@@ -36,6 +36,6 @@ private:
 	TCP* main_TCP;
 
 	char* board;
-	vector<char*> titles;
+	vector<char*> room_names;
 };
 

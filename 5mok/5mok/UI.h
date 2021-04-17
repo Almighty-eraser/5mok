@@ -19,7 +19,7 @@ public:
 	void gotoxy(short x, short y);
 	void Clear(void);
 	void PrintBoard(char* board, int length);
-	int AskWhichRoom(vector<char*> titles);
+	int AskWhichRoom(vector<char*> room_names);
 	void PressAnyKey(void);
 
 	int Mainmenu(void);

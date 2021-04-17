@@ -3,14 +3,13 @@
 
 
 TCP_SERVER* g_serv_TCP;
+std::vector<std::thread*> g_threads;
 std::vector<SOCKET> g_socks;
 std::vector<char*> g_room_names;
-bool g_End_Server;
 std::mutex g_rooms_mutex;
 
 SERVER::SERVER(TCP_SERVER* tcp)
 {
-	g_End_Server = false;
 	g_serv_TCP = tcp;
 	Print_Time();
 	std::cout << "SERVER class started";
@@ -19,6 +18,7 @@ SERVER::SERVER(TCP_SERVER* tcp)
 	functions.push_back(&SERVER::ChoosingRoom);
 	functions.push_back(&SERVER::DeletingRoom);
 };
+
 SERVER::~SERVER() {
 
 	g_serv_TCP->EndTCPserver();
@@ -30,18 +30,15 @@ void SERVER::Run(void)
 {
 	g_serv_TCP->StartTCPserver(SERVER_PORT);
 
-	std::thread t0{ &SERVER::EndServer, this };
-	t0.detach();
+	std::thread t0( &SERVER::EndServer, this );
 
-	while (!g_End_Server)
+	while (1)
 	{
 		SOCKET TempClnt = g_serv_TCP->AcceptClnt();
 		char receive = g_serv_TCP->Receive(TempClnt);
-		std::thread t{functions.at(receive), this, TempClnt};
-		t.detach();
+		std::thread *t1 = new std::thread( functions.at(receive), this, TempClnt );
+		g_threads.push_back(t1);
 	}
-
-	g_serv_TCP->EndTCPserver();
 	return;
 }
 
@@ -165,8 +162,15 @@ void SERVER::EndServer(void)
 		if (!strcmp(command, "exit"))
 			break;
 	}
-	g_End_Server = true;
+	for (int i = 0; i < g_threads.size(); i++)
+	{
+		if (g_threads[i]->joinable())
+			g_threads[i]->join();
+		delete g_threads[i];
+	}
+	g_serv_TCP->EndTCPserver();
 	Clean_rooms();
+	exit(0);
 	return;
 }
 

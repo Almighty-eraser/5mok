@@ -161,7 +161,7 @@ char* UI::AskRoom_nameRetAV(void)
 {
 	char* room_name = new char[BUFSIZE_OF_ROOM_NAME];
 	cout << "\n\n\t\tInput title : ";
-	scanf_s("%s", room_name, sizeof(char) * (unsigned int)BUFSIZE_OF_ROOM_NAME);
+	scanf_s("%s", room_name, (unsigned int)(sizeof(char) * BUFSIZE_OF_ROOM_NAME));
 
 	return room_name;
 }
@@ -194,11 +194,11 @@ void UI::PrintBoard(char* board, int length)
 	cout << '\n';
 }
 
-int UI::AskWhichRoom(vector<char*> titles)
+int UI::AskWhichRoom(vector<char*> room_names)
 {
 	int answer;
-	for (int i = 0; i < titles.size(); i++)
-		cout << "\n\t\t" << i + 1 << ". " << titles[i];
+	for (int i = 0; i < room_names.size(); i++)
+		cout << "\n\t\t" << i + 1 << ". " << room_names[i];
 	cout << "\t\t\t0. Back to Menu";
 	cout << "\n\t\t  Input : ";
 	scanf_s("%d", &answer);

@@ -149,7 +149,7 @@ void Play::MakingRoom(void)
 	char* room_name;
 	room_name = main_UI->AskRoom_nameRetAV();
 
-	if (main_TCP->SendString(room_name, BUFSIZE_OF_TITLE) < 0)
+	if (main_TCP->SendString(room_name, BUFSIZE_OF_ROOM_NAME) < 0)
 		return;
 
 	if (main_TCP->Receive() == 1)
@@ -182,7 +182,7 @@ void Play::MakingRoom(void)
 
 void Play::DeletingRoom(char* title)
 {
-	isRoomDeleted = false;
+	g_isRoomDeleted = false;
 	int decision;
 	while (1)
 	{
@@ -191,7 +191,7 @@ void Play::DeletingRoom(char* title)
 
 		if (decision == 1)
 		{
-			isThreadRunning = false;
+			g_isThreadRunning = false;
 			return;
 		}
 		else if (decision == 0)
@@ -207,7 +207,7 @@ void Play::DeletingRoom(char* title)
 	if (Delete->Receive())
 		main_UI->PrintString("\nDeleting your Room...\n");
 
-	Delete->SendString(title, BUFSIZE_OF_TITLE);
+	Delete->SendString(title, BUFSIZE_OF_ROOM_NAME);
 
 	if (Delete->Receive() == 1)
 		main_UI->PrintString("\nSuccessfully deleted the Room\n");
@@ -218,8 +218,8 @@ void Play::DeletingRoom(char* title)
 
 	delete Delete;
 
-	isThreadRunning = false;
-	isRoomDeleted = true;
+	g_isThreadRunning = false;
+	g_isRoomDeleted = true;
 }
 
 void Play::JoiningRoom(void)
@@ -239,7 +239,7 @@ void Play::JoiningRoom(void)
 	while (1)
 	{
 		int ChosenRoomNum;
-		ChosenRoomNum = main_UI->AskWhichRoom(titles);
+		ChosenRoomNum = main_UI->AskWhichRoom(room_names);
 
 		if (ChosenRoomNum == 0)
 		{
@@ -274,8 +274,8 @@ int Play::ReceiveRoomList(void)
 
 	for (int i = 0; i < RoomCount; i++)
 	{
-		char* title = main_TCP->ReceiveStringRetAV(BUFSIZE_OF_TITLE);
-		titles.push_back(title);
+		char* room_name = main_TCP->ReceiveStringRetAV(BUFSIZE_OF_ROOM_NAME);
+		titles.push_back(room_name);
 	}
 
 	main_TCP->End();
