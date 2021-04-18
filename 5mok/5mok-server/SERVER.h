@@ -15,11 +15,13 @@ public:
 	void ChoosingRoom(SOCKET Clnt);
 	void DeletingRoom(SOCKET Clnt);
 	void Play(SOCKET black_clnt, SOCKET white_clnt);
-	void EndServer(void);
+	void Commands(void);
 
 	void Add_room(SOCKET Clnt, char* room_name);
 	bool Remove_room(char* room_name);
 	void Clean_rooms(void);
+	int Get_Rooms_Size(void);
+	bool Print_Rooms(void);
 private:
 	std::vector<void (SERVER::*)(SOCKET)> functions;
 };

@@ -4,7 +4,7 @@
 
 TCP_SERVER* g_serv_TCP;
 std::vector<std::thread*> g_threads;
-std::vector<SOCKET> g_socks;
+std::vector<SOCKET> g_room_owners;
 std::vector<char*> g_room_names;
 std::mutex g_rooms_mutex;
 
@@ -19,9 +19,8 @@ SERVER::SERVER(TCP_SERVER* tcp)
 	functions.push_back(&SERVER::DeletingRoom);
 };
 
-SERVER::~SERVER() {
-
-	g_serv_TCP->EndTCPserver();
+SERVER::~SERVER() 
+{
 	Print_Time();
 	std::cout << "SERVER class closed";
 }
@@ -30,7 +29,7 @@ void SERVER::Run(void)
 {
 	g_serv_TCP->StartTCPserver(SERVER_PORT);
 
-	std::thread t0( &SERVER::EndServer, this );
+	std::thread t0( &SERVER::Commands, this );
 
 	while (1)
 	{
@@ -55,14 +54,15 @@ void SERVER::MakingRoom(SOCKET Clnt)
 
 void SERVER::SendRoomList(SOCKET Clnt)
 {	
-	int size = g_socks.size();
+	int size = Get_Rooms_Size();
 	if (g_serv_TCP->SendInt(Clnt, size) == 0)
 		return;
-
-	for (int i = 0; i < g_room_names.size(); i++)
+	g_rooms_mutex.lock();
+	for (int i = 0; i < size; i++)
 	{
 		g_serv_TCP->SendString(Clnt, g_room_names[i], BUFSIZE_OF_ROOM_NAME);
 	}
+	g_rooms_mutex.unlock();
 
 	g_serv_TCP->End(Clnt);
 }
@@ -73,13 +73,13 @@ void SERVER::ChoosingRoom(SOCKET Clnt)
 	{
 		char number = g_serv_TCP->Receive(Clnt);
 		number -= 1;
-		if (g_socks[number] != NULL)
+		if (g_room_owners[number] != NULL)
 		{
-			if (g_serv_TCP->SendChar(g_socks[number], 1) == 0)
+			if (g_serv_TCP->SendChar(g_room_owners[number], 1) == 0)
 				return;
 			if (g_serv_TCP->SendChar(Clnt, 1) == 0)
 				return;
-			Play(g_socks[number], Clnt);
+			Play(g_room_owners[number], Clnt);
 			break;
 		}
 		else
@@ -153,7 +153,7 @@ void SERVER::Play(SOCKET black_clnt, SOCKET white_clnt)
 	return;
 }
 
-void SERVER::EndServer(void)
+void SERVER::Commands(void)
 {
 	char command[10] = {0};
 	while (1)
@@ -161,6 +161,20 @@ void SERVER::EndServer(void)
 		scanf_s("%s", command, (unsigned int)sizeof(command));
 		if (!strcmp(command, "exit"))
 			break;
+		else if (!strcmp(command, "clients"))
+		{
+			if (!g_serv_TCP->Print_Clnts_Infos())
+			{
+				std::cout << "\n\nNo clients are active\n\n";
+			}
+		}
+		else if (!strcmp(command, "rooms"))
+		{
+			if (!Print_Rooms())
+			{
+				std::cout << "\n\nNo rooms are active\n\n";
+			}
+		}
 	}
 	for (int i = 0; i < g_threads.size(); i++)
 	{
@@ -168,24 +182,25 @@ void SERVER::EndServer(void)
 			g_threads[i]->join();
 		delete g_threads[i];
 	}
-	g_serv_TCP->EndTCPserver();
 	Clean_rooms();
+	g_serv_TCP->EndTCPserver();
 	exit(0);
-	return;
 }
 
 void SERVER::Add_room(SOCKET Clnt, char* room_name)
 {
 	g_rooms_mutex.lock();
-	g_socks.push_back(Clnt);
+	g_room_owners.push_back(Clnt);
 	g_room_names.push_back(room_name);
 	g_rooms_mutex.unlock();
 }
 
 bool SERVER::Remove_room(char* room_name)
 {
-	g_rooms_mutex.lock();
+	if (g_room_owners.empty())
+		return false;
 	int index = -1;
+	g_rooms_mutex.lock();
 	for (int i = 1; i < g_room_names.size(); i++)
 		if (!strcmp(g_room_names[i], room_name))
 		{
@@ -194,13 +209,18 @@ bool SERVER::Remove_room(char* room_name)
 		}
 	if (index != -1)
 	{
+		delete g_room_names[index];
+		g_room_names[index] = NULL;
+		g_serv_TCP->End(g_room_owners[index]);
+		g_room_owners[index] = NULL;
+
 		for (int j = index; j < g_room_names.size() - 1; j++)
 			g_room_names[j] = g_room_names[j + 1];
 		g_room_names.pop_back();
 
-		for (int j = index; j < g_socks.size() - 1; j++)
-			g_socks[j] = g_socks[j + 1];
-		g_socks.pop_back();
+		for (int j = index; j < g_room_owners.size() - 1; j++)
+			g_room_owners[j] = g_room_owners[j + 1];
+		g_room_owners.pop_back();
 	}
 	g_rooms_mutex.unlock();
 	if (index == -1)
@@ -211,12 +231,36 @@ bool SERVER::Remove_room(char* room_name)
 
 void SERVER::Clean_rooms(void)
 {
+	if (g_room_owners.empty())
+		return;
 	g_rooms_mutex.lock();
 	for (int i = 0; i < g_room_names.size(); i++)
 		if (g_room_names[i] != NULL)
 			delete  g_room_names[i];
-	for (int i = 0; i < g_socks.size(); i++)
-		if (g_socks[i] != NULL)
-			g_serv_TCP->End(g_socks[i]);
+	for (int i = 0; i < g_room_owners.size(); i++)
+		if (g_room_owners[i] != NULL)
+			g_serv_TCP->End(g_room_owners[i]);
 	g_rooms_mutex.unlock();
+}
+
+int SERVER::Get_Rooms_Size(void)
+{
+	int size;
+	g_rooms_mutex.lock();
+	size = g_room_owners.size();
+	g_rooms_mutex.unlock();
+	return size;
+}
+
+bool SERVER::Print_Rooms(void)
+{
+	if (g_room_owners.empty())
+		return false;
+	g_rooms_mutex.lock();
+	for (int i = 0; i < g_room_owners.size(); i++)
+		std::cout << i + 1 << " SOCKET : " << g_room_owners[i] << " room : " << g_room_names[i]
+			<< '\n';
+	puts("\n");
+	g_rooms_mutex.unlock();
+	return true;
 }
