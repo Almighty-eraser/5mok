@@ -13,9 +13,10 @@ public:
 	void SendPosOfStone(char x, char y);
 	int SendChar(char decision);
 	int SendString(char* string, int size);
-	char Receive();
+	char Receive(void);
 	char* ReceiveStringRetAV(int size);
-	void End();
+	bool Receive_Timeout(char* receive);
+	void End(void);
 private:
 	SOCKET sock;
 };

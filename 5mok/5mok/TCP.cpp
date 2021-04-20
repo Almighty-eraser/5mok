@@ -75,6 +75,20 @@ char* TCP::ReceiveStringRetAV(int size)//return allocated variable
 	return string;
 }
 
+bool TCP::Receive_Timeout(char* receive)
+{
+	DWORD timeout = 500;
+	int nError = 0;
+	if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout)) == SOCKET_ERROR)
+		ErrorHandling("Cannot set socket option");
+	nError = recv(sock, receive, sizeof(char), 0) < sizeof(char);
+	setsockopt(sock, SOL_SOCKET, NULL, NULL, NULL);
+	if (nError <= 0)
+		return false;
+	else
+		return  true;
+}
+
 void TCP::End(void)
 {
 	WSACleanup();

@@ -28,8 +28,8 @@ enum {
 #define _TCP_
 
 #define SERVER_PORT 55000
-#define IP_Address "192.168.0.10"
-//#define IP_Address "127.0.0.1"
+//#define IP_Address "192.168.0.10"
+#define IP_Address "127.0.0.1"
 #define BUFSIZE_OF_ROOM_NAME 100
 
 #endif

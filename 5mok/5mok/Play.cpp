@@ -1,5 +1,41 @@
 #include "Play.h"
 
+
+bool g_FoundTheOpponent = false;
+bool g_isRoomDeleted = false;
+std::mutex g_FoundTheOpponent_mutex;
+std::mutex g_isRoomDeleted_mutex;
+
+bool Get_FoundTheOpponent(void)
+{
+	g_FoundTheOpponent_mutex.lock();
+	bool result = g_FoundTheOpponent;
+	g_FoundTheOpponent_mutex.unlock();
+	return result;
+}
+
+void Change_FoundTheOpponent(bool value)
+{
+	g_FoundTheOpponent_mutex.lock();
+	g_FoundTheOpponent = value;
+	g_FoundTheOpponent_mutex.unlock();
+}
+
+bool Get_isRoomDeleted(void)
+{
+	g_isRoomDeleted_mutex.lock();
+	bool result = g_isRoomDeleted;
+	g_isRoomDeleted_mutex.unlock();
+	return result;
+}
+
+void Change_isRoomDeleted(bool value)
+{
+	g_isRoomDeleted_mutex.lock();
+	g_isRoomDeleted = value;
+	g_isRoomDeleted_mutex.unlock();
+}
+
 void Play::START(void)
 {
 	system("mode con cols=80 lines=30 | title 5mok");
@@ -26,29 +62,33 @@ void Play::START(void)
 				}
 				else if (answer <= 0 || answer > 3)
 					continue;
-				main_TCP->SendChar(answer);
-				if (answer == _IMMA_MAKE_ROOM_)
+				else if (answer == 1)
+				{
+					main_TCP->SendChar(_IMMA_MAKE_ROOM_);
 					MakingRoom();
-				else if (answer == _IMMA_JOIN_ROOM_)
+				}
+				else if (answer == 2)
+				{
+					main_TCP->SendChar(_IMMA_JOIN_ROOM_);
 					JoiningRoom();
-				else if (answer == _IMMA_CHOOSE_ROOM_)
-					ReceiveRoomList();
+				}
 				break;
+			}
+			break;
 		case 3:
 			break;
 		default:
 			continue;
 			break;
-			}
+		}
 			if (answer == 3)
 				break;
 			main_UI->PressAnyKey();
 			getchar();
 			main_UI->Clear();
-		}
+	}
 
 		main_UI->PressAnyKey();
-	}
 }
 	 
 int Play::MakeBoard(void)//return size of board
@@ -162,15 +202,18 @@ void Play::MakingRoom(void)
 	}
 
 	thread t1(&Play::DeletingRoom, this, room_name);
-	t1.detach();
+
+	char decision = 0;
 
 	while(1)
 	{
-		if (g_isThreadRunning)
-			continue;
-		if (g_isRoomDeleted)
+		if (Get_isRoomDeleted())
 			break;
-
+		if (main_TCP->Receive_Timeout(&decision) == false)
+			continue;
+		if (decision == -1)
+			continue;
+		Change_FoundTheOpponent(true);
 		main_UI->PrintString("\nPress 1 to proceed\nFound the opponent\n");
 		MultiP(_IMMA_MAKE_ROOM_);
 		break;
@@ -180,21 +223,15 @@ void Play::MakingRoom(void)
 	return;
 }
 
-void Play::DeletingRoom(char* title)
+void Play::DeletingRoom(char* room_name)
 {
-	g_isRoomDeleted = false;
 	int decision;
 	while (1)
 	{
 		main_UI->PrintString("\nPress 0 to delete your Room\n");
 		scanf_s("%d", &decision);
 
-		if (decision == 1)
-		{
-			g_isThreadRunning = false;
-			return;
-		}
-		else if (decision == 0)
+		if (decision == 0 || (decision == 1 && Get_FoundTheOpponent()))
 			break;
 		else
 			continue;
@@ -204,37 +241,32 @@ void Play::DeletingRoom(char* title)
 
 	Delete->StartTCPclnt();
 	Delete->SendChar(_IMMA_DELETE_ROOM_);
-	if (Delete->Receive())
-		main_UI->PrintString("\nDeleting your Room...\n");
+	main_UI->PrintString("\nDeleting your Room...\n");
 
-	Delete->SendString(title, BUFSIZE_OF_ROOM_NAME);
+	Delete->SendString(room_name, BUFSIZE_OF_ROOM_NAME);
 
 	if (Delete->Receive() == 1)
+	{
 		main_UI->PrintString("\nSuccessfully deleted the Room\n");
+		Delete->End();
+		delete Delete;
+		Change_isRoomDeleted(true);
+	}
 	else
+	{
 		main_UI->PrintString("\nFailed to delete the Room\n");
-
-	Delete->End();
-
-	delete Delete;
-
-	g_isThreadRunning = false;
-	g_isRoomDeleted = true;
+		Delete->End();
+		delete Delete;
+		Change_isRoomDeleted(false);
+	}
 }
 
 void Play::JoiningRoom(void)
 {
-	if (!ReceiveRoomList())
-		return;;
-
-	main_TCP->StartTCPclnt();
-	main_TCP->SendChar(_IMMA_CHOOSE_ROOM_);
-
-	if (!main_TCP->Receive())
-	{
-		main_TCP->End();
+	if (ReceiveRoomList() == -1)
 		return;
-	}
+
+	main_TCP->End();
 
 	while (1)
 	{
@@ -269,16 +301,25 @@ int Play::ReceiveRoomList(void)
 {
 	int RoomCount = main_TCP->Receive();
 
-	if (RoomCount < 0)
+	if (RoomCount <= 0)
+	{
+		puts("\nThere's no room available\n");
 		return -1;
+	}
+
+	if (!room_names.empty())
+	{
+		for (int i = 0; i < room_names.size(); i++)
+			delete[] room_names[i];
+		room_names.erase(room_names.begin(), room_names.end());
+	}
 
 	for (int i = 0; i < RoomCount; i++)
 	{
 		char* room_name = main_TCP->ReceiveStringRetAV(BUFSIZE_OF_ROOM_NAME);
-		titles.push_back(room_name);
+		room_names.push_back(room_name);
+		main_UI->PrintRoom_names(room_names);
 	}
-
-	main_TCP->End();
 
 	return 1;
 }
@@ -407,7 +448,8 @@ void Play::MultiP(int whichside)
 		}
 	}
 
-	
+	Change_FoundTheOpponent(false);
+	Change_isRoomDeleted(false);
 }
 
 int Play::WhoseWinner(int stone, int height)

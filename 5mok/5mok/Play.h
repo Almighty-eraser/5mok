@@ -1,13 +1,11 @@
 #pragma once
 #include "UI.h"
 #include "TCP.h"
+#include <mutex>
 
 class UI;
 
 class TCP;
-
-bool g_isThreadRunning = false;
-bool g_isRoomDeleted = false;
 
 class Play
 {
@@ -25,7 +23,7 @@ public:
 	void RemoveBoard(void);
 	void SinglePptp(void);//singleplay person to person
 	void MakingRoom(void);
-	void DeletingRoom(char* title);
+	void DeletingRoom(char* room_name);
 	void JoiningRoom(void);
 	int ReceiveRoomList(void);
 	void MultiP(int whichside);//multiplay

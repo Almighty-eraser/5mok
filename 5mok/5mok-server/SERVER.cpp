@@ -86,6 +86,8 @@ void SERVER::ChoosingRoom(SOCKET Clnt)
 		{
 			if (g_serv_TCP->SendChar(Clnt, -1) == 0)
 				return;
+			if (g_serv_TCP->SendChar(g_room_owners[number], -1) == 0)
+				return;
 			continue;
 		}
 	}
