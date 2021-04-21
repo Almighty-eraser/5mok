@@ -212,8 +212,8 @@ void UI::PressAnyKey(void)
 	cout << "\n\n";
 }
 
-void UI::PrintRoom_names(vector<char*>* room_names)
+void UI::PrintRoom_names(vector<char*> room_names)
 {
-	for (int i = 0; i < room_names->size(); i++)
-		cout << i + 1 << ". " << room_names->at(i) << '\n';
+	for (int i = 0; i < room_names.size(); i++)
+		cout << i + 1 << ". " << room_names[i] << '\n';
 }

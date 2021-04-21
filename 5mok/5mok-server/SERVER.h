@@ -22,6 +22,7 @@ public:
 	void Clean_rooms(void);
 	int Get_Rooms_Size(void);
 	bool Print_Rooms(void);
+	int Find_Room(char* room_name);
 private:
 	std::vector<void (SERVER::*)(SOCKET)> functions;
 };

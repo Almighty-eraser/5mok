@@ -214,7 +214,7 @@ void Play::MakingRoom(void)
 		if (decision == -1)
 			continue;
 		Change_FoundTheOpponent(true);
-		main_UI->PrintString("\nPress 1 to proceed\nFound the opponent\n");
+		std::cout << "\nPress 1 to proceed\n\nFound the opponent\n";
 		MultiP(_IMMA_MAKE_ROOM_);
 		break;
 	}
@@ -228,7 +228,7 @@ void Play::DeletingRoom(char* room_name)
 	int decision;
 	while (1)
 	{
-		main_UI->PrintString("\nPress 0 to delete your Room\n");
+		std::cout << "\nPress 0 to delete your Room\n";
 		scanf_s("%d", &decision);
 
 		if (decision == 0 || (decision == 1 && Get_FoundTheOpponent()))
@@ -241,20 +241,21 @@ void Play::DeletingRoom(char* room_name)
 
 	Delete->StartTCPclnt();
 	Delete->SendChar(_IMMA_DELETE_ROOM_);
-	main_UI->PrintString("\nDeleting your Room...\n");
+	if(decision == 0)
+		std::cout << "\nDeleting your Room...\n";
 
 	Delete->SendString(room_name, BUFSIZE_OF_ROOM_NAME);
 
 	if (Delete->Receive() == 1)
 	{
-		main_UI->PrintString("\nSuccessfully deleted the Room\n");
+		std::cout << "\nSuccessfully deleted the Room\n";
 		Delete->End();
 		delete Delete;
 		Change_isRoomDeleted(true);
 	}
 	else
 	{
-		main_UI->PrintString("\nFailed to delete the Room\n");
+		std::cout << "\nFailed to delete the Room\n";
 		Delete->End();
 		delete Delete;
 		Change_isRoomDeleted(false);
@@ -266,29 +267,28 @@ void Play::JoiningRoom(void)
 	if (ReceiveRoomList() == -1)
 		return;
 
-	main_TCP->End();
-
 	while (1)
 	{
 		int ChosenRoomNum;
 		ChosenRoomNum = main_UI->AskWhichRoom(room_names);
 
 		if (ChosenRoomNum == 0)
-		{
-			main_TCP->End();
 			return;
-		}
 
-		main_TCP->SendChar(ChosenRoomNum);
+		main_TCP->StartTCPclnt();
+
+		main_TCP->SendChar(_IMMA_CHOOSE_ROOM_);
+
+		main_TCP->SendString(room_names[ChosenRoomNum - 1], BUFSIZE_OF_ROOM_NAME);
 
 		if (main_TCP->Receive())
 		{
-			main_UI->PrintString("\nJoining Room...\n");
+			std::cout << "\nJoining Room...\n";
 			MultiP(_IMMA_JOIN_ROOM_);
 		}
 		else
 		{
-			main_UI->PrintString("\nWrong Room Number has been chosen\n");
+			std::cout << "\nWrong Room Number has been chosen\n";
 			continue;
 		}
 
@@ -304,6 +304,7 @@ int Play::ReceiveRoomList(void)
 	if (RoomCount <= 0)
 	{
 		puts("\nThere's no room available\n");
+		main_TCP->End();
 		return -1;
 	}
 
@@ -320,6 +321,8 @@ int Play::ReceiveRoomList(void)
 		room_names.push_back(room_name);
 		main_UI->PrintRoom_names(room_names);
 	}
+
+	main_TCP->End();
 
 	return 1;
 }

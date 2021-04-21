@@ -69,28 +69,25 @@ void SERVER::SendRoomList(SOCKET Clnt)
 
 void SERVER::ChoosingRoom(SOCKET Clnt)
 {
-	while (1)
+	char* room_name = g_serv_TCP->ReceiveStringRetAV(Clnt, BUFSIZE_OF_ROOM_NAME);
+	int index = Find_Room(room_name);
+	if (index >= 0)
 	{
-		char number = g_serv_TCP->Receive(Clnt);
-		number -= 1;
-		if (g_room_owners[number] != NULL)
-		{
-			if (g_serv_TCP->SendChar(g_room_owners[number], 1) == 0)
-				return;
-			if (g_serv_TCP->SendChar(Clnt, 1) == 0)
-				return;
-			Play(g_room_owners[number], Clnt);
-			break;
-		}
-		else
-		{
-			if (g_serv_TCP->SendChar(Clnt, -1) == 0)
-				return;
-			if (g_serv_TCP->SendChar(g_room_owners[number], -1) == 0)
-				return;
-			continue;
-		}
+		if (g_serv_TCP->SendChar(g_room_owners[index], 1) == 0)
+			return;
+		if (g_serv_TCP->SendChar(Clnt, 1) == 0)
+			return;
+		Play(g_room_owners[index], Clnt);
+
 	}
+	else
+	{
+		if (g_serv_TCP->SendChar(Clnt, -1) == 0)
+			return;
+
+	}
+
+	delete[] room_name;
 
 	//No need to end clnt sockets
 }
@@ -265,4 +262,18 @@ bool SERVER::Print_Rooms(void)
 	puts("\n");
 	g_rooms_mutex.unlock();
 	return true;
+}
+
+int SERVER::Find_Room(char* room_name)
+{
+	int index = -1;
+	g_rooms_mutex.lock();
+	for(int i = 0; i < g_room_names.size(); i++)
+		if (!strcmp(g_room_names[i], room_name))
+		{
+			index = i;
+			break;
+		}
+	g_rooms_mutex.unlock();
+	return index;
 }

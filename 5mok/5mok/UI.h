@@ -10,7 +10,7 @@ class UI
 public:
 	void SetColor(int forground, int background);
 	void PrintStoneOfBoard(int stone);
-	void PrintRoom_names(vector<char*>* room_names);
+	void PrintRoom_names(vector<char*> room_names);
 	void ColorOneStone(char* board, int height, int x, int y);
 	void ColorFiveStones(char* board, int height, 
 		int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, int x5, int y5);
