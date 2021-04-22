@@ -202,23 +202,22 @@ void Play::MakingRoom(void)
 	}
 
 	thread t1(&Play::DeletingRoom, this, room_name);
+	t1.detach();
 
 	char decision = 0;
 
 	while(1)
 	{
+		Sleep(500);
 		if (Get_isRoomDeleted())
 			break;
-		if (main_TCP->Receive_Timeout(&decision) == false)
-			continue;
-		if (decision == -1)
+		if (decision <= 0)
 			continue;
 		Change_FoundTheOpponent(true);
 		std::cout << "\nPress 1 to proceed\n\nFound the opponent\n";
 		MultiP(_IMMA_MAKE_ROOM_);
 		break;
 	}
-
 	delete[] room_name;
 	return;
 }
@@ -248,18 +247,18 @@ void Play::DeletingRoom(char* room_name)
 
 	if (Delete->Receive() == 1)
 	{
-		std::cout << "\nSuccessfully deleted the Room\n";
-		Delete->End();
-		delete Delete;
+		if (decision == 0)
+			std::cout << "\nSuccessfully deleted the Room\n";
 		Change_isRoomDeleted(true);
 	}
 	else
 	{
 		std::cout << "\nFailed to delete the Room\n";
-		Delete->End();
-		delete Delete;
 		Change_isRoomDeleted(false);
 	}
+	Delete->End();
+	delete Delete;
+	return;
 }
 
 void Play::JoiningRoom(void)

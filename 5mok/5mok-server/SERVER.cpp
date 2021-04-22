@@ -200,7 +200,7 @@ bool SERVER::Remove_room(char* room_name)
 		return false;
 	int index = -1;
 	g_rooms_mutex.lock();
-	for (int i = 1; i < g_room_names.size(); i++)
+	for (int i = 0; i < g_room_names.size(); i++)
 		if (!strcmp(g_room_names[i], room_name))
 		{
 			index = i;
@@ -209,17 +209,9 @@ bool SERVER::Remove_room(char* room_name)
 	if (index != -1)
 	{
 		delete g_room_names[index];
-		g_room_names[index] = NULL;
+		g_room_names.erase(g_room_names.begin() + index);
 		g_serv_TCP->End(g_room_owners[index]);
-		g_room_owners[index] = NULL;
-
-		for (int j = index; j < g_room_names.size() - 1; j++)
-			g_room_names[j] = g_room_names[j + 1];
-		g_room_names.pop_back();
-
-		for (int j = index; j < g_room_owners.size() - 1; j++)
-			g_room_owners[j] = g_room_owners[j + 1];
-		g_room_owners.pop_back();
+		g_room_owners.erase(g_room_owners.begin() + index);
 	}
 	g_rooms_mutex.unlock();
 	if (index == -1)
