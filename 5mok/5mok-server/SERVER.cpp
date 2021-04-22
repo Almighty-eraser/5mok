@@ -34,6 +34,7 @@ void SERVER::Run(void)
 	while (1)
 	{
 		SOCKET TempClnt = g_serv_TCP->AcceptClnt();
+		g_serv_TCP->Add_Clnt(TempClnt, g_serv_TCP->Get_Recent_ClntInfo());
 		char receive = g_serv_TCP->Receive(TempClnt);
 		std::thread *t1 = new std::thread( functions.at(receive), this, TempClnt );
 		g_threads.push_back(t1);
@@ -158,6 +159,7 @@ void SERVER::Commands(void)
 	while (1)
 	{
 		scanf_s("%s", command, (unsigned int)sizeof(command));
+		getchar();
 		if (!strcmp(command, "exit"))
 			break;
 		else if (!strcmp(command, "clients"))

@@ -19,6 +19,7 @@ int UI::Mainmenu(void)
 		<< "\t\t3. Exit\n"
 		<< "\t\tInput : ";
 	scanf_s("%d", &answer);
+	getchar();
 	return answer;
 }
 

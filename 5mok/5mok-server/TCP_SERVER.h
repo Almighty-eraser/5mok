@@ -13,6 +13,8 @@ public:
 	void EndTCPserver(void) 
 	{ 
 		Print_Time();
+		std::cout << "Waiting for clients to end..\n\n";
+		Clean_Clnts();
 		std::cout << "Server socket closing..\n\n"; 
 		WSACleanup(); 
 		this->End(sock); 
@@ -26,14 +28,17 @@ public:
 	char* ReceiveStringRetAV(SOCKET Clnt, int size);
 	void End(SOCKET Clnt);
 
-	void Add_clnt(SOCKET Clnt, SOCKADDR_IN* Clntinfo);
-	void Remove_clnt(SOCKET Clnt);
-	void Clean_clnts(void);
+	void Add_Clnt(SOCKET Clnt, SOCKADDR_IN* Clntinfo);
+	void Remove_Clnt(SOCKET Clnt);
+	void Clean_Clnts(void);
 	int Get_Clnts_Size(void);
+	SOCKADDR_IN* Get_Recent_ClntInfo(void);
 	bool Print_Clnts_Infos(void);
 private:
 	SOCKET sock;
 	SOCKADDR_IN serv_addr {0};
+	SOCKADDR_IN clnt_addr {0};
+
 
 	std::vector<SOCKET> Clnts;
 	std::vector<SOCKADDR_IN*> ClntsInfo;

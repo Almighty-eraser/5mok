@@ -34,9 +34,8 @@ void TCP_SERVER::StartTCPserver(int port)
 
 SOCKET TCP_SERVER::AcceptClnt(void)
 {
-	SOCKADDR_IN clnt_addr{0};
-
 	int size_of_addr = sizeof(clnt_addr);
+	memset(&clnt_addr, 0, size_of_addr);
 	return accept(sock, reinterpret_cast<SOCKADDR*>(&clnt_addr), &size_of_addr);
 }
 
@@ -163,7 +162,7 @@ void TCP_SERVER::End(SOCKET SOCK)
 	closesocket(SOCK);
 }
 
-void TCP_SERVER::Add_clnt(SOCKET Clnt, SOCKADDR_IN* Clntinfo)
+void TCP_SERVER::Add_Clnt(SOCKET Clnt, SOCKADDR_IN* Clntinfo)
 {
 	Clnts_mutex.lock();
 	Clnts.push_back(Clnt);
@@ -171,7 +170,7 @@ void TCP_SERVER::Add_clnt(SOCKET Clnt, SOCKADDR_IN* Clntinfo)
 	Clnts_mutex.unlock();
 }
 
-void TCP_SERVER::Remove_clnt(SOCKET Clnt)
+void TCP_SERVER::Remove_Clnt(SOCKET Clnt)
 {
 	if (ClntsInfo.empty() && Clnts.empty())
 		return;
@@ -186,23 +185,15 @@ void TCP_SERVER::Remove_clnt(SOCKET Clnt)
 	if (index != -1)
 	{
 		delete ClntsInfo[index];
-		ClntsInfo[index] = NULL;
+		ClntsInfo.erase(ClntsInfo.begin() + index);
 		this->End(Clnts[index]);
-		Clnts[index] = NULL;
-
-		for (int j = index; j < ClntsInfo.size() - 1; j++)
-			ClntsInfo[j] = ClntsInfo[j + 1];
-		ClntsInfo.pop_back();
-
-		for (int j = index; j < Clnts.size() - 1; j++)
-			Clnts[j] = Clnts[j + 1];
-		Clnts.pop_back();
+		Clnts.erase(Clnts.begin() + index);
 	}
 	Clnts_mutex.unlock();
 	return;
 }
 
-void TCP_SERVER::Clean_clnts(void)
+void TCP_SERVER::Clean_Clnts(void)
 {
 	if (ClntsInfo.empty() && Clnts.empty())
 		return;
@@ -223,6 +214,11 @@ int TCP_SERVER::Get_Clnts_Size(void)
 	size = Clnts.size();
 	Clnts_mutex.unlock();
 	return size;
+}
+
+SOCKADDR_IN* TCP_SERVER::Get_Recent_ClntInfo(void)
+{
+	return &clnt_addr;
 }
 
 bool TCP_SERVER::Print_Clnts_Infos(void)
