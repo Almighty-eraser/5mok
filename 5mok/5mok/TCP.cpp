@@ -61,10 +61,17 @@ void TCP::SendPosOfStone(char x, char y)
 
 char TCP::Receive(void)
 {
-	char pos;
-	if (recv(sock, &pos, sizeof(pos), 0) == SOCKET_ERROR)
+	char ch;
+	if (recv(sock, &ch, sizeof(ch), 0) == SOCKET_ERROR)
 		ErrorHandling("Cannot receive any data");
-	return pos;
+	return ch;
+}
+
+int TCP::Receive_Non_Blocking(char* receive)
+{
+	int byte;
+	byte = recv(sock, receive, sizeof(char), 0); 
+	return byte;
 }
 
 char* TCP::ReceiveStringRetAV(int size)//return allocated variable
@@ -75,18 +82,16 @@ char* TCP::ReceiveStringRetAV(int size)//return allocated variable
 	return string;
 }
 
-bool TCP::Receive_Timeout(char* receive)
+bool TCP::Change_IOMode(int mode)
 {
-	DWORD timeout = 500;
-	int nError = 0;
-	if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout)) == SOCKET_ERROR)
-		ErrorHandling("Cannot set socket option");
-	nError = recv(sock, receive, sizeof(char), 0) < sizeof(char);
-	setsockopt(sock, SOL_SOCKET, NULL, NULL, NULL);
-	if (nError <= 0)
-		return false;
+	u_long Mode = mode;
+	int Error;
+	if (Error = ioctlsocket(sock, FIONBIO, &Mode) == SOCKET_ERROR)
+		ErrorHandling("Cannot change the mode of io");
+	if (Error == 0)
+		return true;
 	else
-		return  true;
+		return false;
 }
 
 void TCP::End(void)

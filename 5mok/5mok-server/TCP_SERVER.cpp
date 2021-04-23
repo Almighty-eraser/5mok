@@ -3,7 +3,7 @@
 void ErrorHandling(const char* message)
 {
 	std::cout << '\n' << message << '\n'
-		<< "\nPress any key to exit...";
+		<< "\nPress any key to exit... (Error : " << GetLastError() << ')';
 	_getch();
 	_getch();
 	exit(1);
@@ -34,9 +34,11 @@ void TCP_SERVER::StartTCPserver(int port)
 
 SOCKET TCP_SERVER::AcceptClnt(void)
 {
-	int size_of_addr = sizeof(clnt_addr);
-	memset(&clnt_addr, 0, size_of_addr);
-	return accept(sock, reinterpret_cast<SOCKADDR*>(&clnt_addr), &size_of_addr);
+	SOCKADDR_IN* clnt_addr = new SOCKADDR_IN;
+	ClntsInfo.push_back(clnt_addr);
+	int size_of_addr = sizeof(SOCKADDR_IN);
+	memset(clnt_addr, 0, size_of_addr);
+	return accept(sock, reinterpret_cast<SOCKADDR*>(clnt_addr), &size_of_addr);
 }
 
 int TCP_SERVER::SendChar(SOCKET Clnt, char data)
@@ -162,20 +164,16 @@ void TCP_SERVER::End(SOCKET SOCK)
 	closesocket(SOCK);
 }
 
-void TCP_SERVER::Add_Clnt(SOCKET Clnt, SOCKADDR_IN* Clntinfo)
+void TCP_SERVER::Add_Clnt(SOCKET Clnt)
 {
-	Clnts_mutex.lock();
 	Clnts.push_back(Clnt);
-	ClntsInfo.push_back(Clntinfo);
-	Clnts_mutex.unlock();
 }
 
-void TCP_SERVER::Remove_Clnt(SOCKET Clnt)
+bool TCP_SERVER::Remove_Clnt(SOCKET Clnt)
 {
 	if (ClntsInfo.empty() && Clnts.empty())
-		return;
+		return false;
 	int index = -1;
-	Clnts_mutex.lock();
 	for(int i = 0; i < Clnts.size(); i++)
 		if (Clnts[i] == Clnt)
 		{
@@ -184,52 +182,60 @@ void TCP_SERVER::Remove_Clnt(SOCKET Clnt)
 		}
 	if (index != -1)
 	{
-		delete ClntsInfo[index];
+		SOCKADDR_IN* sockaddr = ClntsInfo[index];
 		ClntsInfo.erase(ClntsInfo.begin() + index);
-		this->End(Clnts[index]);
+		delete sockaddr;
+		SOCKET sock = Clnts[index];
 		Clnts.erase(Clnts.begin() + index);
+		this->End(sock);
+		return true;
 	}
-	Clnts_mutex.unlock();
-	return;
+	return false;
 }
 
 void TCP_SERVER::Clean_Clnts(void)
 {
 	if (ClntsInfo.empty() && Clnts.empty())
 		return;
-	Clnts_mutex.lock();
-	for (int i = 0; i < ClntsInfo.size(); i++)
-		if (ClntsInfo[i] != NULL)
-			delete  ClntsInfo[i];
-	for (int i = 0; i < Clnts.size(); i++)
-		if (Clnts[i] != NULL)
-			this->End(Clnts[i]);
-	Clnts_mutex.unlock();
+	while(ClntsInfo.empty() != 1)
+	{
+		SOCKADDR_IN* sockaddr = ClntsInfo[0];
+		ClntsInfo.erase(ClntsInfo.begin());
+		delete sockaddr;
+	}
+	while(Clnts.empty() != 1)
+	{
+		SOCKET sock = Clnts[0];
+		Clnts.erase(Clnts.begin());
+		this->End(sock);
+	}
 }
 
 int TCP_SERVER::Get_Clnts_Size(void)
 {
 	int size;
-	Clnts_mutex.lock();
 	size = Clnts.size();
-	Clnts_mutex.unlock();
 	return size;
 }
 
-SOCKADDR_IN* TCP_SERVER::Get_Recent_ClntInfo(void)
+SOCKET TCP_SERVER::Get_Clnt_SOCKET(int index)
 {
-	return &clnt_addr;
+	if (Clnts.empty())
+		return -1;
+	return Clnts[index];
 }
 
-bool TCP_SERVER::Print_Clnts_Infos(void)
+bool TCP_SERVER::Print_Clnts_Info(void)
 {
 	if (Clnts.empty())
 		return false;
-	Clnts_mutex.lock();
 	for (int i = 0; i < Clnts.size(); i++)
-		std::cout << i + 1 << " SOCKET : " << Clnts[i] << " ip : " << ClntsInfo[i]->sin_addr.S_un.S_addr 
+	{
+		char Buffer[10];
+		_ltoa_s(ClntsInfo[i]->sin_addr.S_un.S_addr, Buffer, sizeof(Buffer));
+		std::cout << i + 1 << " SOCKET : " << Clnts[i] << " ip : " << Buffer
 			<< '\n';
+	}
 	puts("\n");
-	Clnts_mutex.unlock();
 	return true;
 }

@@ -201,54 +201,54 @@ void Play::MakingRoom(void)
 		return;
 	}
 
-	thread t1(&Play::DeletingRoom, this, room_name);
-	t1.detach();
+	char receive = 0;
+	int state = 0;
+	main_TCP->Change_IOMode(NON_BLOCKING);
 
-	char decision = 0;
+	std::cout << "\n\nTo delete the room you created, press 1\n";
 
-	while(1)
+	while (1)
 	{
-		Sleep(500);
-		if (Get_isRoomDeleted())
+		state = main_TCP->Receive_Non_Blocking(&receive);
+
+		if (state > 0 && receive == 1)
+		{
+			main_TCP->Change_IOMode(BLOCKING);
+			MultiP(_IMMA_MAKE_ROOM_);
+			main_TCP->End();
 			break;
-		if (decision <= 0)
-			continue;
-		Change_FoundTheOpponent(true);
-		std::cout << "\nPress 1 to proceed\n\nFound the opponent\n";
-		MultiP(_IMMA_MAKE_ROOM_);
-		break;
+		}
+
+		if (_kbhit())
+		{
+			char a = _getch();
+			if (a == '1')
+			{
+				DeletingRoom(room_name);
+				main_TCP->End();
+				break;
+			}
+		}
 	}
+
+	
 	delete[] room_name;
 	return;
 }
 
 void Play::DeletingRoom(char* room_name)
 {
-	int decision;
-	while (1)
-	{
-		std::cout << "\nPress 0 to delete your Room\n";
-		scanf_s("%d", &decision);
-
-		if (decision == 0 || (decision == 1 && Get_FoundTheOpponent()))
-			break;
-		else
-			continue;
-	}
-
 	TCP* Delete = new TCP;
 
 	Delete->StartTCPclnt();
 	Delete->SendChar(_IMMA_DELETE_ROOM_);
-	if(decision == 0)
-		std::cout << "\nDeleting your Room...\n";
+	std::cout << "\nDeleting your Room...\n";
 
 	Delete->SendString(room_name, BUFSIZE_OF_ROOM_NAME);
 
 	if (Delete->Receive() == 1)
 	{
-		if (decision == 0)
-			std::cout << "\nSuccessfully deleted the Room\n";
+		std::cout << "\nSuccessfully deleted the Room\n";
 		Change_isRoomDeleted(true);
 	}
 	else

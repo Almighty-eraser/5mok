@@ -14,8 +14,9 @@ public:
 	int SendChar(char decision);
 	int SendString(char* string, int size);
 	char Receive(void);
+	int Receive_Non_Blocking(char* receive);
 	char* ReceiveStringRetAV(int size);
-	bool Receive_Timeout(char* receive);
+	bool Change_IOMode(int mode);
 	void End(void);
 private:
 	SOCKET sock;

@@ -26,23 +26,22 @@ public:
 	void SendString(SOCKET Clnt, char* string, int size);
 	char Receive(SOCKET Clnt);
 	char* ReceiveStringRetAV(SOCKET Clnt, int size);
-	void End(SOCKET Clnt);
 
-	void Add_Clnt(SOCKET Clnt, SOCKADDR_IN* Clntinfo);
-	void Remove_Clnt(SOCKET Clnt);
+	void Add_Clnt(SOCKET Clnt);
+	bool Remove_Clnt(SOCKET Clnt);
 	void Clean_Clnts(void);
 	int Get_Clnts_Size(void);
-	SOCKADDR_IN* Get_Recent_ClntInfo(void);
-	bool Print_Clnts_Infos(void);
+	SOCKET Get_Clnt_SOCKET(int index);
+	bool Print_Clnts_Info(void);
 private:
+	void End(SOCKET Clnt);
+
 	SOCKET sock;
 	SOCKADDR_IN serv_addr {0};
-	SOCKADDR_IN clnt_addr {0};
 
 
 	std::vector<SOCKET> Clnts;
 	std::vector<SOCKADDR_IN*> ClntsInfo;
-	std::mutex Clnts_mutex;
 };
 
 

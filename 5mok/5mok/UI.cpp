@@ -32,6 +32,7 @@ int UI::MakeRoomOrNot(void)
 		<< "\n\t\t3. Back to menu"
 		<< "\n\t\tInput : ";
 	scanf_s("%d", &answer);
+	getchar();
 	return answer;
 }
 
@@ -147,6 +148,7 @@ int UI::AskWhichBoard(void)
 	cout << "\n\n\n\t\tWhich board are you going to use?"
 		<< "\n\n\t\t1. 8x8\n\t\t2. 9x9\n\t\t3. 10x10\n\t\t4. 11x11\n\n\t\tInput : ";
 	scanf_s("%d", &answer);
+	getchar();
 	return answer;
 }
 
@@ -155,6 +157,7 @@ int* UI::AskCoordinatesRetAV(void)//return allocated variable
 	int* pos = new int[2];
 	cout << "\n\nPlace : ";
 	scanf_s("%d %d", pos, pos + 1);
+	getchar();
 	return pos;
 }
 
@@ -163,7 +166,7 @@ char* UI::AskRoom_nameRetAV(void)
 	char* room_name = new char[BUFSIZE_OF_ROOM_NAME];
 	cout << "\n\n\t\tInput title : ";
 	scanf_s("%s", room_name, (unsigned int)(sizeof(char) * BUFSIZE_OF_ROOM_NAME));
-
+	getchar();
 	return room_name;
 }
 
@@ -203,6 +206,7 @@ int UI::AskWhichRoom(vector<char*> room_names)
 	cout << "\t\t\t0. Back to Menu";
 	cout << "\n\t\t  Input : ";
 	scanf_s("%d", &answer);
+	getchar();
 	return answer;
 }
 

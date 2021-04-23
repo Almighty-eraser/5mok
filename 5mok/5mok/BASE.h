@@ -34,6 +34,12 @@ enum {
 
 #endif
 
+#ifndef _IO_MODE_
+#define _IO_MODE_
+#define NON_BLOCKING 1
+#define BLOCKING 0
+#endif
+
 #ifndef _STONES_
 #define _STONES_
 
