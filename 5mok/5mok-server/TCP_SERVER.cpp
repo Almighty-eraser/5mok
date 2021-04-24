@@ -43,8 +43,13 @@ SOCKET TCP_SERVER::AcceptClnt(void)
 
 int TCP_SERVER::SendChar(SOCKET Clnt, char data)
 {
-	int ErrorOrNot;
-	if (ErrorOrNot = send(Clnt, &data, sizeof(char), 0) == SOCKET_ERROR)
+	int byte = 0;
+	while (byte += send(Clnt, &data, sizeof(char), 0) > SOCKET_ERROR)
+	{
+		if (byte >= sizeof(char))
+			break;
+	}
+	if (byte <= SOCKET_ERROR)
 	{
 		Print_Time();
 		std::cout << "\nCannot send decision : " << data
@@ -58,13 +63,18 @@ int TCP_SERVER::SendChar(SOCKET Clnt, char data)
 			<< "\nTo : " << Clnt << "\n\n";
 	}
 	
-	return ErrorOrNot;
+	return byte;
 }
 
 int TCP_SERVER::SendInt(SOCKET Clnt, int data)
 {
-	int ErrorOrNot;
-	if (ErrorOrNot = send(Clnt, (const char*)&data, sizeof(int), 0) == SOCKET_ERROR)
+	int byte = 0;
+	while (byte += send(Clnt, (const char*)&data, sizeof(int), 0) > SOCKET_ERROR)
+	{
+		if (byte >= sizeof(int))
+			break;
+	}
+	if (byte <= SOCKET_ERROR)
 	{
 		Print_Time();
 		std::cout << "\nCannot send decision : " << data
@@ -78,82 +88,80 @@ int TCP_SERVER::SendInt(SOCKET Clnt, int data)
 			<< "\nTo : " << Clnt << "\n\n";
 	}
 
-	return ErrorOrNot;
+	return byte;
 }
 
 void TCP_SERVER::SendPosOfStone(SOCKET Clnt, char x, char y)
 {
-	if (send(Clnt, &x, sizeof(char), 0) == SOCKET_ERROR)
-	{
-		Print_Time();
-		std::cout << "Cannot send x : " << (int)x << "\nTo : "
-			<< Clnt << "\nError : " << GetLastError() << "\n\n";
-	}
-	else
-	{
-		Print_Time();
-		std::cout << "Cannot send x : " << (int)x << "\nTo : "
-			<< Clnt << "\n\n";
-	}
-	if (send(Clnt, &y, sizeof(char), 0) == SOCKET_ERROR)
-	{
-		Print_Time();
-		std::cout << "Cannot send y : " << (int)y << "\nTo : "
-			<< Clnt << "\nError : " << GetLastError() << "\n\n";
-	}
-	else
-	{
-		Print_Time();
-		std::cout << "Cannot send y : " << (int)y << "\nTo : "
-			<< Clnt << "\n\n";
-	}
+	this->SendChar(Clnt, x);
+	this->SendChar(Clnt, y);
 }
 
 void TCP_SERVER::SendString(SOCKET Clnt, char* string, int size)
 {
-	if (send(Clnt, string, size, 0) == SOCKET_ERROR)
+	int byte = 0;
+	while (byte += send(Clnt, string, size * sizeof(char), 0) > SOCKET_ERROR)
 	{
-		Print_Time();
-		std::cout << "Cannot send string : " << string << "\nTo : "
-			<< Clnt << "\nError : " << GetLastError() << "\n\n";
+		if (byte >= BUFSIZE_OF_ROOM_NAME)
+			break;
 	}
-	else
+	if (byte <= SOCKET_ERROR)
 	{
 		Print_Time();
 		std::cout << "Cannot send string : " << string << "\nTo : "
+			<< Clnt << " Error : " << GetLastError() << "\n\n";
+	}
+	else 
+	{
+		Print_Time();
+		std::cout << "sent string : " << string << "\nTo : "
 			<< Clnt << "\n\n";
 	}
+	return;
 }
 
-char TCP_SERVER::Receive(SOCKET Clnt)
+int TCP_SERVER::Receive(SOCKET Clnt, char* receive)
 {
-	char ch;
-	if (recv(Clnt, &ch, sizeof(ch), 0) == SOCKET_ERROR)
+	int byte = 0;
+	while (byte += recv(Clnt, receive, sizeof(char), 0) > SOCKET_ERROR)
+	{
+		if (byte >= sizeof(char))
+			break;
+	}
+	if (byte <= SOCKET_ERROR)
 	{
 		Print_Time();
-		std::cout << "Cannot receive : " << ch << "\nFrom : "
+		std::cout << "Cannot receive : " << (int)*receive << "\nFrom : "
 			<< Clnt << "\nError : " << GetLastError() << "\n\n";
 	}
 	else
 	{
 		Print_Time();
-		std::cout << "Received : " << ch << "\nFrom : " << Clnt << "\n\n";
+		std::cout << "Received : " << (int)*receive << "\nFrom : " << Clnt << "\n\n";
 	}
-	return ch;
+	return byte;
 }
 
 char* TCP_SERVER::ReceiveStringRetAV(SOCKET Clnt, int size)//return allocated variable
 {
 	char* string = new char[size];
-	if (recv(Clnt, string, size, 0) == SOCKET_ERROR)
+	int byte = 0;
+	while (byte += recv(Clnt, string, size, 0) > SOCKET_ERROR)
+	{
+		if (byte >= size)
+			break;
+	}
+	if (byte <= SOCKET_ERROR)
 	{
 		Print_Time();
 		std::cout << "Cannot receive string " << "\nFrom : "
 			<< Clnt << "\nError : " << GetLastError() << "\n\n";
 	}
-	Print_Time();
-	std::cout << "Received : " << string << "\nFrom : " << Clnt << "\n\n";
-
+	else
+	{
+		Print_Time();
+		std::cout << "Received : " << string << "\nFrom : " << Clnt << "\n\n";
+	}
 	return string;
 }
 

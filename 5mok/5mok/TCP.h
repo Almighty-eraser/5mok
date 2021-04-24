@@ -13,7 +13,8 @@ public:
 	void SendPosOfStone(char x, char y);
 	int SendChar(char decision);
 	int SendString(char* string, int size);
-	char Receive(void);
+	int Receive(char* receive);
+	int* ReceiveIntRetAV(void);
 	int Receive_Non_Blocking(char* receive);
 	char* ReceiveStringRetAV(int size);
 	bool Change_IOMode(int mode);

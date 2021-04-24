@@ -25,7 +25,6 @@ public:
 	void MakingRoom(void);
 	void DeletingRoom(char* room_name);
 	void JoiningRoom(void);
-	int ReceiveRoomList(void);
 	void MultiP(int whichside);//multiplay
 	int WhoseWinner(int stone, int height);
 

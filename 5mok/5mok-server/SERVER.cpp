@@ -35,7 +35,8 @@ void SERVER::Run(void)
 	{
 		SOCKET TempClnt = g_serv_TCP->AcceptClnt();
 		g_serv_TCP->Add_Clnt(TempClnt);
-		char receive = g_serv_TCP->Receive(TempClnt);
+		char receive;
+		g_serv_TCP->Receive(TempClnt, &receive);
 		std::thread *t1 = new std::thread( functions.at(receive), this, TempClnt );
 		g_threads.push_back(t1);
 	}
@@ -89,8 +90,6 @@ void SERVER::ChoosingRoom(SOCKET Clnt)
 	g_serv_TCP->Remove_Clnt(Clnt);
 
 	delete[] room_name;
-
-	//No need to end clnt sockets
 }
 
 void SERVER::DeletingRoom(SOCKET Clnt)
@@ -117,14 +116,16 @@ void SERVER::Play(SOCKET black_clnt, SOCKET white_clnt)
 	while (1)
 	{
 		//receive coordinates from black
-		pos[0] = g_serv_TCP->Receive(black_clnt);
+		if (g_serv_TCP->Receive(black_clnt, &pos[0]) < 0)
+			break;
 		if (pos[0] == WINNER_IS_WHITE)
 		{
 			Print_Time();
 			std::cout << "White wins";
 			break;
 		}
-		pos[1] = g_serv_TCP->Receive(black_clnt);
+		if (g_serv_TCP->Receive(black_clnt, &pos[1]) < 0)
+			break;
 		Print_Time();
 		std::cout << "black : " + pos[0] + ' ' + pos[1];
 
@@ -132,14 +133,16 @@ void SERVER::Play(SOCKET black_clnt, SOCKET white_clnt)
 
 
 		//receive coordinates from white
-		pos[0] = g_serv_TCP->Receive(white_clnt);
+		if (g_serv_TCP->Receive(white_clnt, &pos[0]) < 0)
+			break;
 		if (pos[0] == WINNER_IS_BLACK)
 		{
 			Print_Time();
 			std::cout << "Black wins";
 			break;
 		}
-		pos[1] = g_serv_TCP->Receive(white_clnt);
+		if (g_serv_TCP->Receive(white_clnt, &pos[1]) < 0)
+			break;
 		Print_Time();
 		std::cout << "white : " + pos[0] + ' ' + pos[1];
 

@@ -201,8 +201,7 @@ void UI::PrintBoard(char* board, int length)
 int UI::AskWhichRoom(vector<char*> room_names)
 {
 	int answer;
-	for (int i = 0; i < room_names.size(); i++)
-		cout << "\n\t\t" << i + 1 << ". " << room_names[i];
+	this->PrintRoom_names(room_names);
 	cout << "\t\t\t0. Back to Menu";
 	cout << "\n\t\t  Input : ";
 	scanf_s("%d", &answer);

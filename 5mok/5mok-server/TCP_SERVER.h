@@ -24,7 +24,7 @@ public:
 	int SendChar(SOCKET Clnt, char decision);
 	int SendInt(SOCKET Clnt, int data);
 	void SendString(SOCKET Clnt, char* string, int size);
-	char Receive(SOCKET Clnt);
+	int Receive(SOCKET Clnt, char* receive);
 	char* ReceiveStringRetAV(SOCKET Clnt, int size);
 
 	void Add_Clnt(SOCKET Clnt);

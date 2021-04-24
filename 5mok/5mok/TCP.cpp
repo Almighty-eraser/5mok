@@ -35,50 +35,85 @@ int TCP::StartTCPclnt(void)
 
 int TCP::SendChar(char decision)
 {
-	int result;
-	if (result = send(sock, &decision, sizeof(char), 0) == SOCKET_ERROR)
+	int byte = 0;
+	while (byte += send(sock, &decision, sizeof(char), 0) > SOCKET_ERROR)
+	{
+		if (byte >= sizeof(char))
+			break;
+	}
+	if(byte <= SOCKET_ERROR)
 		puts("\nCannot send data\n");
 
-	return result;
+	return byte;
 }
 
 int TCP::SendString(char* string, int size)
 {
-	int result = send(sock, string, sizeof(char) * size, 0);
-	if (result == SOCKET_ERROR)
+	int byte = 0;
+	while (byte += send(sock, string, sizeof(char) * size, 0) > SOCKET_ERROR)
+	{
+		if (byte >= size)
+			break;
+	}
+	if (byte <= SOCKET_ERROR)
 		puts("\nCannot send string\n");
 
-	return result;
+	return byte;
 }
 
 void TCP::SendPosOfStone(char x, char y)
 {
-	if (send(sock, &x, sizeof(char), 0) == SOCKET_ERROR)
-		ErrorHandling("Cannot send any data");
-	if (send(sock, &y, sizeof(char), 0) == SOCKET_ERROR)
-		ErrorHandling("Cannot send any data");
+	this->SendChar(x);
+	this->SendChar(y);
 }
 
-char TCP::Receive(void)
+int TCP::Receive(char* receive)
 {
-	char ch;
-	if (recv(sock, &ch, sizeof(ch), 0) == SOCKET_ERROR)
+	int byte = 0;
+	while (byte += recv(sock, receive, sizeof(char), 0) > SOCKET_ERROR)
+	{
+		if (byte >= sizeof(char))
+			break;
+	}
+	if (byte <= SOCKET_ERROR)
+	{
+		std::cout << "\nCannot send data\n";
+	}
+	return byte;
+}
+
+int* TCP::ReceiveIntRetAV(void)
+{
+	int* data = new int;
+	int byte = 0;
+	while (byte += recv(sock, (char*)data, sizeof(int), 0) > SOCKET_ERROR)
+	{
+		if (byte >= sizeof(int))
+			break;
+	}
+	if(byte <= SOCKET_ERROR)
 		ErrorHandling("Cannot receive any data");
-	return ch;
+	return data;
 }
 
 int TCP::Receive_Non_Blocking(char* receive)
 {
 	int byte;
-	byte = recv(sock, receive, sizeof(char), 0); 
+	byte = recv(sock, receive, sizeof(char), 0);
 	return byte;
 }
 
 char* TCP::ReceiveStringRetAV(int size)//return allocated variable
 {
 	char* string = new char[size];
-	if (recv(sock, string, size, 0) == SOCKET_ERROR)
-		ErrorHandling("Cannot receive any data");
+	int byte = 0;
+	while (byte += recv(sock, string, size, 0) > SOCKET_ERROR)
+	{
+		if (byte >= BUFSIZE_OF_ROOM_NAME)
+			break;
+	}
+	if (byte <= SOCKET_ERROR)
+		ErrorHandling("Cannot receive room_name");
 	return string;
 }
 
