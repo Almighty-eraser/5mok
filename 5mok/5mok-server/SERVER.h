@@ -17,7 +17,7 @@ public:
 	void Play(SOCKET black_clnt, SOCKET white_clnt);
 	void Commands(void);
 
-	void Add_room(SOCKET Clnt, char* room_name);
+	void Add_room(SOCKET Clnt, char* room_name, char board_size);
 	bool Remove_room(char* room_name);
 	void Clean_rooms(void);
 	int Get_Rooms_Size(void);
