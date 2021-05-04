@@ -348,6 +348,7 @@ void Play::JoiningRoom(void)
 			break;
 
 		char receive;
+		std::cout << "\nWaiting for the host to accept the battle...\n\n";
 		if (main_TCP->Receive(&receive) != 1)
 			break;
 		if (receive == 1)
