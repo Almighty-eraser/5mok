@@ -3,6 +3,7 @@
 
 int UI::Mainmenu(void)
 {
+	system("cls");
 	int answer;
 	cout
 		<< "\t\t\n\n\n\t\t5MOK\t\t\tblack : ";
@@ -21,6 +22,36 @@ int UI::Mainmenu(void)
 	scanf_s("%d", &answer);
 	getchar();
 	return answer;
+}
+
+char* UI::AskNickNameRetAV(void)
+{
+	char* nickname = new char[BUFSIZE_OF_NICKNAME];
+	memset(nickname, 0, sizeof(char) * BUFSIZE_OF_NICKNAME);
+	cout << "\n\n\n\n(No space, Under 100 words <in Kor, Under 50 words>)\n\t\tInput your nickname : ";
+	scanf_s("%s", nickname, (unsigned int)(sizeof(char) * BUFSIZE_OF_NICKNAME));
+	getchar();
+	fflush(stdin);
+	return nickname;
+}
+
+bool UI::AcceptTheOpponent(char* opponent_nickname)
+{
+	char answer;
+	while (1)
+	{
+		cout << "\n\nThe opponent nickname : " << opponent_nickname
+			<< "\n\nAccept the battle? <y/n>\n\ninput : ";
+		scanf_s("%c", &answer, (unsigned int)sizeof(char));
+		getchar();
+		if (answer == 'y' || answer == 'n')
+			break;
+	}
+
+	if (answer == 'y')
+		return true;
+	else
+		return false;
 }
 
 int UI::MakeRoomOrNot(void)
@@ -164,9 +195,10 @@ int* UI::AskCoordinatesRetAV(void)//return allocated variable
 char* UI::AskRoom_nameRetAV(void)
 {
 	char* room_name = new char[BUFSIZE_OF_ROOM_NAME];
-	cout << "\n\n\t\tInput title : ";
+	cout << "\n(No space, Under 100 words <in Kor, Under 50 words>)\n\t\tInput room name : ";
 	scanf_s("%s", room_name, (unsigned int)(sizeof(char) * BUFSIZE_OF_ROOM_NAME));
 	getchar();
+	fflush(stdin);
 	return room_name;
 }
 
@@ -198,11 +230,11 @@ void UI::PrintBoard(char* board, int length)
 	cout << '\n';
 }
 
-int UI::AskWhichRoom(vector<char*> room_names)
+int UI::AskWhichRoom(vector<char*> room_names, vector<char> room_board_size, vector<char*> room_nicknames)
 {
 	int answer;
-	this->PrintRoom_names(room_names);
-	cout << "\t\t\t0. Back to Menu";
+	this->PrintRoom_names(room_names, room_board_size, room_nicknames);
+	cout << "0. Back to Menu";
 	cout << "\n\t\t  Input : ";
 	scanf_s("%d", &answer);
 	getchar();
@@ -216,8 +248,16 @@ void UI::PressAnyKey(void)
 	cout << "\n\n";
 }
 
-void UI::PrintRoom_names(vector<char*> room_names)
+void UI::PrintRoom_names(vector<char*> room_names, vector<char> room_board_size, vector<char*> room_nicknames)
 {
+	putchar('\n');
+	putchar('\n');
+	putchar('\t');
+	putchar('\t');
+	cout << "   Room name | Board size | Host\n\t\t";
 	for (int i = 0; i < room_names.size(); i++)
-		cout << i + 1 << ". " << room_names[i] << '\n';
+		cout << i + 1 << ". " << room_names[i] << " | "
+		<< (int)(room_board_size[i] + 7) 
+		<< 'x' << (int)(room_board_size[i] + 7) 
+		<< " | " << room_nicknames[i] << "\n\t\t";
 }

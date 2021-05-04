@@ -29,6 +29,7 @@ enum {
 
 #define SERVER_PORT 55000
 #define BUFSIZE_OF_ROOM_NAME 100
+#define BUFSIZE_OF_NICKNAME 100
 
 #endif
 

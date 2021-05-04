@@ -91,13 +91,15 @@ int TCP_SERVER::SendInt(SOCKET Clnt, int data)
 	return byte;
 }
 
-void TCP_SERVER::SendPosOfStone(SOCKET Clnt, char x, char y)
+int TCP_SERVER::SendPosOfStone(SOCKET Clnt, char x, char y)
 {
-	this->SendChar(Clnt, x);
-	this->SendChar(Clnt, y);
+	int byte = 0;
+	byte += this->SendChar(Clnt, x);
+	byte += this->SendChar(Clnt, y);
+	return byte;
 }
 
-void TCP_SERVER::SendString(SOCKET Clnt, char* string, int size)
+int TCP_SERVER::SendString(SOCKET Clnt, char* string, int size)
 {
 	int byte = 0;
 	while (byte += send(Clnt, string, size * sizeof(char), 0) > SOCKET_ERROR)
@@ -117,7 +119,7 @@ void TCP_SERVER::SendString(SOCKET Clnt, char* string, int size)
 		std::cout << "sent string : " << string << "\nTo : "
 			<< Clnt << "\n\n";
 	}
-	return;
+	return byte;
 }
 
 int TCP_SERVER::Receive(SOCKET Clnt, char* receive)
@@ -240,8 +242,7 @@ bool TCP_SERVER::Print_Clnts_Info(void)
 	for (int i = 0; i < Clnts.size(); i++)
 	{
 		char Buffer[10];
-		_ltoa_s(ClntsInfo[i]->sin_addr.S_un.S_addr, Buffer, sizeof(Buffer));
-		std::cout << i + 1 << " SOCKET : " << Clnts[i] << " ip : " << Buffer
+		std::cout << i + 1 << " SOCKET : " << Clnts[i] << " ip : " << inet_ntoa(ClntsInfo[i]->sin_addr)
 			<< '\n';
 	}
 	puts("\n");

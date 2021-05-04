@@ -3,6 +3,7 @@
 void Play::START(void)
 {
 	system("mode con cols=80 lines=30 | title 5mok");
+	nickname = main_UI->AskNickNameRetAV();
 	while (1)
 	{
 		int answer;
@@ -51,13 +52,16 @@ void Play::START(void)
 			getchar();
 			main_UI->Clear();
 	}
-
-		main_UI->PressAnyKey();
+	if (nickname != NULL)
+		delete[] nickname;
+	main_UI->PressAnyKey();
 }
 	 
 int Play::MakeBoard(void)//return size of board
 {
-	int sizesofBoard[4] = {8, 9, 10, 11};
+	if (board != NULL)
+		RemoveBoard();
+	int board_size_list[4] = {8, 9, 10, 11};
 	int whichboard;
 	while (1)
 	{
@@ -65,13 +69,23 @@ int Play::MakeBoard(void)//return size of board
 		if (whichboard < 1 || whichboard > 4)
 			continue;
 
-		int sizeofBoard = sizesofBoard[whichboard - 1] * sizesofBoard[whichboard - 1];
-		board = new char[sizeofBoard];
-		memset(board, 0, sizeofBoard * sizeof(char));
+		int _board_size = board_size_list[whichboard - 1] * board_size_list[whichboard - 1];
+		board = new char[_board_size];
+		board_size = _board_size;
+		memset(board, 0, _board_size * sizeof(char));
 		break;
 	}
 
-	return sizesofBoard[whichboard - 1];
+	return board_size_list[whichboard - 1];
+}
+
+void Play::MakeBoardForMulti(int _board_size)
+{
+	if (board != NULL)
+		RemoveBoard();
+	long __board_size = _board_size * _board_size;
+	board = new char[__board_size];
+	memset(board, 0, __board_size * sizeof(char));
 }
 
 void Play::RemoveBoard(void)
@@ -152,14 +166,29 @@ void Play::MakingRoom(void)
 {
 	char* room_name;
 	room_name = main_UI->AskRoom_nameRetAV();
+	char _board_size;
+	_board_size = main_UI->AskWhichBoard();
 
-	if (main_TCP->SendString(room_name, BUFSIZE_OF_ROOM_NAME) < 0)
+	if (main_TCP->SendString(room_name, BUFSIZE_OF_ROOM_NAME) != BUFSIZE_OF_ROOM_NAME)
 	{
 		delete[] room_name;
 		return;
 	}
+
+	if (main_TCP->SendChar(_board_size) != 1)
+	{
+		delete[] room_name;
+		return;
+	}
+
+	if (main_TCP->SendString(nickname, BUFSIZE_OF_ROOM_NAME) != BUFSIZE_OF_NICKNAME)
+	{
+		delete[] room_name;
+		return;
+	}
+
 	char receive;
-	if (main_TCP->Receive(&receive) < 0)
+	if (main_TCP->Receive(&receive) != 1)
 	{
 		delete[] room_name;
 		return;
@@ -186,10 +215,25 @@ void Play::MakingRoom(void)
 
 		if (state > 0 && receive == 1)
 		{
-			main_TCP->Change_IOMode(BLOCKING);
-			MultiP(_IMMA_MAKE_ROOM_);
-			main_TCP->End();
-			break;
+			char message = 0;
+			char* opponent_nickname = main_TCP->ReceiveStringRetAV(BUFSIZE_OF_NICKNAME);
+			if (main_UI->AcceptTheOpponent(opponent_nickname))
+			{
+				message = 1;
+				if (main_TCP->SendChar(message) != 1)
+					break;
+				main_TCP->Change_IOMode(BLOCKING);
+				board_size = (int)_board_size + 7;
+				MultiP(_IMMA_MAKE_ROOM_);
+				delete[] opponent_nickname;
+				break;
+			}
+			else
+			{
+				message = -1;
+				if (main_TCP->SendChar(message) != 1)
+					break;
+			}
 		}
 
 		if (_kbhit())
@@ -198,13 +242,12 @@ void Play::MakingRoom(void)
 			if (a == '1')
 			{
 				DeletingRoom(room_name);
-				main_TCP->End();
 				break;
 			}
 		}
 	}
 
-	
+	main_TCP->End();
 	delete[] room_name;
 	return;
 }
@@ -246,6 +289,7 @@ void Play::JoiningRoom(void)
 	{
 		puts("\nThere's no room available\n");
 		main_TCP->End();
+		delete RoomCount;
 		return;
 	}
 
@@ -256,19 +300,35 @@ void Play::JoiningRoom(void)
 		room_names.erase(room_names.begin());
 		delete[] room_name;
 	}
-	
 
+	while (room_nicknames.empty() != 1)
+	{
+		char* nickname = room_nicknames[0];
+		room_nicknames.erase(room_nicknames.begin());
+		delete[] nickname;
+	}
+	
 	for (int i = 0; i < *RoomCount; i++)
 	{
 		char* room_name = main_TCP->ReceiveStringRetAV(BUFSIZE_OF_ROOM_NAME);
 		room_names.push_back(room_name);
+		char board_size;
+		if (main_TCP->Receive(&board_size) != 1)
+		{
+			delete RoomCount;
+			return;
+		}
+		room_board_size.push_back(board_size);
+		char* nickname = main_TCP->ReceiveStringRetAV(BUFSIZE_OF_NICKNAME);
+		room_nicknames.push_back(nickname);
 	}
+	delete RoomCount;
 	main_TCP->End();
 
 	while (1)
 	{
 		int ChosenRoomNum;
-		ChosenRoomNum = main_UI->AskWhichRoom(room_names);
+		ChosenRoomNum = main_UI->AskWhichRoom(room_names, room_board_size, room_nicknames);
 
 		if (ChosenRoomNum == 0)
 			break;
@@ -279,41 +339,53 @@ void Play::JoiningRoom(void)
 		if (main_TCP->SendChar(_IMMA_CHOOSE_ROOM_) != sizeof(char))
 			break;
 
-		if (main_TCP->SendString(room_names[(long)ChosenRoomNum - 1], BUFSIZE_OF_ROOM_NAME) != BUFSIZE_OF_ROOM_NAME)
+		ChosenRoomNum--;
+
+		if (main_TCP->SendString(room_names[ChosenRoomNum], BUFSIZE_OF_ROOM_NAME) != BUFSIZE_OF_ROOM_NAME)
+			break;
+
+		if (main_TCP->SendString(nickname, BUFSIZE_OF_NICKNAME) != BUFSIZE_OF_NICKNAME)
 			break;
 
 		char receive;
-		if (main_TCP->Receive(&receive) < 0)
+		if (main_TCP->Receive(&receive) != 1)
 			break;
 		if (receive == 1)
 		{
+			board_size = (int)room_board_size[ChosenRoomNum] + 7;
 			std::cout << "\nJoining Room...\n\n";
 			MultiP(_IMMA_JOIN_ROOM_);
 		}
-		else
+		else if(receive == -1)
 		{
-			std::cout << "\nWrong Room Number has been chosen\n";
+			std::cout << "\nThe room does not exist\n";
 			continue;
+		}
+		else if (receive == -2)
+		{
+			std::cout << "\nGot rejected by room creater\n";
+			break;
 		}
 
 		break;
 	}
-	delete RoomCount;
 }
 
 void Play::MultiP(int whichside)
 {
 	int stone;
+	int height = board_size;
+	MakeBoardForMulti(height);
+	char message = 0;
 	if (whichside == _IMMA_MAKE_ROOM_)
 	{
 		stone = BLACK;
-		main_UI->Clear();
-		int height = MakeBoard();
 		while (1)//BLACK sends coodinates first
 		{
 			main_UI->Clear();
 			main_UI->PrintBoard(board, height);
 			int* pos;
+			char* ch_pos;
 
 			//black
 			while (1)
@@ -334,7 +406,8 @@ void Play::MultiP(int whichside)
 				break;
 			}
 
-			main_TCP->SendPosOfStone(pos[0] - 1, pos[1] - 1);
+			if (main_TCP->SendPosOfStone(pos[0] - 1, pos[1] - 1) != 2)
+				break;
 
 			main_UI->Clear();
 			main_UI->PrintBoard(board, height);
@@ -343,24 +416,30 @@ void Play::MultiP(int whichside)
 			if (WhoseWinner(BLACK, height) == BLACK)
 			{
 				main_UI->ResultMessageForMulti(WIN);
-				main_TCP->End();
+				message = WINNER_IS_BLACK;
+				if (main_TCP->SendChar(message) != 1)
+					break;
 				break;
+			}
+			else
+			{
+				message = 1;
+				if (main_TCP->SendChar(message) != 1)
+					break;
 			}
 
 			//white
-			pos = new int[2];
-			if (main_TCP->Receive((char*)&pos[0]) < 0)
+			ch_pos = new char[2];
+			if (main_TCP->Receive(&ch_pos[0]) != 1)
 				break;
-			if (main_TCP->Receive((char*)&pos[1]) < 0)
+			if (main_TCP->Receive(&ch_pos[1]) != 1)
 				break;
-			board[pos[1] * height + pos[0]] = WHITE;
-			delete[] pos;
+			board[(int)ch_pos[1] * height + (int)ch_pos[0]] = WHITE;
+			delete[] ch_pos;
 
 			if (WhoseWinner(WHITE, height) == WHITE)
 			{
 				main_UI->ResultMessageForMulti(LOST);
-				main_TCP->SendChar(WINNER_IS_WHITE);
-				main_TCP->End();
 				break;
 			}
 		}
@@ -368,31 +447,28 @@ void Play::MultiP(int whichside)
 	else
 	{
 		stone = WHITE;
-		main_UI->Clear();
-		int height = MakeBoard();
 		while (1)//WHITE receives coordinates first
 		{
 			main_UI->Clear();
 			main_UI->PrintBoard(board, height);
+			char* ch_pos;
 			int* pos;
 
 			//black
-			pos = new int[2];
-			if (main_TCP->Receive((char*)&pos[0]) < 0)
+			ch_pos = new char[2];
+			if (main_TCP->Receive(&ch_pos[0]) != 1)
 				break;
-			if (main_TCP->Receive((char*)&pos[1]) < 0)
+			if (main_TCP->Receive(&ch_pos[1]) != 1)
 				break;
-
-			board[pos[1] * height + pos[0]] = BLACK;
+			std::cout << (int)ch_pos[0] << ' ' << (int)ch_pos[1];
+			board[(int)ch_pos[1] * height + (int)ch_pos[0]] = BLACK;
 			main_UI->Clear();
 			main_UI->PrintBoard(board, height);
-			delete[] pos;
+			delete[] ch_pos;
 
 			if (WhoseWinner(BLACK, height) == BLACK)
 			{
 				main_UI->ResultMessageForMulti(LOST);
-				main_TCP->SendChar(WINNER_IS_BLACK);
-				main_TCP->End();
 				break;
 			}
 
@@ -415,18 +491,28 @@ void Play::MultiP(int whichside)
 				break;
 			}
 
-			main_TCP->SendPosOfStone(pos[0] - 1, pos[1] - 1);
+			if(main_TCP->SendPosOfStone(pos[0] - 1, pos[1] - 1) != 2)
+				break;
 
 			delete[] pos;
 
 			if (WhoseWinner(WHITE, height) == WHITE)
 			{
 				main_UI->ResultMessageForMulti(WIN);
-				main_TCP->End();
+				message = WINNER_IS_WHITE;
+				if (main_TCP->SendChar(message) != 1)
+					break;
 				break;
+			}
+			else
+			{
+				message = 1;
+				if (main_TCP->SendChar(message) != 1)
+					break;
 			}
 		}
 	}
+	main_TCP->End();
 }
 
 int Play::WhoseWinner(int stone, int height)

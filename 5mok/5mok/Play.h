@@ -10,16 +10,31 @@ class TCP;
 class Play
 {
 public:
-	Play(UI& ui, TCP& tcp) { main_UI = &ui; main_TCP = &tcp; board = nullptr; };
+	Play(UI& ui, TCP& tcp) 
+	{ 
+		main_UI = &ui; 
+		main_TCP = &tcp; 
+		board = NULL; 
+		board_size = 0; 
+		nickname = NULL; 
+	};
 	~Play() { 
-		if(!room_names.empty())
-			for (int i = 0; i < room_names.size(); i++)
-				if (room_names[i] != NULL)
-					delete room_names[i];
-			
+		while (room_names.empty() != 1)
+		{
+			char* room_name = room_names[0];
+			room_names.erase(room_names.begin());
+			delete[] room_name;
+		}
+		while (room_nicknames.empty() != 1)
+		{
+			char* nickname = room_nicknames[0];
+			room_nicknames.erase(room_nicknames.begin());
+			delete[] nickname;
+		}
 	};
 	void START(void);
 	int MakeBoard(void);
+	void MakeBoardForMulti(int _board_size);
 	void RemoveBoard(void);
 	void SinglePptp(void);//singleplay person to person
 	void MakingRoom(void);
@@ -33,6 +48,10 @@ private:
 	TCP* main_TCP;
 
 	char* board;
+	int board_size;
+	char* nickname;
 	vector<char*> room_names;
+	vector<char> room_board_size;
+	vector<char*> room_nicknames;
 };
 

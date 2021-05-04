@@ -61,10 +61,12 @@ int TCP::SendString(char* string, int size)
 	return byte;
 }
 
-void TCP::SendPosOfStone(char x, char y)
+int TCP::SendPosOfStone(char x, char y)
 {
-	this->SendChar(x);
-	this->SendChar(y);
+	int byte = 0;
+	byte += this->SendChar(x);
+	byte += this->SendChar(y);
+	return byte;
 }
 
 int TCP::Receive(char* receive)

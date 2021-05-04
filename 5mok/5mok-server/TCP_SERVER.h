@@ -20,10 +20,10 @@ public:
 		this->End(sock); 
 	};
 	SOCKET AcceptClnt(void);
-	void SendPosOfStone(SOCKET Clnt, char x, char y);
+	int SendPosOfStone(SOCKET Clnt, char x, char y);
 	int SendChar(SOCKET Clnt, char decision);
 	int SendInt(SOCKET Clnt, int data);
-	void SendString(SOCKET Clnt, char* string, int size);
+	int SendString(SOCKET Clnt, char* string, int size);
 	int Receive(SOCKET Clnt, char* receive);
 	char* ReceiveStringRetAV(SOCKET Clnt, int size);
 

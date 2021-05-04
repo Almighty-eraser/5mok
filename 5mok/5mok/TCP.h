@@ -10,7 +10,7 @@ class TCP
 {
 public:
 	int StartTCPclnt(void);
-	void SendPosOfStone(char x, char y);
+	int SendPosOfStone(char x, char y);
 	int SendChar(char decision);
 	int SendString(char* string, int size);
 	int Receive(char* receive);

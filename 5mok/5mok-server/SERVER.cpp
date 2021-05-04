@@ -5,6 +5,7 @@
 TCP_SERVER* g_serv_TCP;
 std::vector<std::thread*> g_threads;
 std::vector<SOCKET> g_room_owners;
+std::vector<char*> g_room_nicknames;
 std::vector<char*> g_room_names;
 std::vector<char> g_room_board_size;
 std::mutex g_rooms_mutex;
@@ -13,7 +14,7 @@ SERVER::SERVER(TCP_SERVER* tcp)
 {
 	g_serv_TCP = tcp;
 	Print_Time();
-	std::cout << "SERVER class started";
+	std::cout << "SERVER class started\t\t(Type \"help\" to see commands)";
 	functions.push_back(&SERVER::MakingRoom);
 	functions.push_back(&SERVER::SendRoomList);
 	functions.push_back(&SERVER::ChoosingRoom);
@@ -46,11 +47,15 @@ void SERVER::Run(void)
 
 void SERVER::MakingRoom(SOCKET Clnt)
 {
-	char* room_name;
-	room_name = g_serv_TCP->ReceiveStringRetAV(Clnt, BUFSIZE_OF_ROOM_NAME);
-	Add_room(Clnt, room_name);
+	char* room_name = g_serv_TCP->ReceiveStringRetAV(Clnt, BUFSIZE_OF_ROOM_NAME);
+	char board_size;
+	if (g_serv_TCP->Receive(Clnt, &board_size) != 1)
+		return;
+	char* nickname = g_serv_TCP->ReceiveStringRetAV(Clnt, BUFSIZE_OF_NICKNAME);
+	Add_room(Clnt, room_name, board_size, nickname);
 
-	g_serv_TCP->SendChar(Clnt, 1);
+	if (g_serv_TCP->SendChar(Clnt, 1) != 1)
+		return;
 
 	//No need to end or delete room_name or socket
 }
@@ -58,12 +63,26 @@ void SERVER::MakingRoom(SOCKET Clnt)
 void SERVER::SendRoomList(SOCKET Clnt)
 {	
 	int size = Get_Rooms_Size();
-	if (g_serv_TCP->SendInt(Clnt, size) == 0)
+	if (g_serv_TCP->SendInt(Clnt, size) != sizeof(int))
 		return;
 	g_rooms_mutex.lock();
 	for (int i = 0; i < size; i++)
 	{
-		g_serv_TCP->SendString(Clnt, g_room_names[i], BUFSIZE_OF_ROOM_NAME);
+		if(g_serv_TCP->SendString(Clnt, g_room_names[i], BUFSIZE_OF_ROOM_NAME) != BUFSIZE_OF_ROOM_NAME)
+		{
+			g_rooms_mutex.unlock();
+			return;
+		}
+		if (g_serv_TCP->SendChar(Clnt, g_room_board_size[i]) != 1)
+		{
+			g_rooms_mutex.unlock();
+			return;
+		}
+		if (g_serv_TCP->SendString(Clnt, g_room_nicknames[i], BUFSIZE_OF_NICKNAME) != BUFSIZE_OF_NICKNAME)
+		{
+			g_rooms_mutex.unlock();
+			return;
+		}
 	}
 	g_rooms_mutex.unlock();
 
@@ -76,21 +95,57 @@ void SERVER::ChoosingRoom(SOCKET Clnt)
 	int index = Find_Room(room_name);
 	if (index >= 0)
 	{
-		if (g_serv_TCP->SendChar(g_room_owners[index], 1) == 0)
+		if (g_serv_TCP->SendChar(g_room_owners[index], 1) != 1)
+		{
+			g_serv_TCP->Remove_Clnt(Clnt);
+			delete[] room_name;
 			return;
-		if (g_serv_TCP->SendChar(Clnt, 1) == 0)
+		}
+		char* clnt_nickname = g_serv_TCP->ReceiveStringRetAV(Clnt, BUFSIZE_OF_NICKNAME);
+		if (g_serv_TCP->SendString(g_room_owners[index], clnt_nickname, BUFSIZE_OF_NICKNAME) != BUFSIZE_OF_NICKNAME)
+		{
+			g_serv_TCP->Remove_Clnt(Clnt);
+			delete[] room_name;
 			return;
-		Play(g_room_owners[index], Clnt);
+		}
+		char receive = -1;
+		if(g_serv_TCP->Receive(g_room_owners[index], &receive) != 1)
+		{
+			g_serv_TCP->Remove_Clnt(Clnt);
+			delete[] room_name;
+			return;
+		}
+		if (receive == 1)
+		{
+			if (g_serv_TCP->SendChar(Clnt, 1) != 1)
+			{
+				g_serv_TCP->Remove_Clnt(Clnt);
+				delete[] room_name;
+				return;
+			}
+			Play(g_room_owners[index], Clnt);
+			Remove_room(room_name);
+		}
+		else
+		{
+			if (g_serv_TCP->SendChar(Clnt, -2) != 1)
+			{
+				g_serv_TCP->Remove_Clnt(Clnt);
+				delete[] room_name;
+				return;
+			}
+			g_serv_TCP->Remove_Clnt(Clnt);
+		}
 	}
 	else
 	{
 		if (g_serv_TCP->SendChar(Clnt, -1) == 0)
 			return;
+		g_serv_TCP->Remove_Clnt(Clnt);
 	}
 
-	g_serv_TCP->Remove_Clnt(Clnt);
-
 	delete[] room_name;
+	//No need to remove room_owner sock
 }
 
 void SERVER::DeletingRoom(SOCKET Clnt)
@@ -113,45 +168,53 @@ void SERVER::Play(SOCKET black_clnt, SOCKET white_clnt)
 {
 	
 	char pos[2];
+	char message = 0;
 
 	while (1)
 	{
 		//receive coordinates from black
-		if (g_serv_TCP->Receive(black_clnt, &pos[0]) < 0)
+		if (g_serv_TCP->Receive(black_clnt, &pos[0]) != 1)
 			break;
-		if (pos[0] == WINNER_IS_WHITE)
-		{
-			Print_Time();
-			std::cout << "White wins";
-			break;
-		}
-		if (g_serv_TCP->Receive(black_clnt, &pos[1]) < 0)
+		if (g_serv_TCP->Receive(black_clnt, &pos[1]) != 1)
 			break;
 		Print_Time();
 		std::cout << "black : " + pos[0] + ' ' + pos[1];
 
-		g_serv_TCP->SendPosOfStone(white_clnt, pos[0], pos[1]);
-
-
-		//receive coordinates from white
-		if (g_serv_TCP->Receive(white_clnt, &pos[0]) < 0)
+		if (g_serv_TCP->Receive(black_clnt, &message) != 1)
 			break;
-		if (pos[0] == WINNER_IS_BLACK)
+
+		if (g_serv_TCP->SendPosOfStone(white_clnt, pos[0], pos[1]) != 2)
+			break;
+
+		if (message == WINNER_IS_BLACK)
 		{
 			Print_Time();
 			std::cout << "Black wins";
 			break;
 		}
-		if (g_serv_TCP->Receive(white_clnt, &pos[1]) < 0)
+
+
+		//receive coordinates from white
+		if (g_serv_TCP->Receive(white_clnt, &pos[0]) != 1)
+			break;
+		if (g_serv_TCP->Receive(white_clnt, &pos[1]) != 1)
 			break;
 		Print_Time();
 		std::cout << "white : " + pos[0] + ' ' + pos[1];
 
+		if (g_serv_TCP->Receive(white_clnt, &message) != 1)
+			break;
+		
+		if(g_serv_TCP->SendPosOfStone(black_clnt, pos[0], pos[1]) != 2)
+			break;
 
-		g_serv_TCP->SendPosOfStone(black_clnt, pos[0], pos[1]);
-
+		if (message == WINNER_IS_WHITE)
+		{
+			Print_Time();
+			std::cout << "White wins";
+			break;
+		}
 	}
-
 	g_serv_TCP->Remove_Clnt(black_clnt);
 	g_serv_TCP->Remove_Clnt(white_clnt);
 	return;
@@ -166,6 +229,16 @@ void SERVER::Commands(void)
 		getchar();
 		if (!strcmp(command, "exit"))
 			break;
+		else if (!strcmp(command, "help"))
+		{
+			std::cout << "\n\n-commands-\n\nclients : view clients\n\n"
+				<< "rooms : view available rooms\n\n"
+				<< "terminate_clients : disconnect all clients\n\n"
+				<< "terminate_rooms : remove all rooms\n\n"
+				<< "terminate_client (number) : disconnect selected client\n\n"
+				<< "terminate_room (number) : remove selected room\n\n"
+				<< "exit : end this server\n\n";
+		}
 		else if (!strcmp(command, "clients"))
 		{
 			if (!g_serv_TCP->Print_Clnts_Info())
@@ -179,6 +252,23 @@ void SERVER::Commands(void)
 			{
 				std::cout << "\n\nNo rooms are active\n\n";
 			}
+		}
+		else if (!strcmp(command, "terminate_rooms"))
+		{
+			Clean_rooms();
+			std::cout << "\n\nrooms terminated\n\n";
+		}
+		else if (!strcmp(command, "terminate_room"))
+		{
+			int index = 0;
+			scanf_s("%d", &index);
+			getchar();
+			char* delete_room_name = Get_Room_NameRetAV(index);
+			if (Remove_room(delete_room_name) == false)
+				std::cout << "\n\nFailed to terminate client\n\n";
+			else
+				std::cout << "\n\nterminated\n\n";
+			delete[] delete_room_name;
 		}
 		else if (!strcmp(command, "terminate_clients"))
 		{
@@ -208,12 +298,13 @@ void SERVER::Commands(void)
 	exit(0);
 }
 
-void SERVER::Add_room(SOCKET Clnt, char* room_name, char board_size)
+void SERVER::Add_room(SOCKET Clnt, char* room_name, char board_size, char* nickname)
 {
 	g_rooms_mutex.lock();
 	g_room_owners.push_back(Clnt);
 	g_room_names.push_back(room_name);
 	g_room_board_size.push_back(board_size);
+	g_room_nicknames.push_back(nickname);
 	g_rooms_mutex.unlock();
 }
 
@@ -241,6 +332,9 @@ bool SERVER::Remove_room(char* room_name)
 		g_room_owners.erase(g_room_owners.begin() + index);
 		g_serv_TCP->Remove_Clnt(sock);
 		g_room_board_size.erase(g_room_board_size.begin() + index);
+		char* delete_nickname = g_room_nicknames[index];
+		g_room_nicknames.erase(g_room_nicknames.begin() + index);
+		delete[] delete_nickname;
 	}
 	g_rooms_mutex.unlock();
 	if (index == -1)
@@ -271,6 +365,12 @@ void SERVER::Clean_rooms(void)
 	}
 	while (g_room_board_size.empty() != 1)
 		g_room_board_size.erase(g_room_board_size.begin());
+	while (g_room_nicknames.empty() != 1)
+	{
+		char* nickname = g_room_nicknames[0];
+		g_room_nicknames.erase(g_room_nicknames.begin());
+		delete nickname;
+	}
 	//Job to end sockets is what TCP_SERVER class does
 	g_rooms_mutex.unlock();
 	return;
@@ -285,6 +385,17 @@ int SERVER::Get_Rooms_Size(void)
 	return size;
 }
 
+char* SERVER::Get_Room_NameRetAV(int index)
+{
+	char* new_room_name = new char[BUFSIZE_OF_ROOM_NAME];
+	g_rooms_mutex.lock();
+	char* room_name = g_room_names[index];
+	memcpy_s(new_room_name, sizeof(char) * BUFSIZE_OF_ROOM_NAME,
+		room_name, sizeof(char) * BUFSIZE_OF_ROOM_NAME);
+	g_rooms_mutex.unlock();
+	return new_room_name;
+}
+
 bool SERVER::Print_Rooms(void)
 {
 	g_rooms_mutex.lock();
@@ -295,7 +406,8 @@ bool SERVER::Print_Rooms(void)
 	}
 	for (int i = 0; i < g_room_owners.size(); i++)
 		std::cout << i + 1 << " SOCKET : " << g_room_owners[i] << " room : " << g_room_names[i]
-			<< "board size : " << (int)g_room_board_size[i] << '\n';
+			<< " board size : " << (int)(g_room_board_size[i] + 7) << 'x' << (int)(g_room_board_size[i] + 7) 
+		<< " nickname : " << g_room_nicknames[i] << '\n';
 	puts("\n");
 	g_rooms_mutex.unlock();
 	return true;
