@@ -7,7 +7,7 @@ std::vector<std::thread*> g_threads;
 std::vector<SOCKET> g_room_owners;
 std::vector<char*> g_room_nicknames;
 std::vector<char*> g_room_names;
-std::vector<char> g_room_board_size;
+std::vector<char> g_room_board_sizes;
 std::mutex g_rooms_mutex;
 
 SERVER::SERVER(TCP_SERVER* tcp)
@@ -73,7 +73,7 @@ void SERVER::SendRoomList(SOCKET Clnt)
 			g_rooms_mutex.unlock();
 			return;
 		}
-		if (g_serv_TCP->SendChar(Clnt, g_room_board_size[i]) != 1)
+		if (g_serv_TCP->SendChar(Clnt, g_room_board_sizes[i]) != 1)
 		{
 			g_rooms_mutex.unlock();
 			return;
@@ -303,7 +303,7 @@ void SERVER::Add_room(SOCKET Clnt, char* room_name, char board_size, char* nickn
 	g_rooms_mutex.lock();
 	g_room_owners.push_back(Clnt);
 	g_room_names.push_back(room_name);
-	g_room_board_size.push_back(board_size);
+	g_room_board_sizes.push_back(board_size);
 	g_room_nicknames.push_back(nickname);
 	g_rooms_mutex.unlock();
 }
@@ -331,7 +331,7 @@ bool SERVER::Remove_room(char* room_name)
 		SOCKET sock = g_room_owners[index];
 		g_room_owners.erase(g_room_owners.begin() + index);
 		g_serv_TCP->Remove_Clnt(sock);
-		g_room_board_size.erase(g_room_board_size.begin() + index);
+		g_room_board_sizes.erase(g_room_board_sizes.begin() + index);
 		char* delete_nickname = g_room_nicknames[index];
 		g_room_nicknames.erase(g_room_nicknames.begin() + index);
 		delete[] delete_nickname;
@@ -363,8 +363,8 @@ void SERVER::Clean_rooms(void)
 		g_room_owners.erase(g_room_owners.begin());
 		g_serv_TCP->Remove_Clnt(sock);
 	}
-	while (g_room_board_size.empty() != 1)
-		g_room_board_size.erase(g_room_board_size.begin());
+	while (g_room_board_sizes.empty() != 1)
+		g_room_board_sizes.erase(g_room_board_sizes.begin());
 	while (g_room_nicknames.empty() != 1)
 	{
 		char* nickname = g_room_nicknames[0];
@@ -406,7 +406,7 @@ bool SERVER::Print_Rooms(void)
 	}
 	for (int i = 0; i < g_room_owners.size(); i++)
 		std::cout << i + 1 << " SOCKET : " << g_room_owners[i] << " room : " << g_room_names[i]
-			<< " board size : " << (int)(g_room_board_size[i] + 7) << 'x' << (int)(g_room_board_size[i] + 7) 
+			<< " board size : " << (int)(g_room_board_sizes[i] + 7) << 'x' << (int)(g_room_board_sizes[i] + 7) 
 		<< " nickname : " << g_room_nicknames[i] << '\n';
 	puts("\n");
 	g_rooms_mutex.unlock();

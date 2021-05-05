@@ -71,7 +71,6 @@ int Play::MakeBoard(void)//return size of board
 
 		int _board_size = board_size_list[whichboard - 1] * board_size_list[whichboard - 1];
 		board = new char[_board_size];
-		board_size = _board_size;
 		memset(board, 0, _board_size * sizeof(char));
 		break;
 	}
@@ -308,18 +307,23 @@ void Play::JoiningRoom(void)
 		room_nicknames.erase(room_nicknames.begin());
 		delete[] nickname;
 	}
+
+	while (room_board_sizes.empty() != 1)
+	{
+		room_board_sizes.erase(room_board_sizes.begin());
+	}
 	
 	for (int i = 0; i < *RoomCount; i++)
 	{
 		char* room_name = main_TCP->ReceiveStringRetAV(BUFSIZE_OF_ROOM_NAME);
 		room_names.push_back(room_name);
-		char board_size;
-		if (main_TCP->Receive(&board_size) != 1)
+		char _board_size = 0;
+		if (main_TCP->Receive(&_board_size) != 1)
 		{
 			delete RoomCount;
 			return;
 		}
-		room_board_size.push_back(board_size);
+		room_board_sizes.push_back(_board_size);
 		char* nickname = main_TCP->ReceiveStringRetAV(BUFSIZE_OF_NICKNAME);
 		room_nicknames.push_back(nickname);
 	}
@@ -329,7 +333,7 @@ void Play::JoiningRoom(void)
 	while (1)
 	{
 		int ChosenRoomNum;
-		ChosenRoomNum = main_UI->AskWhichRoom(room_names, room_board_size, room_nicknames);
+		ChosenRoomNum = main_UI->AskWhichRoom(room_names, room_board_sizes, room_nicknames);
 
 		if (ChosenRoomNum == 0)
 			break;
@@ -354,7 +358,7 @@ void Play::JoiningRoom(void)
 			break;
 		if (receive == 1)
 		{
-			board_size = (int)room_board_size[ChosenRoomNum] + 7;
+			board_size = room_board_sizes[ChosenRoomNum] + 7;
 			std::cout << "\nJoining Room...\n\n";
 			MultiP(_IMMA_JOIN_ROOM_);
 		}
@@ -375,7 +379,7 @@ void Play::JoiningRoom(void)
 
 void Play::MultiP(int whichside)
 {
-	int height = board_size;
+	int height = (int)board_size;
 	MakeBoardForMulti(height);
 	char message = 0;
 	if (whichside == _IMMA_MAKE_ROOM_)

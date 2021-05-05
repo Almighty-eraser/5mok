@@ -48,10 +48,10 @@ private:
 	TCP* main_TCP;
 
 	char* board;
-	int board_size;
+	char board_size;
 	char* nickname;
 	vector<char*> room_names;
-	vector<char> room_board_size;
+	vector<char> room_board_sizes;
 	vector<char*> room_nicknames;
 };
 
