@@ -374,13 +374,11 @@ void Play::JoiningRoom(void)
 
 void Play::MultiP(int whichside)
 {
-	int stone;
 	int height = board_size;
 	MakeBoardForMulti(height);
 	char message = 0;
 	if (whichside == _IMMA_MAKE_ROOM_)
 	{
-		stone = BLACK;
 		while (1)//BLACK sends coodinates first
 		{
 			main_UI->Clear();
@@ -436,6 +434,8 @@ void Play::MultiP(int whichside)
 			if (main_TCP->Receive(&ch_pos[1]) != 1)
 				break;
 			board[(int)ch_pos[1] * height + (int)ch_pos[0]] = WHITE;
+			main_UI->Clear();
+			main_UI->PrintBoard(board, height);
 			delete[] ch_pos;
 
 			if (WhoseWinner(WHITE, height) == WHITE)
@@ -447,7 +447,6 @@ void Play::MultiP(int whichside)
 	}
 	else
 	{
-		stone = WHITE;
 		while (1)//WHITE receives coordinates first
 		{
 			main_UI->Clear();
@@ -461,7 +460,6 @@ void Play::MultiP(int whichside)
 				break;
 			if (main_TCP->Receive(&ch_pos[1]) != 1)
 				break;
-			std::cout << (int)ch_pos[0] << ' ' << (int)ch_pos[1];
 			board[(int)ch_pos[1] * height + (int)ch_pos[0]] = BLACK;
 			main_UI->Clear();
 			main_UI->PrintBoard(board, height);
@@ -495,6 +493,8 @@ void Play::MultiP(int whichside)
 			if(main_TCP->SendPosOfStone(pos[0] - 1, pos[1] - 1) != 2)
 				break;
 
+			main_UI->Clear();
+			main_UI->PrintBoard(board, height);
 			delete[] pos;
 
 			if (WhoseWinner(WHITE, height) == WHITE)
