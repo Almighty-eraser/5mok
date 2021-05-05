@@ -106,23 +106,23 @@ void Play::SinglePptp(void)
 		int* pos;
 		
 		//black first
-		while (1) 
+		do
 		{
-			pos = new int[2];
-			pos[0] = -1;
-			while (*pos > height || *pos < 0 || *(pos + 1) > height || *(pos + 1) < 0)
+			pos = main_UI->AskCoordinatesRetAV();
+			if (*pos > height || *pos < 0 || *(pos + 1) > height || *(pos + 1) < 0)
 			{
 				delete[] pos;
-				pos = main_UI->AskCoordinatesRetAV();
+				continue;
 			}
 			if (board[(pos[1] - 1) * height + pos[0] - 1] != EMPTY)
 			{
 				delete[] pos;
 				continue;
 			}
-			board[(pos[1] - 1) * height + pos[0] - 1] = BLACK;
 			break;
-		}
+		} while (1);
+		board[(pos[1] - 1) * height + pos[0] - 1] = BLACK;
+
 		main_UI->Clear();
 		main_UI->PrintBoard(board, height);
 		delete[] pos;
@@ -134,24 +134,25 @@ void Play::SinglePptp(void)
 		}
 
 		//white second
-		while (1) 
+		do
 		{
-			pos = new int[2];
-			pos[0] = -1;
-			while (*pos > height || *pos < 0 || *(pos + 1) > height || *(pos + 1) < 0)
+			pos = main_UI->AskCoordinatesRetAV();
+			if (*pos > height || *pos < 0 || *(pos + 1) > height || *(pos + 1) < 0)
 			{
 				delete[] pos;
-				pos = main_UI->AskCoordinatesRetAV();
+				continue;
 			}
 			if (board[(pos[1] - 1) * height + pos[0] - 1] != EMPTY)
 			{
 				delete[] pos;
 				continue;
 			}
-			board[(pos[1] - 1) * height + pos[0] - 1] = WHITE;
 			break;
-		}
+		} while (1);
+		board[(pos[1] - 1) * height + pos[0] - 1] = WHITE;
 	
+		main_UI->Clear();
+		main_UI->PrintBoard(board, height);
 		delete[] pos;
 
 		if (WhoseWinner(WHITE, height) == WHITE)
@@ -387,24 +388,23 @@ void Play::MultiP(int whichside)
 			char* ch_pos;
 
 			//black
-			while (1)
+			do
 			{
-				pos = new int[2];
-				pos[0] = -1;
-				while (*pos > height || *pos < 0 || *(pos + 1) > height || *(pos + 1) < 0)
+				pos = main_UI->AskCoordinatesRetAV();
+				if (*pos > height || *pos < 0 || *(pos + 1) > height || *(pos + 1) < 0)
 				{
 					delete[] pos;
-					pos = main_UI->AskCoordinatesRetAV();
+					continue;
 				}
 				if (board[(pos[1] - 1) * height + pos[0] - 1] != EMPTY)
 				{
 					delete[] pos;
 					continue;
 				}
-				board[(pos[1] - 1) * height + pos[0] - 1] = BLACK;
 				break;
-			}
-
+			} while (1);
+			board[(pos[1] - 1) * height + pos[0] - 1] = BLACK;
+		
 			if (main_TCP->SendPosOfStone(pos[0] - 1, pos[1] - 1) != 2)
 				break;
 
@@ -434,6 +434,7 @@ void Play::MultiP(int whichside)
 			if (main_TCP->Receive(&ch_pos[1]) != 1)
 				break;
 			board[(int)ch_pos[1] * height + (int)ch_pos[0]] = WHITE;
+			
 			main_UI->Clear();
 			main_UI->PrintBoard(board, height);
 			delete[] ch_pos;
@@ -472,23 +473,22 @@ void Play::MultiP(int whichside)
 			}
 
 			//white
-			while (1)
+			do
 			{
-				pos = new int[2];
-				pos[0] = -1;
-				while (*pos > height || *pos < 0 || *(pos + 1) > height || *(pos + 1) < 0)
+				pos = main_UI->AskCoordinatesRetAV();
+				if (*pos > height || *pos < 0 || *(pos + 1) > height || *(pos + 1) < 0)
 				{
 					delete[] pos;
-					pos = main_UI->AskCoordinatesRetAV();
+					continue;
 				}
 				if (board[(pos[1] - 1) * height + pos[0] - 1] != EMPTY)
 				{
 					delete[] pos;
 					continue;
 				}
-				board[(pos[1] - 1) * height + pos[0] - 1] = WHITE;
 				break;
-			}
+			} while (1);
+			board[(pos[1] - 1) * height + pos[0] - 1] = WHITE;
 
 			if(main_TCP->SendPosOfStone(pos[0] - 1, pos[1] - 1) != 2)
 				break;
