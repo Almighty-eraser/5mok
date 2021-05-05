@@ -144,6 +144,29 @@ int TCP_SERVER::Receive(SOCKET Clnt, char* receive)
 	return byte;
 }
 
+int* TCP_SERVER::ReceiveIntRetAV(SOCKET Clnt)
+{
+	int byte = 0;
+	int* receive = new int;
+	while (byte += recv(Clnt, (char*)receive, sizeof(int), 0) > SOCKET_ERROR)
+	{
+		if (byte >= sizeof(int))
+			break;
+	}
+	if (byte <= SOCKET_ERROR)
+	{
+		Print_Time();
+		std::cout << "Cannot receive : " << *receive << "\nFrom : "
+			<< Clnt << "\nError : " << GetLastError() << "\n\n";
+	}
+	else
+	{
+		Print_Time();
+		std::cout << "Received : " << *receive << "\nFrom : " << Clnt << "\n\n";
+	}
+	return receive;
+}
+
 char* TCP_SERVER::ReceiveStringRetAV(SOCKET Clnt, int size)//return allocated variable
 {
 	char* string = new char[size];

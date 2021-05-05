@@ -34,7 +34,7 @@ public:
 	};
 	void START(void);
 	int MakeBoard(void);
-	void MakeBoardForMulti(int _board_size);
+	void MakeBoardForMulti(void);
 	void RemoveBoard(void);
 	void SinglePptp(void);//singleplay person to person
 	void MakingRoom(void);
@@ -48,10 +48,10 @@ private:
 	TCP* main_TCP;
 
 	char* board;
-	char board_size;
+	int board_size;
 	char* nickname;
 	vector<char*> room_names;
-	vector<char> room_board_sizes;
+	vector<int> room_board_sizes;
 	vector<char*> room_nicknames;
 };
 

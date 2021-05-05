@@ -7,7 +7,7 @@ std::vector<std::thread*> g_threads;
 std::vector<SOCKET> g_room_owners;
 std::vector<char*> g_room_nicknames;
 std::vector<char*> g_room_names;
-std::vector<char> g_room_board_sizes;
+std::vector<int> g_room_board_sizes;
 std::mutex g_rooms_mutex;
 
 SERVER::SERVER(TCP_SERVER* tcp)
@@ -48,11 +48,10 @@ void SERVER::Run(void)
 void SERVER::MakingRoom(SOCKET Clnt)
 {
 	char* room_name = g_serv_TCP->ReceiveStringRetAV(Clnt, BUFSIZE_OF_ROOM_NAME);
-	char board_size;
-	if (g_serv_TCP->Receive(Clnt, &board_size) != 1)
-		return;
+	int* board_size = g_serv_TCP->ReceiveIntRetAV(Clnt);
 	char* nickname = g_serv_TCP->ReceiveStringRetAV(Clnt, BUFSIZE_OF_NICKNAME);
-	Add_room(Clnt, room_name, board_size, nickname);
+	Add_room(Clnt, room_name, *board_size, nickname);
+	delete board_size;
 
 	if (g_serv_TCP->SendChar(Clnt, 1) != 1)
 		return;
@@ -73,7 +72,7 @@ void SERVER::SendRoomList(SOCKET Clnt)
 			g_rooms_mutex.unlock();
 			return;
 		}
-		if (g_serv_TCP->SendChar(Clnt, g_room_board_sizes[i]) != 1)
+		if (g_serv_TCP->SendInt(Clnt, g_room_board_sizes[i]) != sizeof(int))
 		{
 			g_rooms_mutex.unlock();
 			return;
@@ -298,7 +297,7 @@ void SERVER::Commands(void)
 	exit(0);
 }
 
-void SERVER::Add_room(SOCKET Clnt, char* room_name, char board_size, char* nickname)
+void SERVER::Add_room(SOCKET Clnt, char* room_name, int board_size, char* nickname)
 {
 	g_rooms_mutex.lock();
 	g_room_owners.push_back(Clnt);
@@ -406,7 +405,7 @@ bool SERVER::Print_Rooms(void)
 	}
 	for (int i = 0; i < g_room_owners.size(); i++)
 		std::cout << i + 1 << " SOCKET : " << g_room_owners[i] << " room : " << g_room_names[i]
-			<< " board size : " << (int)(g_room_board_sizes[i] + 7) << 'x' << (int)(g_room_board_sizes[i] + 7) 
+			<< " board size : " << g_room_board_sizes[i] << 'x' << g_room_board_sizes[i] 
 		<< " nickname : " << g_room_nicknames[i] << '\n';
 	puts("\n");
 	g_rooms_mutex.unlock();

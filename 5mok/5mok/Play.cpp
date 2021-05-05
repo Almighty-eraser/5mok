@@ -78,11 +78,11 @@ int Play::MakeBoard(void)//return size of board
 	return board_size_list[whichboard - 1];
 }
 
-void Play::MakeBoardForMulti(int _board_size)
+void Play::MakeBoardForMulti(void)
 {
 	if (board != NULL)
 		RemoveBoard();
-	long __board_size = _board_size * _board_size;
+	long __board_size = board_size * board_size;
 	board = new char[__board_size];
 	memset(board, 0, __board_size * sizeof(char));
 }
@@ -166,8 +166,10 @@ void Play::MakingRoom(void)
 {
 	char* room_name;
 	room_name = main_UI->AskRoom_nameRetAV();
-	char _board_size;
+	int _board_size;
 	_board_size = main_UI->AskWhichBoard();
+	_board_size += 7;
+	board_size = _board_size;
 
 	if (main_TCP->SendString(room_name, BUFSIZE_OF_ROOM_NAME) != BUFSIZE_OF_ROOM_NAME)
 	{
@@ -175,7 +177,7 @@ void Play::MakingRoom(void)
 		return;
 	}
 
-	if (main_TCP->SendChar(_board_size) != 1)
+	if (main_TCP->SendInt(_board_size) != sizeof(int))
 	{
 		delete[] room_name;
 		return;
@@ -223,7 +225,6 @@ void Play::MakingRoom(void)
 				if (main_TCP->SendChar(message) != 1)
 					break;
 				main_TCP->Change_IOMode(BLOCKING);
-				board_size = (int)_board_size + 7;
 				MultiP(_IMMA_MAKE_ROOM_);
 				delete[] opponent_nickname;
 				break;
@@ -317,13 +318,9 @@ void Play::JoiningRoom(void)
 	{
 		char* room_name = main_TCP->ReceiveStringRetAV(BUFSIZE_OF_ROOM_NAME);
 		room_names.push_back(room_name);
-		char _board_size = 0;
-		if (main_TCP->Receive(&_board_size) != 1)
-		{
-			delete RoomCount;
-			return;
-		}
-		room_board_sizes.push_back(_board_size);
+		int* _board_size = main_TCP->ReceiveIntRetAV();
+		room_board_sizes.push_back(*_board_size);
+		delete _board_size;
 		char* nickname = main_TCP->ReceiveStringRetAV(BUFSIZE_OF_NICKNAME);
 		room_nicknames.push_back(nickname);
 	}
@@ -358,7 +355,7 @@ void Play::JoiningRoom(void)
 			break;
 		if (receive == 1)
 		{
-			board_size = room_board_sizes[ChosenRoomNum] + 7;
+			board_size = room_board_sizes[ChosenRoomNum];
 			std::cout << "\nJoining Room...\n\n";
 			MultiP(_IMMA_JOIN_ROOM_);
 		}
@@ -379,8 +376,8 @@ void Play::JoiningRoom(void)
 
 void Play::MultiP(int whichside)
 {
-	int height = (int)board_size;
-	MakeBoardForMulti(height);
+	int height = board_size;
+	MakeBoardForMulti();
 	char message = 0;
 	if (whichside == _IMMA_MAKE_ROOM_)
 	{

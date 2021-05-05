@@ -12,6 +12,7 @@ public:
 	int StartTCPclnt(void);
 	int SendPosOfStone(int x, int y);
 	int SendChar(char decision);
+	int SendInt(int value);
 	int SendString(char* string, int size);
 	int Receive(char* receive);
 	int* ReceiveIntRetAV(void);

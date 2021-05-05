@@ -47,6 +47,20 @@ int TCP::SendChar(char decision)
 	return byte;
 }
 
+int TCP::SendInt(int value)
+{
+	int byte = 0;
+	while (byte += send(sock, (char*)&value, sizeof(int), 0) > SOCKET_ERROR)
+	{
+		if (byte >= sizeof(int))
+			break;
+	}
+	if (byte <= SOCKET_ERROR)
+		puts("\nCannot send data\n");
+
+	return byte;
+}
+
 int TCP::SendString(char* string, int size)
 {
 	int byte = 0;

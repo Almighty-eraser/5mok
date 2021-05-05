@@ -230,7 +230,7 @@ void UI::PrintBoard(char* board, int length)
 	cout << '\n';
 }
 
-int UI::AskWhichRoom(vector<char*> room_names, vector<char> room_board_size, vector<char*> room_nicknames)
+int UI::AskWhichRoom(vector<char*> room_names, vector<int> room_board_size, vector<char*> room_nicknames)
 {
 	int answer;
 	this->PrintRoom_names(room_names, room_board_size, room_nicknames);
@@ -248,7 +248,7 @@ void UI::PressAnyKey(void)
 	cout << "\n\n";
 }
 
-void UI::PrintRoom_names(vector<char*> room_names, vector<char> room_board_size, vector<char*> room_nicknames)
+void UI::PrintRoom_names(vector<char*> room_names, vector<int> room_board_size, vector<char*> room_nicknames)
 {
 	putchar('\n');
 	putchar('\n');
@@ -257,7 +257,7 @@ void UI::PrintRoom_names(vector<char*> room_names, vector<char> room_board_size,
 	cout << "   Room name | Board size | Host\n\t\t";
 	for (int i = 0; i < room_names.size(); i++)
 		cout << i + 1 << ". " << room_names[i] << " | "
-		<< (int)(room_board_size[i] + 7) 
-		<< 'x' << (int)(room_board_size[i] + 7) 
+		<< room_board_size[i]
+		<< 'x' << room_board_size[i] 
 		<< " | " << room_nicknames[i] << "\n\t\t";
 }
